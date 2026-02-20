@@ -100,6 +100,11 @@ export const navItems: NavItem[] = [
         route: 'apps/courses',
       },
       {
+        displayName: 'Service Directory',
+        iconName: 'solar:round-alt-arrow-right-line-duotone',
+        route: 'apps/ServiceDirectory',
+      },
+      {
         displayName: 'Employee',
         iconName: 'solar:round-alt-arrow-right-line-duotone',
         route: 'apps/employee',

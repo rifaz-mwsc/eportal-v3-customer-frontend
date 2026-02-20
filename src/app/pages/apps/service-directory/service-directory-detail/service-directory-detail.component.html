@@ -1,0 +1,140 @@
+<mat-card class="cardWithShadow overflow-hidden">
+  <div class="bg-{{ serviceDetail()?.serviceType }} text-white p-y-10 p-x-24">
+    <mat-card-title class="d-flex align-items-center gap-10">
+      <a
+        (click)="goBack()"
+        mat-icon-button
+        class="text-white d-flex justify-content-center"
+      >
+        <i-tabler name="chevron-left" class="icon-18 d-flex"></i-tabler>
+      </a>
+      {{ serviceDetail()?.serviceName }}
+    </mat-card-title>
+  </div>
+</mat-card>
+
+<mat-card class="cardWithShadow">
+  <mat-card-content>
+    <div class="row">
+      <div class="col-12">
+        <h2 class="m-b-16">{{ serviceDetail()?.serviceName }}</h2>
+        
+        <div class="m-b-24">
+          <h4 class="m-b-8">Service Category</h4>
+          <p class="f-s-16">{{ serviceDetail()?.serviceCategory }}</p>
+        </div>
+
+        <mat-divider class="m-b-24"></mat-divider>
+
+        <div class="m-b-24">
+          <h4 class="m-b-8">Description</h4>
+          <p class="f-s-15">{{ serviceDetail()?.description }}</p>
+        </div>
+
+        <mat-divider class="m-b-24"></mat-divider>
+
+        <div class="row m-b-24">
+          <div class="col-md-4">
+            <h4 class="m-b-8">Service Provider</h4>
+            <p class="f-s-15">{{ serviceDetail()?.provider }}</p>
+          </div>
+          <div class="col-md-4">
+            <h4 class="m-b-8">Status</h4>
+            <p class="f-s-15">
+              <span
+                class="badge bg-{{ serviceDetail()?.serviceType }} text-white"
+              >
+                {{ serviceDetail()?.status }}
+              </span>
+            </p>
+          </div>
+          <div class="col-md-4">
+            <h4 class="m-b-8">Last Updated</h4>
+            <p class="f-s-15">{{ serviceDetail()?.lastUpdated }}</p>
+          </div>
+        </div>
+
+        <mat-divider class="m-b-24"></mat-divider>
+
+        <div class="m-b-24">
+          <h3 class="m-b-16">Service Information</h3>
+          <mat-vertical-stepper #stepper>
+            <mat-step>
+              <ng-template matStepLabel>Overview</ng-template>
+              <h4 class="m-t-12">Service Overview</h4>
+              <p>
+                This service allows you to {{ serviceDetail()?.description?.toLowerCase() }}.
+                Our team is dedicated to providing you with the best service experience.
+              </p>
+              <p>
+                The {{ serviceDetail()?.serviceName }} service is part of our 
+                {{ serviceDetail()?.serviceCategory }} category and is currently 
+                {{ serviceDetail()?.status?.toLowerCase() }}.
+              </p>
+              <div>
+                <button mat-flat-button matStepperNext>Next</button>
+              </div>
+            </mat-step>
+
+            <mat-step>
+              <ng-template matStepLabel>Requirements</ng-template>
+              <h4 class="m-t-12">Service Requirements</h4>
+              <p>To use this service, you will need:</p>
+              <ul>
+                <li>Valid customer account with {{ serviceDetail()?.provider }}</li>
+                <li>Required documents and identification</li>
+                <li>Payment method for applicable fees</li>
+                <li>Contact information and address verification</li>
+              </ul>
+              <div>
+                <button mat-flat-button matStepperPrevious>Back</button>
+                <button mat-flat-button matStepperNext class="m-l-8">Next</button>
+              </div>
+            </mat-step>
+
+            <mat-step>
+              <ng-template matStepLabel>How to Apply</ng-template>
+              <h4 class="m-t-12">Application Process</h4>
+              <p>Follow these steps to apply for this service:</p>
+              <ol>
+                <li>Log in to your customer portal</li>
+                <li>Navigate to the {{ serviceDetail()?.serviceCategory }} section</li>
+                <li>Select {{ serviceDetail()?.serviceName }}</li>
+                <li>Fill out the required information</li>
+                <li>Upload necessary documents</li>
+                <li>Review and submit your application</li>
+              </ol>
+              <p>You will receive a confirmation email once your application is submitted.</p>
+              <div>
+                <button mat-flat-button matStepperPrevious>Back</button>
+                <button mat-flat-button matStepperNext class="m-l-8">Next</button>
+              </div>
+            </mat-step>
+
+            <mat-step>
+              <ng-template matStepLabel>Support</ng-template>
+              <h4 class="m-t-12">Customer Support</h4>
+              <p>
+                If you need assistance with this service, our customer support team
+                is available to help you.
+              </p>
+              <p>Contact us through:</p>
+              <ul>
+                <li>Customer Support Hotline: Available 24/7</li>
+                <li>Email Support: Response within 24 hours</li>
+                <li>Live Chat: Available during business hours</li>
+                <li>Walk-in Service: Visit our nearest branch</li>
+              </ul>
+              <div>
+                <button mat-flat-button matStepperPrevious>Back</button>
+                <button mat-flat-button (click)="goBack()" class="m-l-8">
+                  Back to Services
+                </button>
+              </div>
+            </mat-step>
+          </mat-vertical-stepper>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

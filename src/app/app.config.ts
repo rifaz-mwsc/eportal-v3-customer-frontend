@@ -1,5 +1,5 @@
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
-import { provideHttpClient, HttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, HttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { routes } from './app.routes';
 import {
@@ -31,6 +31,9 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 // code view
 import { provideHighlightOptions } from 'ngx-highlightjs';
 import 'highlight.js/styles/atom-one-dark.min.css';
+
+// Auth interceptor
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 export class CustomLoader implements TranslateLoader {
   constructor(private http: HttpClient, private prefix: string, private suffix: string) { }
@@ -69,6 +72,11 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptorsFromDi()),
     provideClientHydration(),
     provideAnimationsAsync(),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
     importProvidersFrom(
       FormsModule,
       ToastrModule.forRoot(),

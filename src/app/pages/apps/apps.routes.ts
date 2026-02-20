@@ -30,6 +30,8 @@ import { ProductDetailsComponent } from './ecommerce/product-details/product-det
 import { ShopComponent } from './ecommerce/shop/shop.component';
 import { AddBusinessComponent } from './business/add-business/add-business.component';
 import { BusinessViewComponent } from './business/business-view/business-view/business-view.component';
+import { ServiceDirectoryComponent } from './service-directory/service-directory.component';
+import { ServiceDirectoryComponentDetailComponent } from './service-directory/service-directory-detail/service-directory-detail.component';
 
 
 export const AppsRoutes: Routes = [
@@ -179,6 +181,28 @@ export const AppsRoutes: Routes = [
           urls: [
             { title: 'Dashboard', url: '/dashboards/dashboard1' },
             { title: 'Course Detail' },
+          ],
+        },
+      },
+      {
+        path: 'ServiceDirectory',
+        component: ServiceDirectoryComponent,
+        data: {
+          title: 'Service Directory',
+          urls: [
+            { title: 'Dashboard', url: '/dashboards/dashboard1' },
+            { title: 'Service Directory' },
+          ],
+        },
+      },
+      {
+        path: 'ServiceDirectory/ServiceDirectoryDetail/:id',
+        component: ServiceDirectoryComponentDetailComponent,
+        data: {
+          title: 'Service Directory Detail',
+          urls: [
+            { title: 'Dashboard', url: '/dashboards/dashboard1' },
+            { title: 'Service Directory Detail' },
           ],
         },
       },

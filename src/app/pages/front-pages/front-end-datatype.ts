@@ -512,9 +512,9 @@ export const faqItems: faqItems[] = [
     {
       id: 1,
       imgSrc: '/assets/images/profile/user-1.jpg',
-      name: 'Ajit Singh',
+      name: 'Ahmed',
       subtext:
-        'The theme is very flexible with most of the content already available. And also the support team is very active. :)',
+        'Very convenient to apply online application. :)',
     },
     {
       id: 2,

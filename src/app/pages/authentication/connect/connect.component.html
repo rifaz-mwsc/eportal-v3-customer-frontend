@@ -1,0 +1,22 @@
+<div class="connect-container">
+  <div class="connect-content">
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <h2>Connecting to ePortal...</h2>
+      <p>Please wait while we authenticate your session.</p>
+    </div>
+
+    <div *ngIf="!loading && error" class="error-state">
+      <div class="error-icon">⚠️</div>
+      <h2>Authentication Error</h2>
+      <p>{{ error }}</p>
+      <p class="redirect-message">Redirecting to login page...</p>
+    </div>
+
+    <div *ngIf="!loading && !error" class="success-state">
+      <div class="success-icon">✓</div>
+      <h2>Authentication Successful</h2>
+      <p>Redirecting to dashboard...</p>
+    </div>
+  </div>
+</div>

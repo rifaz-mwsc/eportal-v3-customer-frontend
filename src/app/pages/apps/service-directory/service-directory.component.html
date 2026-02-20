@@ -1,0 +1,72 @@
+<mat-card class="cardWithShadow">
+  <mat-card-content>
+    <div class="row justify-content-between">
+      <div class="col-lg-4">
+        <mat-form-field appearance="outline" class="w-100 hide-hint">
+          <mat-label>Search</mat-label>
+          <input matInput (keyup)="applyFilter($event)" />
+          <mat-icon matSuffix>
+            <i-tabler name="search" class="icon-20 d-flex m-t-2"></i-tabler>
+          </mat-icon>
+        </mat-form-field>
+      </div>
+      <div class="col-lg-3">
+        <mat-form-field appearance="outline" class="w-100 hide-hint">
+          <mat-label>Category</mat-label>
+          <mat-select
+            required
+            [value]="selectedCategory()"
+            (selectionChange)="ddlChange($event)"
+          >
+            <mat-option value="All" selected>All</mat-option>
+            <mat-option value="Water Supply">Water Supply</mat-option>
+            <mat-option value="Billing">Billing</mat-option>
+            <mat-option value="Maintenance">Maintenance</mat-option>
+            <mat-option value="Account">Account</mat-option>
+            <mat-option value="Support">Support</mat-option>
+            <mat-option value="Reports">Reports</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+<div class="row">
+  @for(service of serviceList(); track service.serviceName) {
+  <div class="col-sm-6 col-lg-4">
+    <mat-card class="cardWithShadow overflow-hidden">
+      <div
+        class="service-header text-white p-12 bg-{{
+          service.serviceType
+        }} d-flex justify-content-between"
+      >
+        <mat-card-title class="m-b-0 f-s-16">
+          {{ service.serviceCategory }}
+        </mat-card-title>
+        <span class="d-flex align-items-center gap-4 f-s-14"
+          ><i-tabler name="check-circle" class="icon-16 d-flex"></i-tabler
+          >{{ service.status }}</span
+        >
+      </div>
+      <mat-card-content class="text-center">
+        <h3 class="m-b-4 f-s-16 f-w-600">
+          {{ service.serviceName }}
+        </h3>
+        <p class="f-s-14 m-b-8">{{ service.description }}</p>
+        <span class="f-s-12">{{ service.lastUpdated }}</span>
+      </mat-card-content>
+      <mat-divider></mat-divider>
+      <div class="text-center p-y-8 p-x-12">
+        <a
+          mat-button
+          [routerLink]="['/apps/ServiceDirectory/ServiceDirectoryDetail/', service.Id]"
+          class="w-100"
+        >
+          View Details
+        </a>
+      </div>
+    </mat-card>
+  </div>
+  }
+</div>

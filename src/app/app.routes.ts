@@ -83,6 +83,13 @@ export const routes: Routes = [
     component: BlankComponent,
     children: [
       {
+        path: 'connect',
+        loadComponent: () =>
+          import('./pages/authentication/connect/connect.component').then(
+            (m) => m.ConnectComponent
+          ),
+      },
+      {
         path: 'authentication',
         loadChildren: () =>
           import('./pages/authentication/authentication.routes').then(

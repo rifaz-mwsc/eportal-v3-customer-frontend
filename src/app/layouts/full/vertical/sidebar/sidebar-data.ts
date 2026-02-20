@@ -171,6 +171,11 @@ export const navItems: NavItem[] = [
     route: 'apps/courses',
   },
   {
+    displayName: 'Service Directory',
+    iconName: 'solar:folder-with-files-line-duotone',
+    route: 'apps/ServiceDirectory',
+  },
+  {
     displayName: 'Employee',
     iconName: 'solar:user-id-line-duotone',
     route: 'apps/employee',
