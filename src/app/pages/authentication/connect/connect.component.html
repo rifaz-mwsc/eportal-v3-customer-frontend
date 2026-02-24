@@ -9,8 +9,13 @@
     <div *ngIf="!loading && error" class="error-state">
       <div class="error-icon">⚠️</div>
       <h2>Authentication Error</h2>
-      <p>{{ error }}</p>
-      <p class="redirect-message">Redirecting to login page...</p>
+      <p class="error-message">{{ error }}</p>
+      <div *ngIf="errorDetails.length > 0" class="error-details">
+        <ul>
+          <li *ngFor="let detail of errorDetails">{{ detail }}</li>
+        </ul>
+      </div>
+      <p class="redirect-message">Redirecting to login page in 5 seconds...</p>
     </div>
 
     <div *ngIf="!loading && !error" class="success-state">

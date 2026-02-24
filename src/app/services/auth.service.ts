@@ -2,36 +2,53 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { tap, catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
-export interface AuthResponse {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  refresh_token: string;
-  'as:client_id': string;
-  'as:device': string;
-  userName: string;
-  Name: string;
-  Email: string;
-  userType: string;
-  is_premium_subscription: string;
-  premium_subscription_type: string;
-  show_new_features: string;
-  can_manage_utility_accounts: string;
-  can_apply_for_utility_service: string;
-  show_utility_services: string;
-  is_efaas: string;
-  phone_number: string;
-  idnumber: string;
-  first_name: string;
-  middle_name: string;
-  last_name: string;
+export interface IndividualProfile {
+  identityNumber: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  gender: string;
   nationality: string;
-  '.issued': string;
-  '.expires': string;
+  dob: string | null;
+  email: string;
+  contact: string;
 }
+
+export interface Profile {
+  name: string;
+  profileType: string | null;
+  isActive: boolean;
+  individualProfile: IndividualProfile | null;
+  entityProfile: any | null;
+}
+
+export interface UserProfile {
+  isDefault: boolean;
+  isActive: boolean;
+  isVerified: boolean;
+  profile: Profile;
+}
+
+export interface AuthItem {
+  accessToken: string;
+  accessTokenExpiresOn: string;
+  tokenType: string;
+  refreshToken: string;
+  refreshTokenExpiresOn: string;
+  userProfiles: UserProfile[];
+}
+
+export interface ApiResponse<T> {
+  item: T | null;
+  isSuccessful: boolean;
+  statusMessage: string;
+  errorDetails: { [key: string]: string[] };
+}
+
+export type AuthResponse = ApiResponse<AuthItem>;
 
 @Injectable({
   providedIn: 'root'
@@ -53,7 +70,7 @@ export class AuthService {
   /**
    * Validate the efaas token and get the access token
    */
-  validateEfaasToken(efaasToken: string): Observable<AuthResponse> {
+  validateEfaasToken(efaasToken: string): Observable<AuthItem> {
     const formData = new FormData();
     formData.append('token', efaasToken);
     formData.append('device', 'eportal');
@@ -63,8 +80,18 @@ export class AuthService {
       `${environment.apiBaseUrl}/api/v1/auth/efaas`,
       formData
     ).pipe(
-      tap(response => {
-        this.storeAuthData(response);
+      map(response => {
+        // Check if the response is successful
+        if (!response.isSuccessful || !response.item) {
+          throw {
+            statusMessage: response.statusMessage,
+            errorDetails: response.errorDetails
+          };
+        }
+        return response.item;
+      }),
+      tap(item => {
+        this.storeAuthData(item);
         this.isAuthenticatedSubject.next(true);
       }),
       catchError(error => {
@@ -77,36 +104,40 @@ export class AuthService {
   /**
    * Store authentication data in localStorage
    */
-  private storeAuthData(response: AuthResponse): void {
-    localStorage.setItem(this.ACCESS_TOKEN_KEY, response.access_token);
-    localStorage.setItem(this.REFRESH_TOKEN_KEY, response.refresh_token);
+  private storeAuthData(item: AuthItem): void {
+    localStorage.setItem(this.ACCESS_TOKEN_KEY, item.accessToken);
+    localStorage.setItem(this.REFRESH_TOKEN_KEY, item.refreshToken);
     
-    // Calculate and store token expiry timestamp
-    const expiryTimestamp = Date.now() + (response.expires_in * 1000);
-    localStorage.setItem(this.TOKEN_EXPIRY_KEY, expiryTimestamp.toString());
+    // Calculate and store token expiry timestamp from ISO date string
+    const expiryDate = new Date(item.accessTokenExpiresOn);
+    localStorage.setItem(this.TOKEN_EXPIRY_KEY, expiryDate.getTime().toString());
     
-    // Store user data
-    const userData = {
-      userName: response.userName,
-      name: response.Name,
-      email: response.Email,
-      userType: response.userType,
-      isPremiumSubscription: response.is_premium_subscription === 'True',
-      premiumSubscriptionType: response.premium_subscription_type,
-      showNewFeatures: response.show_new_features === 'True',
-      canManageUtilityAccounts: response.can_manage_utility_accounts === 'True',
-      canApplyForUtilityService: response.can_apply_for_utility_service === 'True',
-      showUtilityServices: response.show_utility_services === 'True',
-      isEfaas: response.is_efaas === 'True',
-      phoneNumber: response.phone_number,
-      idNumber: response.idnumber,
-      firstName: response.first_name,
-      middleName: response.middle_name,
-      lastName: response.last_name,
-      nationality: response.nationality
-    };
+    // Get the default profile
+    const defaultProfile = item.userProfiles.find(p => p.isDefault) || item.userProfiles[0];
     
-    localStorage.setItem(this.USER_DATA_KEY, JSON.stringify(userData));
+    if (defaultProfile && defaultProfile.profile.individualProfile) {
+      const profile = defaultProfile.profile.individualProfile;
+      
+      // Store user data
+      const userData = {
+        name: defaultProfile.profile.name,
+        email: profile.email,
+        phoneNumber: profile.contact,
+        idNumber: profile.identityNumber,
+        firstName: profile.firstName,
+        middleName: profile.middleName,
+        lastName: profile.lastName,
+        gender: profile.gender,
+        nationality: profile.nationality,
+        dob: profile.dob,
+        isDefault: defaultProfile.isDefault,
+        isActive: defaultProfile.isActive,
+        isVerified: defaultProfile.isVerified,
+        userProfiles: item.userProfiles
+      };
+      
+      localStorage.setItem(this.USER_DATA_KEY, JSON.stringify(userData));
+    }
   }
 
   /**

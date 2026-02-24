@@ -4,30 +4,42 @@
       <mat-card class="cardWithShadow shadow-none b-1">
         <mat-card-content>
           <h5 class="f-s-21 f-w-600 m-b-16">Introduction</h5>
-          <p class="f-s-14 m-b-16 m-t-0">
-            Hello, I am Mathew Anderson. I love making websites and graphics.
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          </p>
+          @if (userData) {
+            <p class="f-s-14 m-b-16 m-t-0">
+              Hello, {{ userFullName }}.
+              @if (userData.isVerified) {
+                <span class="badge bg-success-subtle text-success">Verified</span>
+              }
+            </p>
+          } @else {
+            <p class="f-s-14 m-b-16 m-t-0">
+              Not Available
+            </p>
+          }
           <div class="d-flex align-items-center gap-16 m-b-24">
-            <i-tabler name="briefcase" class="icon-20"></i-tabler>
-            <h6 class="f-s-16 f-w-600">Sir, P P Institute Of Science</h6>
+            <i-tabler name="id" class="icon-20"></i-tabler>
+            <h6 class="f-s-16 f-w-600">{{ userIdNumber }}</h6>
           </div>
           <div class="d-flex align-items-center gap-16 m-b-24">
             <i-tabler name="mail" class="icon-20"></i-tabler>
-            <h6 class="f-s-16 f-w-600">xyzjonathan&#64;gmail.com</h6>
+            <h6 class="f-s-16 f-w-600">{{ userEmail }}</h6>
           </div>
           <div class="d-flex align-items-center gap-16 m-b-24">
-            <i-tabler name="device-desktop" class="icon-20"></i-tabler>
-            <h6 class="f-s-16 f-w-600">www.xyz.com</h6>
+            <i-tabler name="phone" class="icon-20"></i-tabler>
+            <h6 class="f-s-16 f-w-600">{{ userPhone }}</h6>
+          </div>
+          <div class="d-flex align-items-center gap-16 m-b-24">
+            <i-tabler name="user" class="icon-20"></i-tabler>
+            <h6 class="f-s-16 f-w-600">{{ userGender }}</h6>
           </div>
           <div class="d-flex align-items-center gap-16">
             <i-tabler name="map-pin" class="icon-20"></i-tabler>
-            <h6 class="f-s-16 f-w-600">Newyork, USA - 100001</h6>
+            <h6 class="f-s-16 f-w-600">{{ userNationality }}</h6>
           </div>
         </mat-card-content>
       </mat-card>
 
-      <mat-card class="cardWithShadow shadow-none b-1">
+      <!-- <mat-card class="cardWithShadow shadow-none b-1">
         <mat-card-content>
           <h5 class="f-s-21 f-w-600 m-b-16">Photos</h5>
           <div class="row">
@@ -40,22 +52,18 @@
             }
           </div>
         </mat-card-content>
-      </mat-card>
+      </mat-card> -->
     </div>
 
-    <div class="col-lg-8">
-      <!--first card-->
-      <mat-card class="cardWithShadow shadow-none b-1">
+    <!-- <div class="col-lg-8">
+     <mat-card class="cardWithShadow shadow-none b-1">
         <mat-card-content>
           <mat-form-field appearance="outline" class="w-100" color="primary">
             <textarea matInput rows="5" placeholder="Share your thoughts"></textarea>
           </mat-form-field>
 
-          <!-- FLEX CONTAINER FOR BUTTONS -->
           <div class="d-flex justify-content-between align-items-center gap-12">
-            <!-- LEFT SIDE: Photo / Video + Article -->
             <div class="d-flex align-items-center gap-8">
-              <!-- Photo / Video -->
               <div class="d-flex align-items-center gap-8">
                 <button mat-mini-fab class="bg-primary text-white icon-30">
                   <i-tabler name="photo" class="icon-18 d-block"></i-tabler>
@@ -65,7 +73,6 @@
                 <input type="file" #fileInput style="display: none" (change)="onFileSelected($event)" />
               </div>
 
-              <!-- Article -->
 
               <div class="d-flex align-items-center gap-8">
                 <button mat-mini-fab class="bg-secondary text-white icon-30">
@@ -75,12 +82,10 @@
               </div>
             </div>
 
-            <!-- RIGHT SIDE: Post -->
             <button mat-flat-button class="ms-auto">Post</button>
           </div>
         </mat-card-content>
       </mat-card>
-      <!--first end card-->
       @for(post of posts;track post.id){
       <mat-card class="cardWithShadow shadow-none b-1">
         <mat-card-content>
@@ -98,7 +103,6 @@
 
           <p class="f-s-14 m-t-16">{{ post.data.content }}</p>
 
-          <!-- Display Featured Images -->
           @if (hasFeaturedImages(post)) {
           @for (image of getFeaturedImages(post); track i; let i = $index) {
           <img [src]="image.img" alt="featured image" class="commentImg object-cover w-100 rounded-8 m-b-16"
@@ -107,7 +111,6 @@
           }
 
 
-          <!-- Display Other Images -->
           @if (hasOtherImages(post)) {
           <div class="row g-4">
             @for (image of getOtherImages(post); track i; let i = $index) {
@@ -125,7 +128,6 @@
           </iframe>
           }
 
-          <!-- Like and Comment Buttons -->
           <div class="d-flex align-items-center justify-content-between gap-8">
             <div class="left-buttons d-flex align-items-center gap-16">
               <div class="d-flex align-items-center gap-8">
@@ -145,7 +147,6 @@
               </div>
             </div>
 
-            <!-- Share Button -->
             <div class="right-button d-flex align-items-center">
               <button mat-icon-button class="d-flex text-primary" aria-label="Share" #tooltip="matTooltip"
                 matTooltip="Share">
@@ -154,7 +155,6 @@
             </div>
           </div>
 
-          <!-- Comments Section -->
           @for(comment of post.data.comments; track comment){
           <mat-card class="cardWithShadow shadow-none b-1 m-t-24">
             <mat-card-content>
@@ -169,7 +169,6 @@
                 </span>
               </div>
               <p class="f-s-14 m-t-16">{{ comment.data.comment }}</p>
-              <!-- Comment Likes -->
               <div class="d-flex align-items-center gap-16">
                 <div class="d-flex align-items-center gap-8">
                   <button mat-mini-fab class="bg-primary text-white icon-30" aria-label="Like" #tooltip="matTooltip"
@@ -180,7 +179,6 @@
                 </div>
 
                 <div class="d-flex align-items-center gap-8">
-                  <!-- Comment Replies -->
                   <button mat-mini-fab class="bg-secondary text-white icon-30" aria-label="Reply" #tooltip="matTooltip"
                     matTooltip="Reply">
                     <i-tabler class="icon-18 d-block" name="arrow-back-up"></i-tabler>
@@ -191,7 +189,6 @@
             </mat-card-content>
 
           </mat-card>
-          <!-- Replies Section -->
           @for (reply of comment.data.replies; track reply.id) {
           <mat-card class="cardWithShadow shadow-none b-1 m-t-24 m-l-30">
             <mat-card-content>
@@ -206,7 +203,6 @@
 
               <p class="f-s-14 m-t-16">{{ reply.data.comment }}</p>
 
-              <!-- Reply Likes -->
               <div class="d-flex align-items-center gap-8">
                 <button mat-mini-fab class="bg-primary text-white icon-30" aria-label="Like" #tooltip="matTooltip"
                   matTooltip="Like">
@@ -221,7 +217,6 @@
 
 
         </mat-card-content>
-        <!-- Comment Input Box -->
         <div class="b-t-1">
           <div class="d-flex align-items-center p-16 gap-16">
             <img [src]="post.profile.avatar" alt="user" width="33" class="rounded-circle" />
@@ -234,6 +229,6 @@
 
       </mat-card>
       }
-    </div>
+    </div> -->
   </div>
 </div>

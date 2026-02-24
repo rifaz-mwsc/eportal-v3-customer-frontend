@@ -4,6 +4,7 @@ import {
   Inject,
   OnInit,
   ViewChild,
+  inject,
 } from '@angular/core';
 
 
@@ -15,6 +16,7 @@ import { IconModule } from 'src/app/icon/icon.module';
 // import { mockPosts } from 'src/app/data-types/mock-posts';
 import { normalizeReplies } from 'src/app/utils/normalize-replies.util';
 import { mockPosts, Post, topcards } from '../profileData';
+import { AuthService } from 'src/app/services/auth.service';
 
 // interface topcards {
 //   img: string;
@@ -28,14 +30,53 @@ import { mockPosts, Post, topcards } from '../profileData';
 })
 export class ProfileComponent implements OnInit {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  
+  private authService = inject(AuthService);
+  
+  // User data from auth service
+  userData: any = null;
+  
   constructor(private sanitizer: DomSanitizer) {}
   topcards = topcards;
   posts: Post[] = mockPosts;
   transformedPosts: Post[] = [];
+  
   ngOnInit(): void {
     this.groupImages();
     this.posts = normalizeReplies(mockPosts);
+    this.loadUserData();
   }
+  
+  loadUserData(): void {
+    this.userData = this.authService.getUserData();
+    console.log('User data loaded:', this.userData);
+  }
+  
+  get userFullName(): string {
+    if (!this.userData) return 'Guest User';
+    return this.userData.name || `${this.userData.firstName || ''} ${this.userData.middleName || ''} ${this.userData.lastName || ''}`.trim();
+  }
+  
+  get userEmail(): string {
+    return this.userData?.email || 'Not available';
+  }
+  
+  get userPhone(): string {
+    return this.userData?.phoneNumber || 'Not available';
+  }
+  
+  get userIdNumber(): string {
+    return this.userData?.idNumber || 'Not available';
+  }
+  
+  get userNationality(): string {
+    return this.userData?.nationality || 'Not available';
+  }
+  
+  get userGender(): string {
+    return this.userData?.gender || 'Not specified';
+  }
+  
   openFilePicker() {
     if (this.fileInput) {
       this.fileInput.nativeElement.click(); // Triggers the file picker

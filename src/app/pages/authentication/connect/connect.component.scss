@@ -54,6 +54,32 @@ p {
   line-height: 1.5;
 }
 
+.error-message {
+  font-weight: 600;
+  color: #f44336;
+  margin-bottom: 1rem;
+}
+
+.error-details {
+  background: #ffebee;
+  border-left: 4px solid #f44336;
+  border-radius: 4px;
+  padding: 1rem;
+  margin: 1rem 0;
+  text-align: left;
+}
+
+.error-details ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #c62828;
+}
+
+.error-details li {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
 .error-icon,
 .success-icon {
   font-size: 4rem;

@@ -5,7 +5,7 @@
       <img mat-card-image src="assets/images/backgrounds/profilebg.jpg" alt="Profile Cover" class="w-100" />
 
       <div class="row align-items-center">
-        <div class="col-lg-4 order-1">
+        <!-- <div class="col-lg-4 order-1">
           <div class="d-flex align-items-center justify-content-around m-24">
             <div class="text-center">
               <tabler-icon class="icon-20 m-b-4" name="file-description"></tabler-icon>
@@ -23,22 +23,27 @@
               <p class="m-y-0 f-s-14">Following</p>
             </div>
           </div>
-        </div>
+        </div> -->
         <div class="col-lg-4 order-2">
           <div class="profile-img-container text-center m-t--48">
             <div class="profile-border-bg d-flex align-items-center justify-content-center rounded-circle m-x-auto">
               <div class="profile-border d-flex align-items-center justify-content-center rounded-circle">
-                <img src="assets/images/profile/user-1.jpg" class="profile-pic rounded-circle w-100 h-100 object-cover"
+                <img src="assets/images/profile/user-2.jpg" class="profile-pic rounded-circle w-100 h-100 object-cover"
                   alt="user" />
               </div>
             </div>
             <div class="text-center m-t-2">
-              <h4 class="f-s-18 f-w-600">Mathew Anderson</h4>
-              <p class="m-y-0">Designer</p>
+              @if(userData) {
+                <h4 class="f-s-18 f-w-600">{{ userFullName }}</h4>
+              } 
+              @else {
+              <h4 class="f-s-18 f-w-600">Not available</h4>
+              }
+              <p class="m-y-0">Customer</p>
             </div>
           </div>
         </div>
-        <div class="col-lg-4 order-3">
+        <!-- <div class="col-lg-4 order-3">
           <div class="d-flex align-items-center justify-content-center gap-16 social-btns m-y-16">
             <button mat-mini-fab class="bg-primary text-white icon-32"
               aria-label="Example icon button with a bookmark icon">
@@ -59,7 +64,7 @@
               Add To Story
             </button>
           </div>
-        </div>
+        </div> -->
       </div>
 
 
@@ -67,14 +72,14 @@
       <!-- Navigation Tabs -->
       <div class="profileTabs m-t-16">
         <mat-tab-group [(selectedIndex)]="selectedTab" mat-stretch-tabs="false" mat-align-tabs="end">
-          <mat-tab>
+          <!-- <mat-tab>
             <ng-template mat-tab-label>
               <tabler-icon name="user-circle" class="m-r-8 icon-20"></tabler-icon>
               Profile
             </ng-template>
-          </mat-tab>
+          </mat-tab> -->
 
-          <mat-tab>
+          <!-- <mat-tab>
             <ng-template mat-tab-label>
               <tabler-icon name="heart" class="m-r-8 icon-20"></tabler-icon>
               Followers
@@ -93,7 +98,7 @@
               <tabler-icon name="photo" class="m-r-8 icon-20"></tabler-icon>
               Gallery
             </ng-template>
-          </mat-tab>
+          </mat-tab> -->
         </mat-tab-group>
       </div>
     </mat-card>
