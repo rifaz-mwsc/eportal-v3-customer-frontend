@@ -41,4 +41,10 @@ export class ServiceDirectoryComponentDetailComponent {
   goBack(): void {
     this.router.navigate(['/apps/ServiceDirectory']);
   }
+
+  goApply(): void {
+    this.router.navigate(['/apps/ServiceDirectory/apply', this.id()]);
+    // Implement the logic to navigate to the application form or process
+    console.log('Apply Now clicked for service ID:', this.id());
+  }
 }

@@ -32,6 +32,10 @@ import { AddBusinessComponent } from './business/add-business/add-business.compo
 import { BusinessViewComponent } from './business/business-view/business-view/business-view.component';
 import { ServiceDirectoryComponent } from './service-directory/service-directory.component';
 import { ServiceDirectoryComponentDetailComponent } from './service-directory/service-directory-detail/service-directory-detail.component';
+import { AppMyApplicationListComponent } from './my-applications/application-list/application-list.component';
+import { AppAddApplicationComponent } from './my-applications/add-application/add-application.component';
+import { AppApplicationViewComponent } from './my-applications/application-view/application-view.component';
+import { AppEditApplicationComponent } from './my-applications/edit-application/edit-application.component';
 
 
 export const AppsRoutes: Routes = [
@@ -275,6 +279,51 @@ export const AppsRoutes: Routes = [
       {
         path: 'invoice/editinvoice/:id',
         component: AppEditInvoiceComponent,
+        data: {
+          title: 'Edit Application',
+          urls: [
+            { title: 'Dashboard', url: '/dashboards/dashboard1' },
+            { title: 'Edit Application' },
+          ],
+        },
+      },
+      // apply for services
+      {
+        path: 'my-applications/list',
+        component: AppMyApplicationListComponent,
+        data: {
+          title: 'All Applications',
+          urls: [
+            { title: 'Dashboard', url: '/dashboards/dashboard1' },
+            { title: 'Applications' },
+          ],
+        },
+      },
+      {
+        path: 'my-applications/addApplication',
+        component: AppAddApplicationComponent,
+        data: {
+          title: 'New Application',
+          urls: [
+            { title: 'Dashboard', url: '/dashboards/dashboard1' },
+            { title: 'New Application' },
+          ],
+        },
+      },
+      {
+        path: 'my-applications/viewApplication/:id',
+        component: AppApplicationViewComponent,
+        data: {
+          title: 'View Application',
+          urls: [
+            { title: 'Dashboard', url: '/dashboards/dashboard1' },
+            { title: 'View Application' },
+          ],
+        },
+      },
+      {
+        path: 'my-applications/editApplication/:id',
+        component: AppEditApplicationComponent,
         data: {
           title: 'Edit Application',
           urls: [

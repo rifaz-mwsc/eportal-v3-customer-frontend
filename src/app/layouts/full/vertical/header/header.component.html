@@ -113,9 +113,16 @@
       <!-- --------------------------------------------------------------- -->
       <button mat-icon-button extended [matMenuTriggerFor]="profilemenu" aria-label="Notifications"
         class="position-relative d-flex align-items-center justify-content-center profile-btn-dd">
-        <img src="/assets/images/profile/user-1.jpg"
-          class="rounded-circle icon-30 object-cover profile-dd d-flex align-items-center justify-content-center"
-          width="30" height="30" />
+        @if(user) {
+          <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+               style="width: 30px; height: 30px; font-weight: 600; font-size: 12px;">
+            {{ userInitials }}
+          </div>
+        } @else {
+          <img src="/assets/images/profile/user-1.jpg"
+            class="rounded-circle icon-30 object-cover profile-dd d-flex align-items-center justify-content-center"
+            width="30" height="30" />
+        }
       </button>
     </div>
   </div>
@@ -189,7 +196,14 @@
   <!-- --------------------------------------------------------------- -->
   <button mat-button [matMenuTriggerFor]="profilemenu" aria-label="Profile" class="profile-btn  d-none d-lg-flex">
     <div class="d-flex align-items-center gap-4">
-      <img src="/assets/images/profile/user-1.jpg" class="rounded-circle object-cover icon-35 profile-dd" width="35" />
+      @if(user) {
+        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+             style="width: 35px; height: 35px; font-weight: 600; font-size: 14px;">
+          {{ userInitials }}
+        </div>
+      } @else {
+        <img src="/assets/images/profile/user-1.jpg" class="rounded-circle object-cover icon-35 profile-dd" width="35" />
+      }
 
       <i data-icon="solar:alt-arrow-down-bold" class="iconify f-s-8"></i>
     </div>
@@ -197,28 +211,47 @@
   <mat-menu #profilemenu="matMenu" class="topbar-dd cardWithShadow">
     <div class="p-x-32 p-y-16">
       <div class="d-flex align-items-center p-b-24 b-b-1 m-t-16">
-        <img src="/assets/images/profile/user-1.jpg" class="rounded-circle" width="56" />
+        @if(user) {
+          <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+               style="width: 56px; height: 56px; font-weight: 600; font-size: 20px;">
+            {{ userInitials }}
+          </div>
+        } @else {
+          <img src="/assets/images/profile/user-1.jpg" class="rounded-circle" width="56" />
+        }
         <div class="m-l-16">
           <h6 class="f-s-14 f-w-600 m-0 d-flex align-items-center">
-            Rifaz Waheed
-            <span class="f-s-14 d-block text-success m-l-4">Pro</span>
+            {{ getUserDisplayName() }}
+            @if(user?.isVerified) {
+              <span class="f-s-14 d-block text-success m-l-4">Verified</span>
+            }
           </h6>
-          <span class="text-muted"> rifaz&#64;mwsc.com.mv </span>
+          <span class="text-muted">{{ getUserEmail() }}</span>
         </div>
       </div>
     </div>
     <div class="p-x-32 p-b-16">
       @for(profile of profiledd; track profile.title) {
-      <a class="p-8 text-decoration-none d-block text-hover-primary" [routerLink]="[profile.link]">
-        <div class="d-flex align-items-center">
-          <h5 class="f-s-14 f-w-600 m-0 lh-md hover-text">
-            {{ profile.title }}
-          </h5>
-          @if(profile.new) {
-          <span class="bg-light-error text-error rounded p-x-8 p-y-2 f-w-500 f-s-12 m-l-4">5</span>
-          }
-        </div>
-      </a>
+      @if(profile.title === 'Sign Out') {
+        <a class="p-8 text-decoration-none d-block text-hover-primary cursor-pointer" (click)="logout()">
+          <div class="d-flex align-items-center">
+            <h5 class="f-s-14 f-w-600 m-0 lh-md hover-text">
+              {{ profile.title }}
+            </h5>
+          </div>
+        </a>
+      } @else {
+        <a class="p-8 text-decoration-none d-block text-hover-primary" [routerLink]="[profile.link]">
+          <div class="d-flex align-items-center">
+            <h5 class="f-s-14 f-w-600 m-0 lh-md hover-text">
+              {{ profile.title }}
+            </h5>
+            @if(profile.new) {
+            <span class="bg-light-error text-error rounded p-x-8 p-y-2 f-w-500 f-s-12 m-l-4">5</span>
+            }
+          </div>
+        </a>
+      }
       }
     </div>
   </mat-menu>

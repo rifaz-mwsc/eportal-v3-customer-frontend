@@ -57,7 +57,7 @@
         <mat-divider class="m-b-24"></mat-divider>
 
         <div class="m-b-24">
-          <h3 class="m-b-16">Service Information</h3>
+          <h3 class="m-b-16">Service Information Guideline</h3>
           <mat-vertical-stepper #stepper>
             <mat-step>
               <ng-template matStepLabel>Overview</ng-template>
@@ -129,6 +129,9 @@
                 <button mat-flat-button matStepperPrevious>Back</button>
                 <button mat-flat-button (click)="goBack()" class="m-l-8">
                   Back to Services
+                </button>
+                  <button mat-flat-button (click)="goApply()" class="m-l-8">
+                  Apply Now
                 </button>
               </div>
             </mat-step>

@@ -5,6 +5,7 @@ import {
   Input,
   signal,
   ViewEncapsulation,
+  OnInit,
 } from '@angular/core';
 import { CoreService } from 'src/app/services/core.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -13,6 +14,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { MaterialModule } from 'src/app/material.module';
 import { RouterModule } from '@angular/router';
+import { AuthService } from 'src/app/services/auth.service';
 
 import { FormsModule } from '@angular/forms';
 import { NgScrollbarModule } from 'ngx-scrollbar';
@@ -55,7 +57,7 @@ interface apps {
   templateUrl: './header.component.html',
   encapsulation: ViewEncapsulation.None,
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
   @Input() showToggle = true;
   @Input() toggleChecked = false;
   @Output() toggleMobileNav = new EventEmitter<void>();
@@ -65,6 +67,10 @@ export class HeaderComponent {
   showFiller = false;
 
   isCollapse: boolean = false; // Initially hidden
+
+  // User data
+  user: any = null;
+  userInitials: string = '';
 
   toggleCollpase() {
     this.isCollapse = !this.isCollapse; // Toggle visibility
@@ -108,9 +114,59 @@ export class HeaderComponent {
     private settings: CoreService,
     private vsidenav: CoreService,
     public dialog: MatDialog,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private authService: AuthService
   ) {
     translate.setDefaultLang('en');
+  }
+
+  ngOnInit(): void {
+    this.loadUserData();
+  }
+
+  /**
+   * Load user data from AuthService
+   */
+  loadUserData(): void {
+    this.user = this.authService.getUserData();
+    
+    if (this.user) {
+      // Generate user initials
+      const firstName = this.user.firstName || '';
+      const lastName = this.user.lastName || '';
+      this.userInitials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+    }
+  }
+
+  /**
+   * Get user display name
+   */
+  getUserDisplayName(): string {
+    if (!this.user) return 'Guest User';
+    return this.user.name || `${this.user.firstName || ''} ${this.user.lastName || ''}`.trim();
+  }
+
+  /**
+   * Get user email
+   */
+  getUserEmail(): string {
+    return this.user?.email || 'No email available';
+  }
+
+  /**
+   * Handle logout
+   */
+  logout(): void {
+    this.authService.logout();
+  }
+
+  /**
+   * Handle profile menu click
+   */
+  onProfileMenuClick(profile: profiledd): void {
+    if (profile.title === 'Sign Out') {
+      this.logout();
+    }
   }
 
   options = this.settings.getOptions();

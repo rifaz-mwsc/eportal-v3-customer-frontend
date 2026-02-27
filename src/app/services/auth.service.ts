@@ -5,31 +5,25 @@ import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { tap, catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
-export interface IndividualProfile {
-  identityNumber: string;
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  gender: string;
-  nationality: string;
-  dob: string | null;
-  email: string;
-  contact: string;
-}
-
-export interface Profile {
-  name: string;
-  profileType: string | null;
-  isActive: boolean;
-  individualProfile: IndividualProfile | null;
-  entityProfile: any | null;
-}
-
 export interface UserProfile {
   isDefault: boolean;
   isActive: boolean;
   isVerified: boolean;
-  profile: Profile;
+  profileType: string; // "Individual" or "Entity"
+  // Individual profile fields
+  identityNumber: string | null;
+  firstName: string | null;
+  middleName: string | null;
+  lastName: string | null;
+  gender: string | null;
+  nationality: string | null;
+  dob: string | null;
+  email: string;
+  contact: string | null;
+  // Entity profile fields
+  entityName: string | null;
+  registrationNumber: string | null;
+  entityType: string | null;
 }
 
 export interface AuthItem {
@@ -62,10 +56,45 @@ export class AuthService {
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasValidToken());
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
+  private tokenRefreshTimer: any = null;
+
   constructor(
     private http: HttpClient,
     private router: Router
-  ) {}
+  ) {
+    // Initialize token refresh timer if user is already authenticated
+    if (this.hasValidToken()) {
+      this.scheduleTokenRefresh();
+    }
+  }
+
+  /**
+   * Schedule automatic token refresh
+   */
+  private scheduleTokenRefresh(): void {
+    // Clear any existing timer
+    if (this.tokenRefreshTimer) {
+      clearTimeout(this.tokenRefreshTimer);
+    }
+
+    const timeUntilExpiry = this.getTimeUntilExpiry();
+    const fiveMinutesInMs = 5 * 60 * 1000;
+
+    // Schedule refresh 5 minutes before expiry
+    const refreshTime = Math.max(0, timeUntilExpiry - fiveMinutesInMs);
+
+    this.tokenRefreshTimer = setTimeout(() => {
+      this.refreshAccessToken().subscribe({
+        next: () => {
+          console.log('Token refreshed automatically');
+          this.scheduleTokenRefresh(); // Schedule next refresh
+        },
+        error: (error) => {
+          console.error('Automatic token refresh failed:', error);
+        }
+      });
+    }, refreshTime);
+  }
 
   /**
    * Validate the efaas token and get the access token
@@ -115,21 +144,38 @@ export class AuthService {
     // Get the default profile
     const defaultProfile = item.userProfiles.find(p => p.isDefault) || item.userProfiles[0];
     
-    if (defaultProfile && defaultProfile.profile.individualProfile) {
-      const profile = defaultProfile.profile.individualProfile;
+    if (defaultProfile) {
+      // Construct full name based on profile type
+      let fullName = '';
+      if (defaultProfile.profileType === 'Individual') {
+        const nameParts = [
+          defaultProfile.firstName,
+          defaultProfile.middleName,
+          defaultProfile.lastName
+        ].filter(part => part && part.trim());
+        fullName = nameParts.join(' ');
+      } else if (defaultProfile.profileType === 'Entity') {
+        fullName = defaultProfile.entityName || '';
+      }
       
       // Store user data
       const userData = {
-        name: defaultProfile.profile.name,
-        email: profile.email,
-        phoneNumber: profile.contact,
-        idNumber: profile.identityNumber,
-        firstName: profile.firstName,
-        middleName: profile.middleName,
-        lastName: profile.lastName,
-        gender: profile.gender,
-        nationality: profile.nationality,
-        dob: profile.dob,
+        name: fullName,
+        email: defaultProfile.email,
+        phoneNumber: defaultProfile.contact,
+        idNumber: defaultProfile.identityNumber,
+        firstName: defaultProfile.firstName,
+        middleName: defaultProfile.middleName,
+        lastName: defaultProfile.lastName,
+        gender: defaultProfile.gender,
+        nationality: defaultProfile.nationality,
+        dob: defaultProfile.dob,
+        profileType: defaultProfile.profileType,
+        // Entity fields
+        entityName: defaultProfile.entityName,
+        registrationNumber: defaultProfile.registrationNumber,
+        entityType: defaultProfile.entityType,
+        // Status flags
         isDefault: defaultProfile.isDefault,
         isActive: defaultProfile.isActive,
         isVerified: defaultProfile.isVerified,
@@ -138,6 +184,9 @@ export class AuthService {
       
       localStorage.setItem(this.USER_DATA_KEY, JSON.stringify(userData));
     }
+
+    // Schedule automatic token refresh
+    this.scheduleTokenRefresh();
   }
 
   /**
@@ -163,6 +212,51 @@ export class AuthService {
   }
 
   /**
+   * Refresh the access token using the refresh token
+   */
+  refreshAccessToken(): Observable<AuthItem> {
+    const accessToken = this.getAccessToken();
+    const refreshToken = this.getRefreshToken();
+
+    if (!accessToken || !refreshToken) {
+      return throwError(() => new Error('No tokens available for refresh'));
+    }
+
+    const body = {
+      accessToken: accessToken,
+      refreshToken: refreshToken
+    };
+
+    return this.http.post<AuthResponse>(
+      `${environment.apiBaseUrl}/api/v1/auth/refreshtoken`,
+      body
+    ).pipe(
+      map(response => {
+        // Check if the response is successful
+        if (!response.isSuccessful || !response.item) {
+          throw {
+            statusMessage: response.statusMessage,
+            errorDetails: response.errorDetails
+          };
+        }
+        return response.item;
+      }),
+      tap(item => {
+        // Update stored auth data with new tokens
+        this.storeAuthData(item);
+        this.isAuthenticatedSubject.next(true);
+      }),
+      catchError(error => {
+        console.error('Token refresh failed:', error);
+        // Clear auth data and redirect to login on refresh failure
+        this.clearAuthData();
+        this.router.navigate(['/authentication/login']);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
    * Check if token exists and is valid
    */
   hasValidToken(): boolean {
@@ -182,6 +276,33 @@ export class AuthService {
   }
 
   /**
+   * Check if token is about to expire (within 5 minutes)
+   */
+  isTokenExpiringSoon(): boolean {
+    const expiry = localStorage.getItem(this.TOKEN_EXPIRY_KEY);
+    if (!expiry) {
+      return false;
+    }
+
+    const expiryTimestamp = parseInt(expiry, 10);
+    const fiveMinutesInMs = 5 * 60 * 1000;
+    return Date.now() > (expiryTimestamp - fiveMinutesInMs);
+  }
+
+  /**
+   * Get time until token expiry in milliseconds
+   */
+  getTimeUntilExpiry(): number {
+    const expiry = localStorage.getItem(this.TOKEN_EXPIRY_KEY);
+    if (!expiry) {
+      return 0;
+    }
+
+    const expiryTimestamp = parseInt(expiry, 10);
+    return Math.max(0, expiryTimestamp - Date.now());
+  }
+
+  /**
    * Check if user is authenticated
    */
   isAuthenticated(): boolean {
@@ -192,6 +313,12 @@ export class AuthService {
    * Logout user
    */
   logout(): void {
+    // Clear the refresh timer
+    if (this.tokenRefreshTimer) {
+      clearTimeout(this.tokenRefreshTimer);
+      this.tokenRefreshTimer = null;
+    }
+
     localStorage.removeItem(this.ACCESS_TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     localStorage.removeItem(this.USER_DATA_KEY);
@@ -204,6 +331,12 @@ export class AuthService {
    * Clear all auth data
    */
   clearAuthData(): void {
+    // Clear the refresh timer
+    if (this.tokenRefreshTimer) {
+      clearTimeout(this.tokenRefreshTimer);
+      this.tokenRefreshTimer = null;
+    }
+
     localStorage.removeItem(this.ACCESS_TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     localStorage.removeItem(this.USER_DATA_KEY);
