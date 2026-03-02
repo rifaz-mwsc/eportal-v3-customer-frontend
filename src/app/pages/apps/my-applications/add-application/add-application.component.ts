@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, OnInit } from '@angular/core';
 import {
   UntypedFormGroup,
   UntypedFormBuilder,
@@ -15,11 +15,50 @@ import { MaterialModule } from 'src/app/material.module';
 import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { inject} from '@angular/core';
+import {FormBuilder} from '@angular/forms';
+import {MatButtonModule} from '@angular/material/button';
+import {MatInputModule} from '@angular/material/input';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatStepperModule} from '@angular/material/stepper';
+import { AuthService, UserProfile } from 'src/app/services/auth.service';
+
 
 @Component({
   selector: 'app-add-application',
   templateUrl: './add-application.component.html',
   standalone: true,
+  styles: [`
+    .stepper-container {
+      padding: 0;
+      margin: 0;
+    }
+    
+    ::ng-deep .mat-stepper-horizontal {
+      background: transparent;
+    }
+    
+    ::ng-deep .mat-horizontal-stepper-header-container {
+      padding: 0 24px;
+      margin-bottom: 24px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    ::ng-deep .mat-horizontal-stepper-header {
+      padding: 16px 24px !important;
+    }
+    
+    ::ng-deep .mat-step-header .mat-step-icon-selected,
+    ::ng-deep .mat-step-header .mat-step-icon-state-edit {
+      background-color: var(--primary-color, #5D87FF);
+    }
+    
+    ::ng-deep .mat-horizontal-content-container {
+      padding: 0 !important;
+    }
+  `],
   imports: [
     MaterialModule,
     CommonModule,
@@ -27,9 +66,56 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     FormsModule,
     ReactiveFormsModule,
     TablerIconsModule,
+        MatStepperModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
   ],
 })
-export class AppAddApplicationComponent {
+export class AppAddApplicationComponent implements OnInit {
+      private _formBuilder = inject(FormBuilder);
+
+  // User data
+  userData: any = null;
+  userProfiles: UserProfile[] = [];
+  selectedProfile: UserProfile | null | string = null;
+
+  // Owner checkbox
+  isOwner: boolean = false;
+  isNotOwner: boolean = false;
+
+  // Other profile data
+  otherProfileType: 'individual' | 'company' = 'individual';
+  otherProfile = {
+    name: '',
+    phone: '',
+    email: '',
+    idCardNo: '',
+    companyName: '',
+    registrationNo: '',
+    addressName: '',
+    street: '',
+    city: '',
+    postalCode: '',
+  };
+
+  ownerFormGroup = this._formBuilder.group({
+    ownerCtrl: [''],
+  });
+  firstFormGroup = this._formBuilder.group({
+    firstCtrl: ['', Validators.required],
+  });
+  secondFormGroup = this._formBuilder.group({
+    secondCtrl: ['', Validators.required],
+  });
+  locationFormGroup = this._formBuilder.group({
+    region: ['', Validators.required],
+    city: ['', Validators.required],
+    buildingName: ['', Validators.required],
+    street: ['', Validators.required],
+  });
   addForm: UntypedFormGroup | any;
   rows: UntypedFormArray;
   application = signal<Application | any>(new Application());
@@ -47,12 +133,33 @@ export class AppAddApplicationComponent {
     'Service Disconnection',
   ];
 
+  regions = [
+    'Male Region',
+    'North Region',
+    'South Region',
+    'Central Region',
+    'Upper North Region',
+    'Upper South Region',
+  ];
+
+  cities = [
+    'Male',
+    'Hulhumale',
+    'Vilimale',
+    'Thilafushi',
+    'Gulhifalhu',
+    'Addu City',
+    'Fuvahmulah',
+    'Kulhudhuffushi',
+  ];
+
   constructor(
     private fb: UntypedFormBuilder,
     private applicationService: ApplicationService,
     private router: Router,
     public dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private authService: AuthService
   ) {
     const maxId = Math.max(
       ...this.applicationService.getApplications().map((o) => o.id),
@@ -78,6 +185,25 @@ export class AppAddApplicationComponent {
     this.rows = this.fb.array([]);
     this.addForm.addControl('rows', this.rows);
     this.rows.push(this.createItemFormGroup());
+  }
+
+  ngOnInit(): void {
+    this.loadUserData();
+  }
+
+  /**
+   * Load user data and profiles from AuthService
+   */
+  loadUserData(): void {
+    this.userData = this.authService.getUserData();
+    
+    if (this.userData && this.userData.userProfiles) {
+      this.userProfiles = this.userData.userProfiles;
+      
+      // Set default profile as selected
+      const defaultProfile = this.userProfiles.find(p => p.isDefault);
+      this.selectedProfile = defaultProfile || this.userProfiles[0] || null;
+    }
   }
 
   onAddRow(): void {

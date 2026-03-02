@@ -28,30 +28,8 @@ export class AuthInterceptor implements HttpInterceptor {
       return next.handle(request);
     }
 
-    // Check if token is about to expire and refresh if needed
-    if (this.authService.isTokenExpiringSoon() && !this.isRefreshing) {
-      this.isRefreshing = true;
-      this.refreshTokenSubject.next(null);
-
-      return this.authService.refreshAccessToken().pipe(
-        switchMap((authItem) => {
-          this.isRefreshing = false;
-          this.refreshTokenSubject.next(authItem.accessToken);
-          return next.handle(this.addTokenToRequest(request, authItem.accessToken));
-        }),
-        catchError((error) => {
-          this.isRefreshing = false;
-          this.authService.clearAuthData();
-          this.router.navigate(['/authentication/login']);
-          return throwError(() => error);
-        })
-      );
-    }
-
-    // Get the access token
+    // Get the access token and add to request
     const accessToken = this.authService.getAccessToken();
-
-    // Clone the request and add the authorization header if token exists
     if (accessToken) {
       request = this.addTokenToRequest(request, accessToken);
     }
@@ -60,7 +38,7 @@ export class AuthInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
         // If we get a 401 Unauthorized error, try to refresh the token
-        if (error.status === 401) {
+        if (error.status === 401 && !request.url.includes('/api/v1/auth/refreshtoken')) {
           return this.handle401Error(request, next);
         }
         
@@ -86,12 +64,23 @@ export class AuthInterceptor implements HttpInterceptor {
         switchMap((authItem) => {
           this.isRefreshing = false;
           this.refreshTokenSubject.next(authItem.accessToken);
+          // Retry the original request with new token
           return next.handle(this.addTokenToRequest(request, authItem.accessToken));
         }),
         catchError((error) => {
           this.isRefreshing = false;
-          this.authService.clearAuthData();
-          this.router.navigate(['/authentication/login']);
+          console.error('Failed to refresh token after 401 error:', error);
+          
+          // Only logout if refresh token is actually invalid
+          // Check if error indicates invalid refresh token
+          if (error?.statusMessage === 'Unable to login' || 
+              error?.errorDetails?.token?.includes('Invalid or expired token') ||
+              error?.error?.statusMessage === 'Unable to login') {
+            console.warn('Refresh token is invalid, logging out');
+            this.authService.clearAuthData();
+            this.router.navigate(['/authentication/login']);
+          }
+          
           return throwError(() => error);
         })
       );

@@ -11,12 +11,14 @@ import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-service-directory',
   templateUrl: './service-directory.component.html',
   standalone: true,
   imports: [
+    CommonModule,
     MatCardModule,
     TablerIconsModule,
     MatFormFieldModule,
@@ -28,6 +30,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatIconModule,
     MatInputModule,
     MatButtonModule,
+    MatCardModule,
   ],
 })
 export class ServiceDirectoryComponent {

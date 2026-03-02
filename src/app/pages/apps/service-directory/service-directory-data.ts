@@ -10,6 +10,9 @@ export const serviceDirectoryList: ServiceDirectory[] = [
     provider: 'MWSC',
     status: 'Active',
     lastUpdated: 'Updated 01 Jan 2026',
+    bg_color: 'error',
+    icon: 'chart-bubble',
+    color: 'text-error',
   },
   {
     Id: 2,
@@ -20,6 +23,9 @@ export const serviceDirectoryList: ServiceDirectory[] = [
     provider: 'MWSC',
     status: 'Active',
     lastUpdated: 'Updated 05 Jan 2026',
+      bg_color: 'primary',
+      icon: 'building-store',
+      color: 'text-primary',
   },
   {
     Id: 3,
@@ -30,6 +36,9 @@ export const serviceDirectoryList: ServiceDirectory[] = [
     provider: 'MWSC',
     status: 'Active',
     lastUpdated: 'Updated 10 Jan 2026',
+        bg_color: 'error',
+    icon: 'chart-bubble',
+    color: 'text-error',
   },
   {
     Id: 4,
@@ -40,6 +49,9 @@ export const serviceDirectoryList: ServiceDirectory[] = [
     provider: 'MWSC',
     status: 'Active',
     lastUpdated: 'Updated 15 Jan 2026',
+    bg_color: 'secondary',
+      icon: 'category-2',
+      color: 'text-secondary',
   },
   {
     Id: 5,
@@ -50,6 +62,9 @@ export const serviceDirectoryList: ServiceDirectory[] = [
     provider: 'MWSC',
     status: 'Active',
     lastUpdated: 'Updated 20 Jan 2026',
+         bg_color: '--mat-sys-outline-variant',
+      icon: 'activity-heartbeat',
+      color: 'text-dark',
   },
   {
     Id: 6,
@@ -60,5 +75,42 @@ export const serviceDirectoryList: ServiceDirectory[] = [
     provider: 'MWSC',
     status: 'Active',
     lastUpdated: 'Updated 25 Jan 2026',
+    bg_color: 'secondary',
+      icon: 'category-2',
+      color: 'text-secondary',
   },
 ];
+  export const stats = [
+    {
+      id: 1,
+      label: 'Expert Advisor',
+      description: 'Suspendisse vestibulum eu erat ac scelerisque.',
+      bg_color: 'error',
+      icon: 'chart-bubble',
+      color: 'text-error',
+    },
+    {
+      id: 2,
+      label: 'Effective Support',
+      description: 'Suspendisse vestibulum eu erat ac scelerisque.',
+      bg_color: 'primary',
+      icon: 'building-store',
+      color: 'text-primary',
+    },
+    {
+      id: 3,
+      label: 'Low Fees',
+      description: 'Suspendisse vestibulum eu erat ac scelerisque.',
+      bg_color: 'secondary',
+      icon: 'category-2',
+      color: 'text-secondary',
+    },
+    {
+      id: 4,
+      label: 'Loan Facility',
+      description: 'Suspendisse vestibulum eu erat ac scelerisque.',
+      bg_color: '--mat-sys-outline-variant',
+      icon: 'activity-heartbeat',
+      color: 'text-dark',
+    },
+  ];

@@ -84,6 +84,7 @@ export class AuthService {
     const refreshTime = Math.max(0, timeUntilExpiry - fiveMinutesInMs);
 
     this.tokenRefreshTimer = setTimeout(() => {
+      console.log('Attempting automatic token refresh...');
       this.refreshAccessToken().subscribe({
         next: () => {
           console.log('Token refreshed automatically');
@@ -91,6 +92,16 @@ export class AuthService {
         },
         error: (error) => {
           console.error('Automatic token refresh failed:', error);
+          // Don't logout on automatic refresh failure
+          // The user might still have a valid token
+          // Let the 401 error from API calls handle the logout if needed
+          // Try to schedule refresh again in case it was a temporary network issue
+          const oneMinuteInMs = 60 * 1000;
+          setTimeout(() => {
+            if (this.hasValidToken()) {
+              this.scheduleTokenRefresh();
+            }
+          }, oneMinuteInMs);
         }
       });
     }, refreshTime);
@@ -141,48 +152,10 @@ export class AuthService {
     const expiryDate = new Date(item.accessTokenExpiresOn);
     localStorage.setItem(this.TOKEN_EXPIRY_KEY, expiryDate.getTime().toString());
     
-    // Get the default profile
+    // Get the default profile and store user data
     const defaultProfile = item.userProfiles.find(p => p.isDefault) || item.userProfiles[0];
-    
     if (defaultProfile) {
-      // Construct full name based on profile type
-      let fullName = '';
-      if (defaultProfile.profileType === 'Individual') {
-        const nameParts = [
-          defaultProfile.firstName,
-          defaultProfile.middleName,
-          defaultProfile.lastName
-        ].filter(part => part && part.trim());
-        fullName = nameParts.join(' ');
-      } else if (defaultProfile.profileType === 'Entity') {
-        fullName = defaultProfile.entityName || '';
-      }
-      
-      // Store user data
-      const userData = {
-        name: fullName,
-        email: defaultProfile.email,
-        phoneNumber: defaultProfile.contact,
-        idNumber: defaultProfile.identityNumber,
-        firstName: defaultProfile.firstName,
-        middleName: defaultProfile.middleName,
-        lastName: defaultProfile.lastName,
-        gender: defaultProfile.gender,
-        nationality: defaultProfile.nationality,
-        dob: defaultProfile.dob,
-        profileType: defaultProfile.profileType,
-        // Entity fields
-        entityName: defaultProfile.entityName,
-        registrationNumber: defaultProfile.registrationNumber,
-        entityType: defaultProfile.entityType,
-        // Status flags
-        isDefault: defaultProfile.isDefault,
-        isActive: defaultProfile.isActive,
-        isVerified: defaultProfile.isVerified,
-        userProfiles: item.userProfiles
-      };
-      
-      localStorage.setItem(this.USER_DATA_KEY, JSON.stringify(userData));
+      this.updateUserDataFromProfile(defaultProfile, item.userProfiles);
     }
 
     // Schedule automatic token refresh
@@ -209,6 +182,72 @@ export class AuthService {
   getUserData(): any {
     const userData = localStorage.getItem(this.USER_DATA_KEY);
     return userData ? JSON.parse(userData) : null;
+  }
+
+  /**
+   * Fetch user profiles from the API
+   * This refreshes the user profile data without re-authenticating
+   */
+  getUserProfiles(): Observable<UserProfile[]> {
+    return this.http.get<UserProfile[]>(
+      `${environment.apiBaseUrl}/api/v1/profiles`
+    ).pipe(
+      tap(profiles => {
+        // Update stored user data with fresh profile information
+        if (profiles && profiles.length > 0) {
+          const defaultProfile = profiles.find(p => p.isDefault) || profiles[0];
+          this.updateUserDataFromProfile(defaultProfile, profiles);
+        }
+      }),
+      catchError(error => {
+        console.error('Error fetching user profiles:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Update stored user data with profile information
+   */
+  private updateUserDataFromProfile(defaultProfile: UserProfile, allProfiles: UserProfile[]): void {
+    // Construct full name based on profile type
+    let fullName = '';
+    if (defaultProfile.profileType === 'Individual') {
+      const nameParts = [
+        defaultProfile.firstName,
+        defaultProfile.middleName,
+        defaultProfile.lastName
+      ].filter(part => part && part.trim());
+      fullName = nameParts.join(' ');
+    } else if (defaultProfile.profileType === 'Entity') {
+      fullName = defaultProfile.entityName || '';
+    }
+    
+    // Store updated user data
+    const userData = {
+      name: fullName,
+      email: defaultProfile.email,
+      phoneNumber: defaultProfile.contact,
+      idNumber: defaultProfile.identityNumber,
+      firstName: defaultProfile.firstName,
+      middleName: defaultProfile.middleName,
+      lastName: defaultProfile.lastName,
+      gender: defaultProfile.gender,
+      nationality: defaultProfile.nationality,
+      dob: defaultProfile.dob,
+      profileType: defaultProfile.profileType,
+      // Entity fields
+      entityName: defaultProfile.entityName,
+      registrationNumber: defaultProfile.registrationNumber,
+      entityType: defaultProfile.entityType,
+      // Status flags
+      isDefault: defaultProfile.isDefault,
+      isActive: defaultProfile.isActive,
+      isVerified: defaultProfile.isVerified,
+      userProfiles: allProfiles
+    };
+    
+    localStorage.setItem(this.USER_DATA_KEY, JSON.stringify(userData));
   }
 
   /**
@@ -248,9 +287,8 @@ export class AuthService {
       }),
       catchError(error => {
         console.error('Token refresh failed:', error);
-        // Clear auth data and redirect to login on refresh failure
-        this.clearAuthData();
-        this.router.navigate(['/authentication/login']);
+        // Don't automatically logout here - let the caller decide
+        // This prevents sudden logouts during API usage
         return throwError(() => error);
       })
     );
@@ -272,7 +310,22 @@ export class AuthService {
 
     // Check if token has expired
     const expiryTimestamp = parseInt(expiry, 10);
-    return Date.now() < expiryTimestamp;
+    const isValid = Date.now() < expiryTimestamp;
+
+    // If token is expired, clear auth data
+    if (!isValid) {
+      this.clearAuthData();
+      return false;
+    }
+
+    // Also check if user data exists
+    const userData = this.getUserData();
+    if (!userData || !userData.name) {
+      this.clearAuthData();
+      return false;
+    }
+
+    return true;
   }
 
   /**

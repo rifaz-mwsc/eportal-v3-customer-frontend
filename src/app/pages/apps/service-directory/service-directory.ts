@@ -8,4 +8,7 @@ export class ServiceDirectory {
   provider = '';
   status = '';
   lastUpdated = '';
+    bg_color = '';
+    icon = '';
+    color = '';
 }

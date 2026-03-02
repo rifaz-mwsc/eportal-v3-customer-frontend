@@ -31,7 +31,7 @@
     </div>
   </mat-card-content>
 </mat-card>
-
+<!-- 
 <div class="row">
   @for(service of serviceList(); track service.serviceName) {
   <div class="col-sm-6 col-lg-4">
@@ -69,4 +69,31 @@
     </mat-card>
   </div>
   }
-</div>
+</div> 
+-->
+
+  <div class="setup-process p-b-48">
+    <div class="container">
+      <div class="row">
+        @for(service of serviceList(); track service.serviceName) {
+        <div class="col-lg-3 col-sm-6" [routerLink]="['/apps/ServiceDirectory/ServiceDirectoryDetail/', service.Id]" style="cursor: pointer;">
+          <mat-card class="" [ngStyle]="{
+              'background-color': service.bg_color.startsWith('--')
+                ? 'var(' + service.bg_color + ')'
+                : service.bg_color
+            }" [ngClass]="
+              !service.bg_color.startsWith('--') ? 'bg-light-' + service.bg_color : ''
+            ">
+            <mat-card-content>
+              <mat-card class="d-flex align-items-center justify-content-center icon-48 m-b-16">
+                <i-tabler [name]="service.icon" class="icon-24" [ngClass]="service.color"></i-tabler>
+              </mat-card>
+              <h4 class="f-s-22 m-b-16 f-w-600 lh-normal">{{ service.serviceName }}</h4>
+              <p class="f-s-14 m-y-0">{{ service.description }}</p>
+            </mat-card-content>
+          </mat-card>
+        </div>
+        }
+      </div>
+    </div>
+  </div>

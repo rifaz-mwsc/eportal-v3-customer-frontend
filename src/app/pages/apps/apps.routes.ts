@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from 'src/app/guards/auth.guard';
 
 import { AppChatComponent } from './chat/chat.component';
 import { AppEmailComponent } from './email/email.component';
@@ -335,6 +336,7 @@ export const AppsRoutes: Routes = [
       {
         path: 'profile-details/profile',
         component: ProfileContentComponent,
+        canActivate: [authGuard],
         data: {
           title: 'User Details',
           urls: [

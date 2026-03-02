@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from 'src/app/guards/auth.guard';
 
 // dashboards
 import { AppDashboard1Component } from './dashboard1/dashboard1.component';
@@ -12,6 +13,7 @@ export const DashboardsRoutes: Routes = [
       {
         path: 'dashboard1',
         component: AppDashboard1Component,
+        canActivate: [authGuard],
         data: {
           title: 'Dashboard 1',
         
@@ -21,6 +23,7 @@ export const DashboardsRoutes: Routes = [
       {
         path: 'dashboard2',
         component: AppDashboard2Component,
+        canActivate: [authGuard],
         data: {
           title: 'Dashboard 2',
           breadcrumb: false,
@@ -29,6 +32,7 @@ export const DashboardsRoutes: Routes = [
       {
         path: 'dashboard3',
         component: AppDashboard3Component,
+        canActivate: [authGuard],
         data: {
           title: 'Dashboard 3',
           breadcrumb: false,

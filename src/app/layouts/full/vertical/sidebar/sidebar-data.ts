@@ -195,37 +195,37 @@ export const navItems: NavItem[] = [
   //   iconName: 'solar:phone-line-duotone',
   //   route: 'apps/contact-list',
   // },
-  {
-    displayName: 'Services',
-    iconName: 'solar:bill-list-line-duotone',
-    route: 'apps/invoice',
-    children: [
-      {
-        displayName: 'Application List',
-        subItemIcon: true,
-        iconName: 'solar:round-alt-arrow-right-line-duotone',
-        route: 'apps/invoice/list',
-      },
-      {
-        displayName: 'Application Detail',
-        subItemIcon: true,
-        iconName: 'solar:round-alt-arrow-right-line-duotone',
-        route: 'apps/invoice/viewInvoice/101',
-      },
-      {
-        displayName: 'New Application',
-        subItemIcon: true,
-        iconName: 'solar:round-alt-arrow-right-line-duotone',
-        route: 'apps/invoice/addInvoice',
-      },
-      {
-        displayName: 'Edit Application',
-        subItemIcon: true,
-        iconName: 'solar:round-alt-arrow-right-line-duotone',
-        route: 'apps/invoice/editinvoice/101',
-      },
-    ],
-  },
+  // {
+  //   displayName: 'Services',
+  //   iconName: 'solar:bill-list-line-duotone',
+  //   route: 'apps/invoice',
+  //   children: [
+  //     {
+  //       displayName: 'Application List',
+  //       subItemIcon: true,
+  //       iconName: 'solar:round-alt-arrow-right-line-duotone',
+  //       route: 'apps/invoice/list',
+  //     },
+  //     {
+  //       displayName: 'Application Detail',
+  //       subItemIcon: true,
+  //       iconName: 'solar:round-alt-arrow-right-line-duotone',
+  //       route: 'apps/invoice/viewInvoice/101',
+  //     },
+  //     {
+  //       displayName: 'New Application',
+  //       subItemIcon: true,
+  //       iconName: 'solar:round-alt-arrow-right-line-duotone',
+  //       route: 'apps/invoice/addInvoice',
+  //     },
+  //     {
+  //       displayName: 'Edit Application',
+  //       subItemIcon: true,
+  //       iconName: 'solar:round-alt-arrow-right-line-duotone',
+  //       route: 'apps/invoice/editinvoice/101',
+  //     },
+  //   ],
+  // },
    {
     displayName: 'My Applications',
     iconName: 'solar:bill-list-line-duotone',
