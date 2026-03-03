@@ -43,8 +43,14 @@ export class ServiceDirectoryComponentDetailComponent {
   }
 
   goApply(): void {
-    this.router.navigate(['/apps/ServiceDirectory/apply', this.id()]);
-    // Implement the logic to navigate to the application form or process
+    // Navigate with service ID as route parameter and pass service details in state
+    this.router.navigate(['/apps/my-applications/addApplication'], {
+      queryParams: { 
+        serviceId: this.id(),
+        serviceName: this.serviceDetail()?.serviceName 
+      }
+    });
     console.log('Apply Now clicked for service ID:', this.id());
+    console.log('Service Name:', this.serviceDetail()?.serviceName);
   }
 }

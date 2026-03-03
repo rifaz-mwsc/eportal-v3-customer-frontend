@@ -1,6 +1,6 @@
 <mat-card class="cardWithShadow">
   <mat-card-content>
-    <div class="row justify-content-between">
+    <div class="row justify-content-between gap-12">
       <div class="col-lg-4">
         <mat-form-field appearance="outline" class="w-100 hide-hint">
           <mat-label>Search</mat-label>
@@ -74,6 +74,12 @@
 
   <div class="setup-process p-b-48">
     <div class="container">
+      
+      <mat-card class="mat-bg-error mat-text-on-error">
+        <mat-card-content>
+          <span class="m-0 f-s-14 f-w-500 text-white">for Ibbe - must know if existing or new or LMS application</span>
+        </mat-card-content>
+      </mat-card>
       <div class="row">
         @for(service of serviceList(); track service.serviceName) {
         <div class="col-lg-3 col-sm-6" [routerLink]="['/apps/ServiceDirectory/ServiceDirectoryDetail/', service.Id]" style="cursor: pointer;">

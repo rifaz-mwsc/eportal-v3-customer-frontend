@@ -17,6 +17,14 @@ import { CommonModule } from '@angular/common';
   selector: 'app-service-directory',
   templateUrl: './service-directory.component.html',
   standalone: true,
+  styles: `
+    .mat-bg-error-container {
+  background-color: var(--mat-sys-error-container);
+}
+.mat-bg-error {
+  background-color: var(--mat-sys-error);
+}
+  `,
   imports: [
     CommonModule,
     MatCardModule,

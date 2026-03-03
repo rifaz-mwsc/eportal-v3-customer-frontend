@@ -1,4 +1,4 @@
-import { Component, signal, OnInit } from '@angular/core';
+import { Component, signal, OnInit, ChangeDetectorRef } from '@angular/core';
 import {
   UntypedFormGroup,
   UntypedFormBuilder,
@@ -9,7 +9,7 @@ import {
 } from '@angular/forms';
 import { ApplicationItem, Application } from '../application';
 import { ApplicationService } from 'src/app/services/apps/application/application.service';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MaterialModule } from 'src/app/material.module';
 import { CommonModule } from '@angular/common';
@@ -77,6 +77,10 @@ import { AuthService, UserProfile } from 'src/app/services/auth.service';
 export class AppAddApplicationComponent implements OnInit {
       private _formBuilder = inject(FormBuilder);
 
+  // Service information from route
+  serviceId: string | null = null;
+  serviceName: string | null = null;
+
   // User data
   userData: any = null;
   userProfiles: UserProfile[] = [];
@@ -118,6 +122,7 @@ export class AppAddApplicationComponent implements OnInit {
   });
   addForm: UntypedFormGroup | any;
   rows: UntypedFormArray;
+  connections: UntypedFormArray;
   application = signal<Application | any>(new Application());
   subTotal = signal(0);
   processingFee = signal(0);
@@ -152,15 +157,27 @@ export class AppAddApplicationComponent implements OnInit {
     'Fuvahmulah',
     'Kulhudhuffushi',
   ];
-
+  tarrifTypes: string[] = ['Commercial', 'Institutional', 'Domestic'];
+    toggleValue: any = null;
+quantity: number = 1;
   constructor(
     private fb: UntypedFormBuilder,
     private applicationService: ApplicationService,
     private router: Router,
     public dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private authService: AuthService
+    private authService: AuthService,
+    private activatedRoute: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {
+    // Get service information from query parameters
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.serviceId = params['serviceId'] || null;
+      this.serviceName = params['serviceName'] || null;
+      console.log('Service ID:', this.serviceId);
+      console.log('Service Name:', this.serviceName);
+    });
+
     const maxId = Math.max(
       ...this.applicationService.getApplications().map((o) => o.id),
       0
@@ -185,10 +202,24 @@ export class AppAddApplicationComponent implements OnInit {
     this.rows = this.fb.array([]);
     this.addForm.addControl('rows', this.rows);
     this.rows.push(this.createItemFormGroup());
+
+    // Initialize connections FormArray
+    this.connections = this.fb.array([]);
+    this.addForm.addControl('connections', this.connections);
+    this.connections.push(this.createConnectionFormGroup());
   }
 
   ngOnInit(): void {
     this.loadUserData();
+  }
+  increaseQty() {
+    this.quantity++;
+  }
+
+  decreaseQty() {
+    if (this.quantity > 1) {
+      this.quantity--;
+    }
   }
 
   /**
@@ -203,6 +234,9 @@ export class AppAddApplicationComponent implements OnInit {
       // Set default profile as selected
       const defaultProfile = this.userProfiles.find(p => p.isDefault);
       this.selectedProfile = defaultProfile || this.userProfiles[0] || null;
+      
+      // Manually trigger change detection to avoid ExpressionChangedAfterItHasBeenCheckedError
+      this.cdr.detectChanges();
     }
   }
 
@@ -244,6 +278,52 @@ export class AppAddApplicationComponent implements OnInit {
     this.grandTotal.set(this.subTotal() + this.processingFee());
   }
 
+  /**
+   * Create a new connection form group
+   */
+  createConnectionFormGroup(): UntypedFormGroup {
+    return this.fb.group({
+      tarrifType: ['', Validators.required],
+      quantity: [1, [Validators.required, Validators.min(1)]],
+    });
+  }
+
+  /**
+   * Add a new connection row
+   */
+  onAddConnection(): void {
+    this.connections.push(this.createConnectionFormGroup());
+  }
+
+  /**
+   * Remove a connection row
+   */
+  onRemoveConnection(index: number): void {
+    if (this.connections.length > 1) {
+      this.connections.removeAt(index);
+    }
+  }
+
+  /**
+   * Increase quantity for a specific connection
+   */
+  increaseConnectionQty(index: number): void {
+    const connection = this.connections.at(index);
+    const currentQty = connection.get('quantity')?.value || 1;
+    connection.get('quantity')?.setValue(currentQty + 1);
+  }
+
+  /**
+   * Decrease quantity for a specific connection
+   */
+  decreaseConnectionQty(index: number): void {
+    const connection = this.connections.at(index);
+    const currentQty = connection.get('quantity')?.value || 1;
+    if (currentQty > 1) {
+      connection.get('quantity')?.setValue(currentQty - 1);
+    }
+  }
+
   onSubmit(): void {
     if (this.addForm.valid) {
       const formValue = this.addForm.getRawValue();
@@ -279,6 +359,10 @@ export class AppAddApplicationComponent implements OnInit {
       this.showSnackbar('Application submitted successfully!');
       this.router.navigate(['/apps/myApplications/list']);
     }
+  }
+    onSubmit1(): void {
+       this.showSnackbar('Application submitted successfully!');
+     this.router.navigate(['/apps/my-applications/list']);
   }
 
   showSnackbar(message: string): void {

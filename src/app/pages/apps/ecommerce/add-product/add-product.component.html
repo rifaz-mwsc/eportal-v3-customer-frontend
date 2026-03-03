@@ -56,7 +56,7 @@
           <div class="row">
             <div class="col-lg-4">
               <mat-form-field appearance="outline" class="w-100">
-                <mat-select formControlName="size" disableOptionCentering placeholder="Size">
+                <mat-select disableOptionCentering placeholder="Size">
                   @for (size of sizes; track size) {
                     <mat-option [value]="size">
                       <span [ngClass]="{ 'highlight-size': size === 'XL' }">

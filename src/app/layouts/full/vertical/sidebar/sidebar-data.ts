@@ -9,65 +9,65 @@ export const navItems: NavItem[] = [
     iconName: 'solar:widget-add-line-duotone',
     route: '/dashboards/dashboard1',
   },
-  // {
-  //   displayName: 'Dashboard 2',
-  //   iconName: 'solar:chart-line-duotone',
-  //   route: '/dashboards/dashboard2',
-  // },
-  // {
-  //   displayName: 'Dashboard 3',
-  //   iconName: 'solar:screencast-2-line-duotone',
-  //   route: '/dashboards/dashboard3',
-  // },
-  // {
-  //   displayName: 'Front Pages',
-  //   iconName: 'solar:home-angle-line-duotone',
-  //   route: 'front-pages',
-  //   children: [
-  //     {
-  //       displayName: 'Homepage',
-  //       iconName: 'solar:round-alt-arrow-right-line-duotone',
-  //       subItemIcon: true,
-  //       route: 'front-pages/homepage',
-  //     },
-  //     {
-  //       displayName: 'About Us',
-  //       iconName: 'solar:round-alt-arrow-right-line-duotone',
-  //       subItemIcon: true,
-  //       route: 'front-pages/about',
-  //     },
-  //     {
-  //       displayName: 'Blog',
-  //       iconName: 'solar:round-alt-arrow-right-line-duotone',
-  //       subItemIcon: true,
-  //       route: 'front-pages/blog',
-  //     },
-  //     {
-  //       displayName: 'Blog Details',
-  //       iconName: 'solar:round-alt-arrow-right-line-duotone',
-  //       subItemIcon: true,
-  //       route: 'front-pages/blog-details',
-  //     },
-  //     {
-  //       displayName: 'Contact Us',
-  //       iconName: 'solar:round-alt-arrow-right-line-duotone',
-  //       subItemIcon: true,
-  //       route: 'front-pages/contact',
-  //     },
-  //     {
-  //       displayName: 'Portfolio',
-  //       iconName: 'solar:round-alt-arrow-right-line-duotone',
-  //       subItemIcon: true,
-  //       route: 'front-pages/portfolio',
-  //     },
-  //     {
-  //       displayName: 'Pricing',
-  //       iconName: 'solar:round-alt-arrow-right-line-duotone',
-  //       subItemIcon: true,
-  //       route: 'front-pages/pricing',
-  //     }
-  //   ],
-  // },
+  {
+    displayName: 'Dashboard 2',
+    iconName: 'solar:chart-line-duotone',
+    route: '/dashboards/dashboard2',
+  },
+  {
+    displayName: 'Dashboard 3',
+    iconName: 'solar:screencast-2-line-duotone',
+    route: '/dashboards/dashboard3',
+  },
+  {
+    displayName: 'Front Pages',
+    iconName: 'solar:home-angle-line-duotone',
+    route: 'front-pages',
+    children: [
+      {
+        displayName: 'Homepage',
+        iconName: 'solar:round-alt-arrow-right-line-duotone',
+        subItemIcon: true,
+        route: 'front-pages/homepage',
+      },
+      {
+        displayName: 'About Us',
+        iconName: 'solar:round-alt-arrow-right-line-duotone',
+        subItemIcon: true,
+        route: 'front-pages/about',
+      },
+      {
+        displayName: 'Blog',
+        iconName: 'solar:round-alt-arrow-right-line-duotone',
+        subItemIcon: true,
+        route: 'front-pages/blog',
+      },
+      {
+        displayName: 'Blog Details',
+        iconName: 'solar:round-alt-arrow-right-line-duotone',
+        subItemIcon: true,
+        route: 'front-pages/blog-details',
+      },
+      {
+        displayName: 'Contact Us',
+        iconName: 'solar:round-alt-arrow-right-line-duotone',
+        subItemIcon: true,
+        route: 'front-pages/contact',
+      },
+      {
+        displayName: 'Portfolio',
+        iconName: 'solar:round-alt-arrow-right-line-duotone',
+        subItemIcon: true,
+        route: 'front-pages/portfolio',
+      },
+      {
+        displayName: 'Pricing',
+        iconName: 'solar:round-alt-arrow-right-line-duotone',
+        subItemIcon: true,
+        route: 'front-pages/pricing',
+      }
+    ],
+  },
   {
     divider: true,
     navCap: 'Apps',
@@ -126,50 +126,7 @@ export const navItems: NavItem[] = [
       // },
     ],
   },
-  {
-    displayName: 'Ecommerce',
-    iconName: 'solar:cart-5-line-duotone',
-    route: 'apps/product',
-    chip: true,
-    chipClass: 'b-1 border-primary text-primary',
-    chipContent: 'New',
-    children: [
-      {
-        displayName: 'Product List',
-        iconName: 'solar:round-alt-arrow-right-line-duotone',
-        subItemIcon: true,
-        route: 'apps/product/product-list',
-      },
-      {
-        displayName: 'Add Product',
-        iconName: 'solar:round-alt-arrow-right-line-duotone',
-        subItemIcon: true,
-        route: 'apps/product/add-product',
-      },
-      {
-        displayName: 'Edit Product',
-        iconName: 'solar:round-alt-arrow-right-line-duotone',
-        subItemIcon: true,
-        route: 'apps/product/edit-product',
-      },
-      {
-        displayName: 'Shop',
-        iconName: 'solar:round-alt-arrow-right-line-duotone',
-        subItemIcon: true,
-        route: 'apps/product/shop',
-      },
-    ],
-  },
-  {
-    displayName: 'Contacts',
-    iconName: 'solar:phone-line-duotone',
-    route: 'apps/contacts',
-  },
-  {
-    displayName: 'Courses',
-    iconName: 'solar:book-bookmark-line-duotone',
-    route: 'apps/courses',
-  },
+  
   {
     displayName: 'Service Directory',
     iconName: 'solar:folder-with-files-line-duotone',
@@ -270,6 +227,50 @@ export const navItems: NavItem[] = [
       },
   
     ],
+  },
+  {
+    displayName: 'Ecommerce',
+    iconName: 'solar:cart-5-line-duotone',
+    route: 'apps/product',
+    chip: true,
+    chipClass: 'b-1 border-primary text-primary',
+    chipContent: 'New',
+    children: [
+      {
+        displayName: 'Product List',
+        iconName: 'solar:round-alt-arrow-right-line-duotone',
+        subItemIcon: true,
+        route: 'apps/product/product-list',
+      },
+      {
+        displayName: 'Add Product',
+        iconName: 'solar:round-alt-arrow-right-line-duotone',
+        subItemIcon: true,
+        route: 'apps/product/add-product',
+      },
+      {
+        displayName: 'Edit Product',
+        iconName: 'solar:round-alt-arrow-right-line-duotone',
+        subItemIcon: true,
+        route: 'apps/product/edit-product',
+      },
+      {
+        displayName: 'Shop',
+        iconName: 'solar:round-alt-arrow-right-line-duotone',
+        subItemIcon: true,
+        route: 'apps/product/shop',
+      },
+    ],
+  },
+  {
+    displayName: 'Contacts',
+    iconName: 'solar:phone-line-duotone',
+    route: 'apps/contacts',
+  },
+  {
+    displayName: 'Courses',
+    iconName: 'solar:book-bookmark-line-duotone',
+    route: 'apps/courses',
   },
   {
     displayName: 'ToDo',

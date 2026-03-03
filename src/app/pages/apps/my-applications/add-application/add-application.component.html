@@ -1,263 +1,350 @@
+<div class="b-t-1 p-y-10 p-x-30 d-flex justify-content-center bg-light-primary">
+  <div class="text-center">
+    @if(serviceName) {
+    <h4 class="m-0 f-s-18 f-w-600 text-white">{{serviceName}}</h4>
 
-
-
-
+    }
+  </div>
+</div>
 <div class="stepper-container">
   <mat-stepper [linear]="true" #stepper class="mat-elevation-z0">
     <!-- Step 1: Owner Information -->
     <mat-step [stepControl]="ownerFormGroup">
       <form [formGroup]="ownerFormGroup">
         <ng-template matStepLabel>Owner Information</ng-template>
-      
-      <mat-card class="cardWithShadow">
-        <mat-card-header>
-          <mat-card-title class="m-b-0 f-s-20 f-w-600">Are you the Owner?</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="row m-t-16">
-            <div class="col-12">
-              <mat-radio-group [(ngModel)]="isOwner" [ngModelOptions]="{standalone: true}" class="d-flex flex-column gap-8">
-                <mat-radio-button (change)="isNotOwner = false">
-                  Yes, I am the owner
-                </mat-radio-button>
-                <mat-radio-button (change)="isNotOwner = true">
-                  No, applying on behalf of someone else
-                </mat-radio-button>
-              </mat-radio-group>
+        <mat-card class="cardWithShadow">
+          <mat-card-header>
+            <mat-card-title class="m-b-0 f-s-20 f-w-600">
+              Are you the Owner?
+              @if(serviceName) {
+              <span class="text-primary f-s-16 d-block m-t-8">Applying for: {{ serviceName }}</span>
+              }
+            </mat-card-title>
+
+          </mat-card-header>
+          <mat-card-content>
+            <div class="row m-t-16">
+              <div class="col-12">
+                <mat-radio-group [(ngModel)]="isOwner" [ngModelOptions]="{standalone: true}"
+                  class="d-flex flex-column gap-8">
+                  <mat-radio-button (change)="isNotOwner = false">
+                    Yes, I am the owner
+                  </mat-radio-button>
+                  <mat-radio-button (change)="isNotOwner = true">
+                    No, applying on behalf of someone else
+                  </mat-radio-button>
+                </mat-radio-group>
+              </div>
             </div>
-          </div>
 
-          @if(!isOwner && isNotOwner) {
-          <div class="m-t-24">
-            <mat-label class="f-s-14 f-w-600 m-b-8 d-block">On behalf of?</mat-label>
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-select [(value)]="selectedProfile" placeholder="Select profile">
-                @for(profile of userProfiles; track profile.email) {
-                <mat-option [value]="profile">
-                  @if(profile.profileType === 'Individual') {
+            @if(!isOwner && isNotOwner) {
+            <div class="m-t-24">
+              <mat-label class="f-s-14 f-w-600 m-b-8 d-block">On behalf of?</mat-label>
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-select [(value)]="selectedProfile" placeholder="Select profile">
+                  @for(profile of userProfiles; track profile.email) {
+                  <mat-option [value]="profile">
+                    @if(profile.profileType === 'Individual') {
                     {{ profile.firstName }} {{ profile.lastName }}
-                  } @else {
+                    } @else {
                     {{ profile.entityName }}
-                  }
-                  @if(profile.isDefault) {
+                    }
+                    @if(profile.isDefault) {
                     <span class="text-success"> (Default)</span>
+                    }
+                  </mat-option>
                   }
-                </mat-option>
+                  <mat-option [value]="'other'">
+                    Other (Enter manually)
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Other Profile Fields -->
+              @if(selectedProfile === 'other') {
+              <div class="m-t-16">
+                <mat-label class="f-s-14 f-w-600 m-b-12 d-block">Profile Type</mat-label>
+                <mat-radio-group [(ngModel)]="otherProfileType" [ngModelOptions]="{standalone: true}" class="m-b-16">
+                  <mat-radio-button value="individual" class="m-r-16">Individual</mat-radio-button>
+                  <mat-radio-button value="company">Company</mat-radio-button>
+                </mat-radio-group>
+
+                @if(otherProfileType === 'individual') {
+                <!-- Individual Fields -->
+                <div class="row">
+                  <div class="col-md-6">
+                    <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Full Name *</mat-label>
+                    <mat-form-field appearance="outline" class="w-100">
+                      <input matInput [(ngModel)]="otherProfile.name" [ngModelOptions]="{standalone: true}"
+                        placeholder="Enter full name" required />
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-6">
+                    <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Phone Number *</mat-label>
+                    <mat-form-field appearance="outline" class="w-100">
+                      <input matInput [(ngModel)]="otherProfile.phone" [ngModelOptions]="{standalone: true}"
+                        placeholder="Enter phone number" required />
+                    </mat-form-field>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Email *</mat-label>
+                    <mat-form-field appearance="outline" class="w-100">
+                      <input matInput type="email" [(ngModel)]="otherProfile.email"
+                        [ngModelOptions]="{standalone: true}" placeholder="Enter email" required />
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-6">
+                    <mat-label class="f-s-14 f-w-600 m-b-8 d-block">ID Card Number *</mat-label>
+                    <mat-form-field appearance="outline" class="w-100">
+                      <input matInput [(ngModel)]="otherProfile.idCardNo" [ngModelOptions]="{standalone: true}"
+                        placeholder="Enter ID card number" required />
+                    </mat-form-field>
+                  </div>
+                </div>
                 }
-                <mat-option [value]="'other'">
-                  Other (Enter manually)
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
 
-            <!-- Other Profile Fields -->
-            @if(selectedProfile === 'other') {
-            <div class="m-t-16">
-              <mat-label class="f-s-14 f-w-600 m-b-12 d-block">Profile Type</mat-label>
-              <mat-radio-group [(ngModel)]="otherProfileType" [ngModelOptions]="{standalone: true}" class="m-b-16">
-                <mat-radio-button value="individual" class="m-r-16">Individual</mat-radio-button>
-                <mat-radio-button value="company">Company</mat-radio-button>
-              </mat-radio-group>
-
-              @if(otherProfileType === 'individual') {
-              <!-- Individual Fields -->
-              <div class="row">
-                <div class="col-md-6">
-                  <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Full Name *</mat-label>
-                  <mat-form-field appearance="outline" class="w-100">
-                    <input matInput [(ngModel)]="otherProfile.name" [ngModelOptions]="{standalone: true}" placeholder="Enter full name" required />
-                  </mat-form-field>
-                </div>
-                <div class="col-md-6">
-                  <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Phone Number *</mat-label>
-                  <mat-form-field appearance="outline" class="w-100">
-                    <input matInput [(ngModel)]="otherProfile.phone" [ngModelOptions]="{standalone: true}" placeholder="Enter phone number" required />
-                  </mat-form-field>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-6">
-                  <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Email *</mat-label>
-                  <mat-form-field appearance="outline" class="w-100">
-                    <input matInput type="email" [(ngModel)]="otherProfile.email" [ngModelOptions]="{standalone: true}" placeholder="Enter email" required />
-                  </mat-form-field>
-                </div>
-                <div class="col-md-6">
-                  <mat-label class="f-s-14 f-w-600 m-b-8 d-block">ID Card Number *</mat-label>
-                  <mat-form-field appearance="outline" class="w-100">
-                    <input matInput [(ngModel)]="otherProfile.idCardNo" [ngModelOptions]="{standalone: true}" placeholder="Enter ID card number" required />
-                  </mat-form-field>
-                </div>
-              </div>
-              }
-
-              @if(otherProfileType === 'company') {
-              <!-- Company Fields -->
-              <div class="row">
-                <div class="col-md-6">
-                  <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Company Name *</mat-label>
-                  <mat-form-field appearance="outline" class="w-100">
-                    <input matInput [(ngModel)]="otherProfile.companyName" [ngModelOptions]="{standalone: true}" placeholder="Enter company name" required />
-                  </mat-form-field>
-                </div>
-                <div class="col-md-6">
-                  <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Registration Number *</mat-label>
-                  <mat-form-field appearance="outline" class="w-100">
-                    <input matInput [(ngModel)]="otherProfile.registrationNo" [ngModelOptions]="{standalone: true}" placeholder="Enter registration number" required />
-                  </mat-form-field>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-6">
-                  <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Email *</mat-label>
-                  <mat-form-field appearance="outline" class="w-100">
-                    <input matInput type="email" [(ngModel)]="otherProfile.email" [ngModelOptions]="{standalone: true}" placeholder="Enter email" required />
-                  </mat-form-field>
-                </div>
-                <div class="col-md-6">
-                  <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Phone Number *</mat-label>
-                  <mat-form-field appearance="outline" class="w-100">
-                    <input matInput [(ngModel)]="otherProfile.phone" [ngModelOptions]="{standalone: true}" placeholder="Enter phone number" required />
-                  </mat-form-field>
-                </div>
-              </div>
-              }
-
-              <!-- Address Fields (Common for both) -->
-              <div class="m-t-8">
-                <mat-label class="f-s-14 f-w-600 m-b-12 d-block">Address Information</mat-label>
+                @if(otherProfileType === 'company') {
+                <!-- Company Fields -->
                 <div class="row">
                   <div class="col-md-6">
-                    <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Address Name</mat-label>
+                    <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Company Name *</mat-label>
                     <mat-form-field appearance="outline" class="w-100">
-                      <input matInput [(ngModel)]="otherProfile.addressName" [ngModelOptions]="{standalone: true}" placeholder="e.g., Home, Office" />
+                      <input matInput [(ngModel)]="otherProfile.companyName" [ngModelOptions]="{standalone: true}"
+                        placeholder="Enter company name" required />
                     </mat-form-field>
                   </div>
                   <div class="col-md-6">
-                    <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Street</mat-label>
+                    <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Registration Number *</mat-label>
                     <mat-form-field appearance="outline" class="w-100">
-                      <input matInput [(ngModel)]="otherProfile.street" [ngModelOptions]="{standalone: true}" placeholder="Enter street" />
+                      <input matInput [(ngModel)]="otherProfile.registrationNo" [ngModelOptions]="{standalone: true}"
+                        placeholder="Enter registration number" required />
                     </mat-form-field>
                   </div>
                 </div>
                 <div class="row">
                   <div class="col-md-6">
-                    <mat-label class="f-s-14 f-w-600 m-b-8 d-block">City</mat-label>
+                    <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Email *</mat-label>
                     <mat-form-field appearance="outline" class="w-100">
-                      <input matInput [(ngModel)]="otherProfile.city" [ngModelOptions]="{standalone: true}" placeholder="Enter city" />
+                      <input matInput type="email" [(ngModel)]="otherProfile.email"
+                        [ngModelOptions]="{standalone: true}" placeholder="Enter email" required />
                     </mat-form-field>
                   </div>
                   <div class="col-md-6">
-                    <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Postal Code</mat-label>
+                    <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Phone Number *</mat-label>
                     <mat-form-field appearance="outline" class="w-100">
-                      <input matInput [(ngModel)]="otherProfile.postalCode" [ngModelOptions]="{standalone: true}" placeholder="Enter postal code" />
+                      <input matInput [(ngModel)]="otherProfile.phone" [ngModelOptions]="{standalone: true}"
+                        placeholder="Enter phone number" required />
                     </mat-form-field>
                   </div>
                 </div>
+                }
+
+                <!-- Address Fields (Common for both) -->
+                <div class="m-t-8">
+                  <mat-label class="f-s-14 f-w-600 m-b-12 d-block">Address Information</mat-label>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Address Name</mat-label>
+                      <mat-form-field appearance="outline" class="w-100">
+                        <input matInput [(ngModel)]="otherProfile.addressName" [ngModelOptions]="{standalone: true}"
+                          placeholder="e.g., Home, Office" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Street</mat-label>
+                      <mat-form-field appearance="outline" class="w-100">
+                        <input matInput [(ngModel)]="otherProfile.street" [ngModelOptions]="{standalone: true}"
+                          placeholder="Enter street" />
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <mat-label class="f-s-14 f-w-600 m-b-8 d-block">City</mat-label>
+                      <mat-form-field appearance="outline" class="w-100">
+                        <input matInput [(ngModel)]="otherProfile.city" [ngModelOptions]="{standalone: true}"
+                          placeholder="Enter city" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-label class="f-s-14 f-w-600 m-b-8 d-block">Postal Code</mat-label>
+                      <mat-form-field appearance="outline" class="w-100">
+                        <input matInput [(ngModel)]="otherProfile.postalCode" [ngModelOptions]="{standalone: true}"
+                          placeholder="Enter postal code" />
+                      </mat-form-field>
+                    </div>
+                  </div>
+                </div>
               </div>
+              }
             </div>
             }
-          </div>
-          }
 
-          <div class="m-t-24 d-flex justify-content-end gap-8">
-            <button mat-stroked-button type="button" [routerLink]="['/apps/myApplications/list']">
-              Cancel
-            </button>
-            <button mat-flat-button color="primary" matStepperNext type="button">
-              Next
-            </button>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </form>
-  </mat-step>
-
-  <!-- Step 2: Service Location -->
-  <mat-step [stepControl]="locationFormGroup">
-    <form [formGroup]="locationFormGroup">
-      <ng-template matStepLabel>Service Location</ng-template>
-      
-      <mat-card class="cardWithShadow">
-        <mat-card-header>
-          <mat-card-title class="m-b-0 f-s-20 f-w-600">Service Required Location</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="row m-t-16">
-            <div class="col-lg-6 col-12">
-              <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Region</mat-label>
-                <mat-select formControlName="region" required>
-                  @for(region of regions; track region) {
-                    <mat-option [value]="region">{{ region }}</mat-option>
-                  }
-                </mat-select>
-                <mat-error *ngIf="locationFormGroup.get('region')?.hasError('required')">
-                  Region is required
-                </mat-error>
-              </mat-form-field>
-            </div>
-            <div class="col-lg-6 col-12">
-              <mat-form-field appearance="outline" class="w-100">
-                <mat-label>City</mat-label>
-                <mat-select formControlName="city" required>
-                  @for(city of cities; track city) {
-                    <mat-option [value]="city">{{ city }}</mat-option>
-                  }
-                </mat-select>
-                <mat-error *ngIf="locationFormGroup.get('city')?.hasError('required')">
-                  City is required
-                </mat-error>
-              </mat-form-field>
-            </div>
-            <div class="col-lg-6 col-12">
-              <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Building Name</mat-label>
-                <input matInput formControlName="buildingName" placeholder="Enter building name" required />
-                <mat-error *ngIf="locationFormGroup.get('buildingName')?.hasError('required')">
-                  Building name is required
-                </mat-error>
-              </mat-form-field>
-            </div>
-            <div class="col-lg-6 col-12">
-              <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Street</mat-label>
-                <input matInput formControlName="street" placeholder="Enter street name" required />
-                <mat-error *ngIf="locationFormGroup.get('street')?.hasError('required')">
-                  Street is required
-                </mat-error>
-              </mat-form-field>
-            </div>
-          </div>
-
-          <div class="row m-t-24">
-            <div class="col-12 d-flex justify-content-between gap-8">
-              <button mat-stroked-button type="button" matStepperPrevious>
-                <i-tabler name="arrow-left" class="icon-18 m-r-4"></i-tabler>
-                Back
+            <div class="m-t-24 d-flex justify-content-end gap-8">
+              <button mat-stroked-button type="button" [routerLink]="['/apps/myApplications/list']">
+                Cancel
               </button>
-              <button mat-flat-button color="primary" type="button" matStepperNext>
+              <button mat-flat-button color="primary" matStepperNext type="button">
                 Next
-                <i-tabler name="arrow-right" class="icon-18 m-l-4"></i-tabler>
               </button>
             </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </form>
-  </mat-step>
+          </mat-card-content>
+        </mat-card>
+      </form>
+    </mat-step>
 
-  <!-- Step 3: Connection Details -->
-  <mat-step [stepControl]="addForm">
-    <form [formGroup]="addForm" (ngSubmit)="onSubmit()">
-      <ng-template matStepLabel>Connection Details</ng-template>
-      
-      <mat-card class="cardWithShadow">
-        <mat-card-header>
-          <mat-card-title class="m-b-0 f-s-20 f-w-600">Connection Details</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="row m-t-16">
+    <!-- Step 2: Service Location -->
+    <mat-step [stepControl]="locationFormGroup">
+      <form [formGroup]="locationFormGroup">
+        <ng-template matStepLabel>Service Location</ng-template>
+
+        <mat-card class="cardWithShadow">
+          <mat-card-header>
+            <mat-card-title class="m-b-0 f-s-20 f-w-600">Service Required Location</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="row m-t-16">
+              <div class="col-lg-6 col-12">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Region</mat-label>
+                  <mat-select formControlName="region" required>
+                    @for(region of regions; track region) {
+                    <mat-option [value]="region">{{ region }}</mat-option>
+                    }
+                  </mat-select>
+                  <mat-error *ngIf="locationFormGroup.get('region')?.hasError('required')">
+                    Region is required
+                  </mat-error>
+                </mat-form-field>
+              </div>
+              <div class="col-lg-6 col-12">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>City</mat-label>
+                  <mat-select formControlName="city" required>
+                    @for(city of cities; track city) {
+                    <mat-option [value]="city">{{ city }}</mat-option>
+                    }
+                  </mat-select>
+                  <mat-error *ngIf="locationFormGroup.get('city')?.hasError('required')">
+                    City is required
+                  </mat-error>
+                </mat-form-field>
+              </div>
+              <div class="col-lg-6 col-12">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Building Name</mat-label>
+                  <input matInput formControlName="buildingName" placeholder="Enter building name" required />
+                  <mat-error *ngIf="locationFormGroup.get('buildingName')?.hasError('required')">
+                    Building name is required
+                  </mat-error>
+                </mat-form-field>
+              </div>
+              <div class="col-lg-6 col-12">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Street</mat-label>
+                  <input matInput formControlName="street" placeholder="Enter street name" required />
+                  <mat-error *ngIf="locationFormGroup.get('street')?.hasError('required')">
+                    Street is required
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="row m-t-24">
+              <div class="col-12 d-flex justify-content-between gap-8">
+                <button mat-stroked-button type="button" matStepperPrevious>
+                  <i-tabler name="arrow-left" class="icon-18 m-r-4"></i-tabler>
+                  Back
+                </button>
+                <button mat-flat-button color="primary" type="button" matStepperNext>
+                  Next
+                  <i-tabler name="arrow-right" class="icon-18 m-l-4"></i-tabler>
+                </button>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </form>
+    </mat-step>
+
+    <!-- Step 3: Connection Details -->
+    <mat-step [stepControl]="addForm">
+      <form [formGroup]="addForm" (ngSubmit)="onSubmit()">
+        <ng-template matStepLabel>Connection Details</ng-template>
+
+        <mat-card class="cardWithShadow">
+          <mat-card-header>
+            <mat-card-title class="m-b-0 f-s-20 f-w-600">Connection Details</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-card class="cardWithShadow b-1 rounded p-30">
+              <!-- <h4 Ctitle>Variation</h4> -->
+              <div class="f-s-14 f-w-600 m-b-8 d-block m-t-20">
+                Add Connections
+              </div>
+
+              <!-- Connections FormArray -->
+              <div formArrayName="connections">
+                @for(connection of connections.controls; track $index; let i = $index) {
+                <div class="row" [formGroupName]="i">
+                  <div class="col-lg-4 col-12">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-select formControlName="tarrifType" placeholder="Tarrif Type">
+                        @for (ttypes of tarrifTypes; track ttypes) {
+                        <mat-option [value]="ttypes">
+                          <span [ngClass]="{ 'highlight-size': ttypes === 'Domestic' }">
+                            {{ ttypes }}
+                          </span>
+                        </mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-lg-4 col-12">
+                    <div class="d-flex align-items-center m-b-30">
+                      <label class="f-s-16 f-w-600">QTY:</label>
+
+                      <mat-button-toggle-group class="border-style m-x-20">
+                        <mat-button-toggle (click)="decreaseConnectionQty(i)" disableRipple>
+                          -
+                        </mat-button-toggle>
+                        <mat-button-toggle disableRipple>
+                          {{ connection.get('quantity')?.value || 1 }}
+                        </mat-button-toggle>
+                        <mat-button-toggle (click)="increaseConnectionQty(i)" disableRipple>
+                          +
+                        </mat-button-toggle>
+                      </mat-button-toggle-group>
+                    </div>
+                  </div>
+                  <div class="col-lg-4 col-12 d-flex align-items-start">
+                    <button 
+                      mat-flat-button 
+                      type="button"
+                      class="bg-error text-white" 
+                      style="min-width: 40px; height: 40px;"
+                      (click)="onRemoveConnection(i)"
+                      [disabled]="connections.length === 1">
+                      X
+                    </button>
+                  </div>
+                </div>
+                }
+              </div>
+
+              <div class="m-t-16">
+                <button mat-flat-button type="button" class="bg-light-primary text-primary w-50" (click)="onAddConnection()">
+                  <div class="d-flex align-items-center justify-content-center">
+                    <tabler-icon name="plus" class="m-r-8"></tabler-icon>
+                    <span> Add another</span>
+                  </div>
+                </button>
+              </div>
+            </mat-card>
+
+            <!-- <div class="row m-t-16">
             <div class="col-lg-6 col-12">
               <mat-form-field appearance="outline" class="w-100">
                 <mat-label>Service Type</mat-label>
@@ -272,9 +359,9 @@
               </mat-form-field>
             </div>
    
-          </div>
+          </div> -->
 
-          <!-- <mat-divider class="m-t-16 m-b-16"></mat-divider>
+            <!-- <mat-divider class="m-t-16 m-b-16"></mat-divider>
 
           <div class="row align-items-center m-b-16">
             <div class="col-6">
@@ -288,7 +375,7 @@
             </div>
           </div> -->
 
-          <!-- <div formArrayName="rows">
+            <!-- <div formArrayName="rows">
             @for(row of rows.controls; track i; let i = $index) {
               <mat-card class="m-b-16 bg-light-primary" [formGroupName]="i">
                 <mat-card-content>
@@ -336,21 +423,28 @@
             }
           </div> -->
 
-          <div class="row m-t-24">
-            <div class="col-12 d-flex justify-content-between gap-8">
-              <button mat-stroked-button type="button" matStepperPrevious>
-                <i-tabler name="arrow-left" class="icon-18 m-r-4"></i-tabler>
-                Back
-              </button>
-              <button mat-flat-button color="primary" type="button" (click)="onSubmit()" [disabled]="!locationFormGroup.valid || !addForm.valid">
-                Submit Application
-                <i-tabler name="check" class="icon-18 m-l-4"></i-tabler>
-              </button>
+            <div class="row m-t-24">
+              <div class="col-12 d-flex justify-content-between gap-8">
+                <button mat-stroked-button type="button" matStepperPrevious>
+                  <i-tabler name="arrow-left" class="icon-18 m-r-4"></i-tabler>
+                  Back
+                </button>
+                <!-- <button mat-flat-button color="primary" type="button" (click)="onSubmit()"
+                  [disabled]="!locationFormGroup.valid || !addForm.valid">
+                  Submit Application
+                  <i-tabler name="check" class="icon-18 m-l-4"></i-tabler>
+                </button> -->
+                 <button mat-flat-button color="primary" type="button" (click)="onSubmit1()">
+                  Submit Application
+                  <i-tabler name="check" class="icon-18 m-l-4"></i-tabler>
+                </button>
+              </div>
             </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </form>
-  </mat-step>
-</mat-stepper>
+          </mat-card-content>
+        </mat-card>
+      </form>
+    </mat-step>
+
+  </mat-stepper>
+
 </div>
