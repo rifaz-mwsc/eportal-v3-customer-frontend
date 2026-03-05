@@ -1,0 +1,45 @@
+name: Deploy to Dev Server
+
+on:
+  push:
+    branches: ["develop"]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Angular App (dev-01 configuration)
+        run: npm run build -- --configuration=dev-01
+
+      - name: Deploy to Dev Server via FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.DEV_FTP_SERVER }}
+          username: ${{ secrets.DEV_FTP_USERNAME }}
+          password: ${{ secrets.DEV_FTP_PASSWORD }}
+          server-dir: ${{ secrets.DEV_FTP_SERVER_DIR }}
+          local-dir: ./dist/Matdash/browser/
+          protocol: ftps
+          port: 21
+          log-level: verbose
+          
+      - name: Deployment Summary
+        run: |
+          echo "✅ Deployment completed successfully!"
+          echo "🌐 Target: dev-01 environment"
+          echo "📁 Server: ${{ secrets.DEV_FTP_SERVER }}"
+          echo "📂 Directory: ${{ secrets.DEV_FTP_SERVER_DIR }}"
