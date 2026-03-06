@@ -33,34 +33,34 @@ jobs:
           $serverPath = "${{ secrets.DEV_SERVER_PATH }}"
           $buildPath = ".\dist\Matdash\browser\*"
           
-          Write-Host "🚀 Starting deployment..."
-          Write-Host "📁 Source: $buildPath"
-          Write-Host "📂 Destination: $serverPath"
+          Write-Host "Starting deployment..."
+          Write-Host "Source: $buildPath"
+          Write-Host "Destination: $serverPath"
           
           # Check if server path is accessible
           if (-not (Test-Path $serverPath)) {
-            Write-Error "❌ Cannot access server path: $serverPath"
+            Write-Error "Cannot access server path: $serverPath"
             exit 1
           }
           
           # Backup existing files (optional)
           $backupPath = "$serverPath\backup_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
-          Write-Host "� Creating backup at: $backupPath"
+          Write-Host "Creating backup at: $backupPath"
           New-Item -ItemType Directory -Path $backupPath -Force | Out-Null
           Copy-Item -Path "$serverPath\*" -Destination $backupPath -Recurse -Force -ErrorAction SilentlyContinue
           
           # Clear destination (except backup folder)
-          Write-Host "🧹 Clearing destination..."
+          Write-Host "Clearing destination..."
           Get-ChildItem -Path $serverPath -Exclude "backup_*" | Remove-Item -Recurse -Force
           
           # Copy new files
-          Write-Host "📦 Copying new files..."
+          Write-Host "Copying new files..."
           Copy-Item -Path $buildPath -Destination $serverPath -Recurse -Force
           
-          Write-Host "✅ Deployment completed successfully!"
+          Write-Host "Deployment completed successfully!"
           
       - name: Deployment Summary
         run: |
-          Write-Host "✅ Deployment completed successfully!"
-          Write-Host "🌐 Target: dev-01 environment"
-          Write-Host "📂 Server Path: ${{ secrets.DEV_SERVER_PATH }}"
+          Write-Host "Deployment completed successfully!"
+          Write-Host "Target: dev-01 environment"
+          Write-Host "Server Path: ${{ secrets.DEV_SERVER_PATH }}"
