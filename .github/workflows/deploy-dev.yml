@@ -8,6 +8,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: self-hosted  # Use self-hosted runner in office network
+    defaults:
+      run:
+        shell: powershell
     
     steps:
       - name: Checkout code
@@ -20,15 +23,12 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        shell: powershell
         run: npm ci
 
       - name: Build Angular App (dev-01 configuration)
-        shell: powershell
         run: npm run build -- --configuration=dev-01
 
       - name: Deploy to Dev Server via Network Share
-        shell: powershell
         run: |
           $serverPath = "${{ secrets.DEV_SERVER_PATH }}"
           $buildPath = ".\dist\Matdash\browser\*"
@@ -60,7 +60,6 @@ jobs:
           Write-Host "✅ Deployment completed successfully!"
           
       - name: Deployment Summary
-        shell: powershell
         run: |
           Write-Host "✅ Deployment completed successfully!"
           Write-Host "🌐 Target: dev-01 environment"
