@@ -27,33 +27,41 @@ jobs:
         shell: pwsh
         run: npm run build -- --configuration=dev-01
 
-      - name: Ensure server-dir ends with slash
-        id: prepare-deploy
+      - name: Deploy to Dev Server via Network Share
         shell: pwsh
         run: |
-          $SERVER_DIR = "${{ secrets.DEV_FTP_SERVER_DIR }}"
-          # Add trailing slash if not present
-          if (-not $SERVER_DIR.EndsWith('/')) {
-            $SERVER_DIR = "$SERVER_DIR/"
+          $serverPath = "${{ secrets.DEV_SERVER_PATH }}"
+          $buildPath = ".\dist\Matdash\browser\*"
+          
+          Write-Host "🚀 Starting deployment..."
+          Write-Host "📁 Source: $buildPath"
+          Write-Host "📂 Destination: $serverPath"
+          
+          # Check if server path is accessible
+          if (-not (Test-Path $serverPath)) {
+            Write-Error "❌ Cannot access server path: $serverPath"
+            exit 1
           }
-          "server_dir=$SERVER_DIR" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          Write-Host "📂 Deploying to: $SERVER_DIR"
-
-      - name: Deploy to Dev Server via FTPS
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.DEV_FTP_SERVER }}
-          username: ${{ secrets.DEV_FTP_USERNAME }}
-          password: ${{ secrets.DEV_FTP_PASSWORD }}
-          server-dir: ${{ steps.prepare-deploy.outputs.server_dir }}
-          local-dir: ./dist/Matdash/browser/
-          protocol: ftps
-          port: 21
-          log-level: verbose
+          
+          # Backup existing files (optional)
+          $backupPath = "$serverPath\backup_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
+          Write-Host "� Creating backup at: $backupPath"
+          New-Item -ItemType Directory -Path $backupPath -Force | Out-Null
+          Copy-Item -Path "$serverPath\*" -Destination $backupPath -Recurse -Force -ErrorAction SilentlyContinue
+          
+          # Clear destination (except backup folder)
+          Write-Host "🧹 Clearing destination..."
+          Get-ChildItem -Path $serverPath -Exclude "backup_*" | Remove-Item -Recurse -Force
+          
+          # Copy new files
+          Write-Host "📦 Copying new files..."
+          Copy-Item -Path $buildPath -Destination $serverPath -Recurse -Force
+          
+          Write-Host "✅ Deployment completed successfully!"
           
       - name: Deployment Summary
+        shell: pwsh
         run: |
-          echo "✅ Deployment completed successfully!"
-          echo "🌐 Target: dev-01 environment"
-          echo "📁 Server: ${{ secrets.DEV_FTP_SERVER }}"
-          echo "📂 Directory: ${{ secrets.DEV_FTP_SERVER_DIR }}"
+          Write-Host "✅ Deployment completed successfully!"
+          Write-Host "🌐 Target: dev-01 environment"
+          Write-Host "� Server Path: ${{ secrets.DEV_SERVER_PATH }}"
