@@ -20,21 +20,24 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
+        shell: pwsh
         run: npm ci
 
       - name: Build Angular App (dev-01 configuration)
+        shell: pwsh
         run: npm run build -- --configuration=dev-01
 
       - name: Ensure server-dir ends with slash
         id: prepare-deploy
+        shell: pwsh
         run: |
-          SERVER_DIR="${{ secrets.DEV_FTP_SERVER_DIR }}"
+          $SERVER_DIR = "${{ secrets.DEV_FTP_SERVER_DIR }}"
           # Add trailing slash if not present
-          if [[ ! "$SERVER_DIR" =~ /$ ]]; then
-            SERVER_DIR="${SERVER_DIR}/"
-          fi
-          echo "server_dir=$SERVER_DIR" >> $GITHUB_OUTPUT
-          echo "📂 Deploying to: $SERVER_DIR"
+          if (-not $SERVER_DIR.EndsWith('/')) {
+            $SERVER_DIR = "$SERVER_DIR/"
+          }
+          "server_dir=$SERVER_DIR" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "📂 Deploying to: $SERVER_DIR"
 
       - name: Deploy to Dev Server via FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
