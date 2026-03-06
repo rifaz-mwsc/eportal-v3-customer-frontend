@@ -43,15 +43,9 @@ jobs:
             exit 1
           }
           
-          # Backup existing files (optional)
-          $backupPath = "$serverPath\backup_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
-          Write-Host "Creating backup at: $backupPath"
-          New-Item -ItemType Directory -Path $backupPath -Force | Out-Null
-          Copy-Item -Path "$serverPath\*" -Destination $backupPath -Recurse -Force -ErrorAction SilentlyContinue
-          
-          # Clear destination (except backup folder)
+          # Clear destination folder
           Write-Host "Clearing destination..."
-          Get-ChildItem -Path $serverPath -Exclude "backup_*" | Remove-Item -Recurse -Force
+          Get-ChildItem -Path $serverPath | Remove-Item -Recurse -Force
           
           # Copy new files
           Write-Host "Copying new files..."
