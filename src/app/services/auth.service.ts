@@ -53,7 +53,7 @@ export class AuthService {
   private readonly USER_DATA_KEY = 'user_data';
   private readonly TOKEN_EXPIRY_KEY = 'token_expiry';
 
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasValidToken());
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
   private tokenRefreshTimer: any = null;
@@ -62,8 +62,12 @@ export class AuthService {
     private http: HttpClient,
     private router: Router
   ) {
+    // Set initial authentication state after BehaviorSubject is initialized
+    const hasToken = this.hasValidToken();
+    this.isAuthenticatedSubject.next(hasToken);
+    
     // Initialize token refresh timer if user is already authenticated
-    if (this.hasValidToken()) {
+    if (hasToken) {
       this.scheduleTokenRefresh();
     }
   }
