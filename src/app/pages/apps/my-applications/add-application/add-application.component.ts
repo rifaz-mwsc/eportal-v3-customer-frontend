@@ -22,6 +22,12 @@ import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatStepperModule} from '@angular/material/stepper';
 import { AuthService, UserProfile } from 'src/app/services/auth.service';
+import { 
+  ServiceRequestService, 
+  ServiceRequestWithType,
+  RequestPipelineStep,
+  RequestPipelineStepDocument 
+} from 'src/app/services/service-request.service';
 
 
 @Component({
@@ -76,10 +82,14 @@ import { AuthService, UserProfile } from 'src/app/services/auth.service';
 })
 export class AppAddApplicationComponent implements OnInit {
       private _formBuilder = inject(FormBuilder);
+  private serviceRequestService = inject(ServiceRequestService);
 
   // Service information from route
   serviceId: string | null = null;
   serviceName: string | null = null;
+  serviceDetails: ServiceRequestWithType | null = null;
+  pipelineSteps: RequestPipelineStep[] = [];
+  isLoadingService: boolean = false;
 
   // User data
   userData: any = null;
@@ -179,6 +189,7 @@ export class AppAddApplicationComponent implements OnInit {
 
   toggleValue: any = null;
   quantity: number = 1;
+declarationAgreed: any;
   constructor(
     private fb: UntypedFormBuilder,
     private applicationService: ApplicationService,
@@ -234,6 +245,132 @@ export class AppAddApplicationComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUserData();
+    if (this.serviceId) {
+      this.loadServicePipelineSteps();
+    }
+  }
+
+  /**
+   * Load pipeline steps for the selected service
+   */
+  loadServicePipelineSteps(): void {
+    if (!this.serviceId) {
+      console.error('No service ID provided');
+      return;
+    }
+
+    this.isLoadingService = true;
+
+    // Fetch service details
+    this.serviceRequestService.getServiceRequestById(this.serviceId).subscribe({
+      next: (service) => {
+        if (service) {
+          // Get full service details with UI properties
+          this.serviceRequestService.getAllServiceRequestsWithType().subscribe({
+            next: (allServices) => {
+              const fullService = allServices.find(s => s.id === this.serviceId);
+              if (fullService) {
+                this.serviceDetails = fullService;
+                this.serviceName = fullService.name;
+                console.log('Service details loaded:', fullService);
+              }
+            },
+            error: (error) => {
+              console.error('Error loading full service details:', error);
+            }
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error loading service:', error);
+        this.isLoadingService = false;
+      }
+    });
+
+    // Fetch pipeline steps
+    this.serviceRequestService.getPipelineSteps(this.serviceId).subscribe({
+      next: (steps) => {
+        this.pipelineSteps = steps;
+        this.isLoadingService = false;
+        console.log('Pipeline steps loaded:', steps);
+        console.log('Total steps:', steps.length);
+        
+        // Log step details
+        steps.forEach((step, index) => {
+          console.log(`Step ${index + 1}: ${step.title} (${step.pipelineStepType})`);
+          if (step.pipelineStepType === 'DocumentUpload') {
+            console.log('  Required documents:', step.requestPipelineStepDocuments);
+          }
+        });
+
+        // Update required documents from API
+        this.updateRequiredDocumentsFromPipeline();
+      },
+      error: (error) => {
+        console.error('Error loading pipeline steps:', error);
+        this.isLoadingService = false;
+      }
+    });
+  }
+
+  /**
+   * Update required documents list from pipeline steps
+   */
+  updateRequiredDocumentsFromPipeline(): void {
+    const documentSteps = this.pipelineSteps.filter(
+      step => step.pipelineStepType === 'DocumentUpload'
+    );
+
+    if (documentSteps.length > 0) {
+      this.requiredDocuments = [];
+      let documentId = 1;
+
+      documentSteps.forEach(step => {
+        step.requestPipelineStepDocuments.forEach(doc => {
+          this.requiredDocuments.push({
+            id: documentId++,
+            name: doc.documentType,
+            required: doc.isRequired,
+            file: null,
+            uploaded: false
+          });
+        });
+      });
+
+      console.log('Required documents updated from API:', this.requiredDocuments);
+    }
+  }
+
+  /**
+   * Get step by step key
+   */
+  getStepByKey(stepKey: string): RequestPipelineStep | undefined {
+    return this.pipelineSteps.find(step => step.stepKey === stepKey);
+  }
+
+  /**
+   * Check if a specific step type is required
+   */
+  isStepRequired(stepKey: string): boolean {
+    const step = this.getStepByKey(stepKey);
+    return step?.isRequired || false;
+  }
+
+  /**
+   * Get steps by type
+   */
+  getStepsByType(type: 'FormSection' | 'DocumentUpload' | 'Declaration'): RequestPipelineStep[] {
+    return this.pipelineSteps.filter(step => step.pipelineStepType === type);
+  }
+
+  /**
+   * Get declaration content
+   */
+  getDeclarationContent(): string | null {
+    const declarationStep = this.pipelineSteps.find(
+      step => step.pipelineStepType === 'Declaration'
+    );
+    return declarationStep?.declarationContent || null;
   }
   increaseQty() {
     this.quantity++;

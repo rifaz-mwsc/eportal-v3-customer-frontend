@@ -76,6 +76,18 @@ export const routes: Routes = [
             (m) => m.UiComponentsRoutes
           ),
       },
+      {
+        path: 'examples',
+        children: [
+          {
+            path: 'service-requests',
+            loadComponent: () =>
+              import('./examples/service-requests-example.component').then(
+                (m) => m.ServiceRequestsExampleComponent
+              ),
+          },
+        ],
+      },
     ],
   },
   {

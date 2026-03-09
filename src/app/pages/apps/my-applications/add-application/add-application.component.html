@@ -7,11 +7,24 @@
   </div>
 </div>
 <div class="stepper-container">
+  @if(isLoadingService) {
+    <mat-card class="cardWithShadow">
+      <mat-card-content class="text-center p-y-24">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p class="m-t-16">Loading service information...</p>
+      </mat-card-content>
+    </mat-card>
+  }
+  
+  @if(!isLoadingService && pipelineSteps.length > 0) {
   <mat-stepper [linear]="true" #stepper class="mat-elevation-z0">
-    <!-- Step 1: Owner Information -->
-    <mat-step [stepControl]="ownerFormGroup">
-      <form [formGroup]="ownerFormGroup">
-        <ng-template matStepLabel>step 1</ng-template>
+    @for(step of pipelineSteps; track step.stepOrder) {
+      
+      <!-- Owner Details Step -->
+      @if(step.stepKey === 'OwnerDetails') {
+      <mat-step [stepControl]="ownerFormGroup">
+        <form [formGroup]="ownerFormGroup">
+          <ng-template matStepLabel>{{ step.title }}</ng-template>
         <mat-card class="cardWithShadow">
           <mat-card-header>
             <mat-card-title class="m-b-0 f-s-20 f-w-600">
@@ -194,15 +207,17 @@
         </mat-card>
       </form>
     </mat-step>
+    }
 
-    <!-- Step 2: Service Location & Meter Requirements -->
+    <!-- Service Address Step -->
+    @if(step.stepKey === 'ServiceAddress') {
     <mat-step [stepControl]="locationFormGroup">
       <form [formGroup]="locationFormGroup">
-        <ng-template matStepLabel>Step 2</ng-template>
+        <ng-template matStepLabel>{{ step.title }}</ng-template>
 
         <mat-card class="cardWithShadow">
           <mat-card-header>
-            <mat-card-title class="m-b-0 f-s-20 f-w-600">Service Details</mat-card-title>
+            <mat-card-title class="m-b-0 f-s-20 f-w-600">{{ step.title }}</mat-card-title>
           </mat-card-header>
           <mat-card-content>
             <div class="row m-t-16">
@@ -252,8 +267,39 @@
               </div>
             </div>
 
-            <mat-divider class="m-t-24 m-b-16"></mat-divider>
+            <div class="row m-t-24">
+              <div class="col-12 d-flex justify-content-between gap-8">
+                <button mat-stroked-button type="button" matStepperPrevious>
+                  <i-tabler name="arrow-left" class="icon-18 m-r-4"></i-tabler>
+                  Back
+                </button>
+                <button 
+                  mat-flat-button 
+                  color="primary" 
+                  type="button" 
+                  matStepperNext>
+                  Next
+                  <i-tabler name="arrow-right" class="icon-18 m-l-4"></i-tabler>
+                </button>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </form>
+    </mat-step>
+    }
 
+    <!-- Connection Details Step -->
+    @if(step.stepKey === 'ConnectionDetails') {
+    <mat-step [stepControl]="locationFormGroup">
+      <form [formGroup]="locationFormGroup">
+        <ng-template matStepLabel>{{ step.title }}</ng-template>
+
+        <mat-card class="cardWithShadow">
+          <mat-card-header>
+            <mat-card-title class="m-b-0 f-s-20 f-w-600">{{ step.title }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
             <!-- Meter Requirements Section -->
             <div class="m-t-24">
               <div class="d-flex justify-content-between align-items-center m-b-16">
@@ -390,10 +436,12 @@
         </mat-card>
       </form>
     </mat-step>
+    }
 
-    <!-- Step 3: Document Upload -->
+    <!-- Document Upload Step -->
+    @if(step.pipelineStepType === 'DocumentUpload') {
     <mat-step>
-      <ng-template matStepLabel>Step 3</ng-template>
+      <ng-template matStepLabel>{{ step.title }}</ng-template>
 
       <mat-card class="cardWithShadow">
         <mat-card-header>
@@ -549,8 +597,51 @@
                 mat-flat-button 
                 color="primary" 
                 type="button" 
+                matStepperNext>
+                <i-tabler name="arrow-right" class="icon-18 m-r-4"></i-tabler>
+                Next
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </mat-step>
+    }
+
+    <!-- Declaration Step -->
+    @if(step.pipelineStepType === 'Declaration') {
+    <mat-step>
+      <ng-template matStepLabel>{{ step.title }}</ng-template>
+
+      <mat-card class="cardWithShadow">
+        <mat-card-header>
+          <mat-card-title class="m-b-0 f-s-20 f-w-600">{{ step.title }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if(step.declarationContent) {
+            <div [innerHTML]="step.declarationContent" class="f-s-14 f-w-600 m-b-16"></div>
+          } @else {
+            <p class="f-s-14 f-w-600 m-b-16">
+              I hereby declare that the information provided in this application is true and correct to the best of my knowledge. I understand that providing false information may result in the rejection of my application or legal consequences.
+            </p>
+          }
+
+          <mat-checkbox [(ngModel)]="declarationAgreed" [ngModelOptions]="{standalone: true}" class="f-s-14 f-w-600">
+            I agree to the declaration
+          </mat-checkbox>
+
+          <div class="row m-t-24">
+            <div class="col-12 d-flex justify-content-between gap-8">
+              <button mat-stroked-button type="button" matStepperPrevious>
+                <i-tabler name="arrow-left" class="icon-18 m-r-4"></i-tabler>
+                Back
+              </button>
+              <button 
+                mat-flat-button 
+                color="primary" 
+                type="button" 
                 (click)="onSubmit1()"
-                [disabled]="!areRequiredDocumentsUploaded()">
+                [disabled]="!declarationAgreed || !areRequiredDocumentsUploaded()">
                 <i-tabler name="check" class="icon-18 m-r-4"></i-tabler>
                 Submit Application
               </button>
@@ -559,7 +650,9 @@
         </mat-card-content>
       </mat-card>
     </mat-step>
-
+    }
+    }
   </mat-stepper>
+  }
 
 </div>

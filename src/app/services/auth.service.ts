@@ -5,7 +5,21 @@ import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { tap, catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
+export interface Address {
+  id: string;
+  addressLine1: string | null;
+  addressLine2: string | null;
+  addressLine3: string | null;
+  addressLine4: string | null;
+  postalCode: string | null;
+  atoll: string | null;
+  island: string | null;
+  addressType: string | null;
+  isDefault: boolean;
+}
+
 export interface UserProfile {
+  id: string;
   isDefault: boolean;
   isActive: boolean;
   isVerified: boolean;
@@ -19,11 +33,13 @@ export interface UserProfile {
   nationality: string | null;
   dob: string | null;
   email: string;
-  contact: string | null;
+  mobileNo: string | null;
   // Entity profile fields
   entityName: string | null;
   registrationNumber: string | null;
   entityType: string | null;
+  // Address
+  permanentAddress: Address | null;
 }
 
 export interface AuthItem {
@@ -231,7 +247,7 @@ export class AuthService {
     const userData = {
       name: fullName,
       email: defaultProfile.email,
-      phoneNumber: defaultProfile.contact,
+      phoneNumber: defaultProfile.mobileNo,
       idNumber: defaultProfile.identityNumber,
       firstName: defaultProfile.firstName,
       middleName: defaultProfile.middleName,
@@ -244,6 +260,8 @@ export class AuthService {
       entityName: defaultProfile.entityName,
       registrationNumber: defaultProfile.registrationNumber,
       entityType: defaultProfile.entityType,
+      // Address
+      permanentAddress: defaultProfile.permanentAddress,
       // Status flags
       isDefault: defaultProfile.isDefault,
       isActive: defaultProfile.isActive,

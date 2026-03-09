@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ServiceDirectoryService } from 'src/app/services/apps/service-directory/service-directory.service';
 import { ServiceDirectory } from './service-directory';
 import { MatCardModule } from '@angular/material/card';
@@ -11,7 +11,13 @@ import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatChipsModule } from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
+import { 
+  ServiceRequestService, 
+  ServiceRequestWithType
+} from '../../../services/service-request.service';
 
 @Component({
   selector: 'app-service-directory',
@@ -38,15 +44,42 @@ import { CommonModule } from '@angular/common';
     MatIconModule,
     MatInputModule,
     MatButtonModule,
-    MatCardModule,
+    MatProgressSpinnerModule,
+    MatChipsModule,
   ],
 })
 export class ServiceDirectoryComponent {
-  serviceList = signal<ServiceDirectory[]>([]);
+  serviceList = signal<ServiceRequestWithType[]>([]);
+  allServices: ServiceRequestWithType[] = [];
   selectedCategory = signal<string>('All');
+  isLoading = signal<boolean>(false);
+  private serviceRequestService = inject(ServiceRequestService);
 
   constructor(private serviceDirectoryService: ServiceDirectoryService) {
-    this.serviceList.set(this.serviceDirectoryService.getServiceDirectory());
+    // Remove static data loading
+  }
+  
+  ngOnInit() {
+    this.loadServiceRequests();
+  }
+
+  /**
+   * Load service requests from API
+   */
+  loadServiceRequests() {
+    this.isLoading.set(true);
+    this.serviceRequestService.getAllServiceRequestsWithType().subscribe({
+      next: (services) => {
+        this.allServices = services;
+        this.serviceList.set(services);
+        this.isLoading.set(false);
+        console.log('Loaded service requests:', services);
+      },
+      error: (error) => {
+        console.error('Error loading service requests:', error);
+        this.isLoading.set(false);
+      }
+    });
   }
 
   applyFilter(event: Event): void {
@@ -54,12 +87,10 @@ export class ServiceDirectoryComponent {
     this.serviceList.set(this.filter(filterValue));
   }
 
-  filter(v: string): ServiceDirectory[] {
-    return this.serviceDirectoryService
-      .getServiceDirectory()
-      .filter(
-        (x) => x.serviceName.toLowerCase().indexOf(v.toLowerCase()) !== -1
-      );
+  filter(v: string): ServiceRequestWithType[] {
+    return this.allServices.filter(
+      (service) => service.name.toLowerCase().indexOf(v.toLowerCase()) !== -1
+    );
   }
 
   ddlChange(event: any): void {
@@ -67,12 +98,20 @@ export class ServiceDirectoryComponent {
     this.selectedCategory.set(selectedValue);
     
     if (selectedValue === 'All') {
-      this.serviceList.set(this.serviceDirectoryService.getServiceDirectory());
+      this.serviceList.set(this.allServices);
     } else {
-      const filteredServices = this.serviceDirectoryService
-        .getServiceDirectory()
-        .filter((x) => x.serviceCategory === selectedValue);
+      const filteredServices = this.allServices.filter(
+        (service) => service.requestTypeName === selectedValue
+      );
       this.serviceList.set(filteredServices);
     }
+  }
+
+  /**
+   * Get unique request type names for category dropdown
+   */
+  getCategories(): string[] {
+    const categories = new Set(this.allServices.map(s => s.requestTypeName));
+    return ['All', ...Array.from(categories)];
   }
 }

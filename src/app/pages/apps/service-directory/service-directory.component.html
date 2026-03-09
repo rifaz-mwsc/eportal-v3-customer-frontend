@@ -18,13 +18,9 @@
             [value]="selectedCategory()"
             (selectionChange)="ddlChange($event)">
             
-            <mat-option value="All" selected>All</mat-option>
-            <mat-option value="Water Supply">Water Supply</mat-option>
-            <mat-option value="Billing">Billing</mat-option>
-            <mat-option value="Maintenance">Maintenance</mat-option>
-            <mat-option value="Account">Account</mat-option>
-            <mat-option value="Support">Support</mat-option>
-            <mat-option value="Reports">Reports</mat-option>
+            @for(category of getCategories(); track category) {
+              <mat-option [value]="category">{{ category }}</mat-option>
+            }
           </mat-select>
         </mat-form-field>
       </div>
@@ -75,14 +71,25 @@
   <div class="setup-process p-b-48">
     <div class="container">
       
-      <mat-card class="mat-bg-error mat-text-on-error">
-        <mat-card-content>
-          <span class="m-0 f-s-14 f-w-500 text-white">for Ibbe - must know if existing or new or LMS application</span>
-        </mat-card-content>
-      </mat-card>
+      @if(isLoading()) {
+        <div class="text-center p-y-24">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p class="m-t-16">Loading services...</p>
+        </div>
+      }
+      
+      @if(!isLoading() && serviceList().length === 0) {
+        <mat-card class="text-center p-y-24">
+          <mat-card-content>
+            <mat-icon class="icon-48 text-muted">folder_open</mat-icon>
+            <p class="f-s-16 m-t-16">No services found</p>
+          </mat-card-content>
+        </mat-card>
+      }
+      
       <div class="row">
-        @for(service of serviceList(); track service.serviceName) {
-        <div class="col-lg-3 col-sm-6" [routerLink]="['/apps/ServiceDirectory/ServiceDirectoryDetail/', service.Id]" style="cursor: pointer;">
+        @for(service of serviceList(); track service.id) {
+        <div class="col-lg-3 col-sm-6" [routerLink]="['/apps/ServiceDirectory/ServiceDirectoryDetail/', service.id]" style="cursor: pointer;">
           <mat-card class="" [ngStyle]="{
               'background-color': service.bg_color.startsWith('--')
                 ? 'var(' + service.bg_color + ')'
@@ -94,8 +101,11 @@
               <mat-card class="d-flex align-items-center justify-content-center icon-48 m-b-16">
                 <i-tabler [name]="service.icon" class="icon-24" [ngClass]="service.color"></i-tabler>
               </mat-card>
-              <h4 class="f-s-22 m-b-16 f-w-600 lh-normal">{{ service.serviceName }}</h4>
-              <p class="f-s-14 m-y-0">{{ service.description }}</p>
+              <h4 class="f-s-22 m-b-16 f-w-600 lh-normal">{{ service.name }}</h4>
+              <p class="f-s-14 m-b-8 text-muted">{{ service.requestTypeName }}</p>
+              <mat-chip [color]="service.bg_color" size="small">
+                {{ service.isNewConnection ? 'New Connection' : 'Change Request' }}
+              </mat-chip>
             </mat-card-content>
           </mat-card>
         </div>

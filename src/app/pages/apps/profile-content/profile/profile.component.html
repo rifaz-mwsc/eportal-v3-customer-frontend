@@ -54,8 +54,31 @@
         </mat-card-content>
       </mat-card> -->
     </div>
+<div class="col-lg-8">
+  <mat-card class="cardWithShadow shadow-none b-1">
+    <mat-card-content>
+      <h5 class="f-s-21 f-w-600 m-b-16">Address</h5>
 
-    <!-- <div class="col-lg-8">
+      @if (userAddress) {
+        <div class="d-flex align-items-center gap-16 m-b-16">
+          <i-tabler name="home" class="icon-20"></i-tabler>
+          <h6 class="f-s-16 f-w-600">{{ userAddress.addressLine1 }}</h6>
+        </div>
+        <div class="d-flex align-items-center gap-16 m-b-16">
+          <i-tabler name="map" class="icon-20"></i-tabler>
+          <h6 class="f-s-16 f-w-600">{{ userAddress.addressLine2 }}, {{ userAddress.addressLine3 }}</h6>
+        </div>
+        <div class="d-flex align-items-center gap-16">
+          <i-tabler name="mailbox" class="icon-20"></i-tabler>
+          <h6 class="f-s-16 f-w-600">{{ userAddress.postalCode }}, {{ userAddress.atoll }}</h6>
+        </div>
+      } @else {
+        <p class="f-s-14 m-b-0">Not Available</p>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>
+   <!-- <div class="col-lg-8">
      <mat-card class="cardWithShadow shadow-none b-1">
         <mat-card-content>
           <mat-form-field appearance="outline" class="w-100" color="primary">
@@ -229,6 +252,6 @@
 
       </mat-card>
       }
-    </div> -->
+    </div>  -->
   </div>
 </div>

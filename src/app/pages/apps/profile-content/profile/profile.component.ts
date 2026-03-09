@@ -36,6 +36,9 @@ export class ProfileComponent implements OnInit {
   // User data from auth service
   userData: any = null;
   
+  // Cached user properties (to avoid recalculation on every change detection)
+  userAddress: any = null;
+  
   constructor(private sanitizer: DomSanitizer) {}
   topcards = topcards;
   posts: Post[] = mockPosts;
@@ -50,6 +53,25 @@ export class ProfileComponent implements OnInit {
   loadUserData(): void {
     this.userData = this.authService.getUserData();
     console.log('User data loaded:', this.userData);
+    
+    // Cache user address
+    this.userAddress = this.userData?.permanentAddress || null;
+    
+    // If no user data, try to fetch profiles
+    if (!this.userData || !this.userData.phoneNumber) {
+      console.log('User data missing or incomplete, fetching profiles...');
+      this.authService.getUserProfiles().subscribe({
+        next: () => {
+          this.userData = this.authService.getUserData();
+          console.log('User data refreshed:', this.userData);
+          // Update cached address after refresh
+          this.userAddress = this.userData?.permanentAddress || null;
+        },
+        error: (err) => {
+          console.error('Error fetching user profiles:', err);
+        }
+      });
+    }
   }
   
   get userFullName(): string {
@@ -62,7 +84,8 @@ export class ProfileComponent implements OnInit {
   }
   
   get userPhone(): string {
-    return this.userData?.phoneNumber || 'Not available';
+    // Try phoneNumber first, then fall back to mobileNo
+    return this.userData?.phoneNumber || this.userData?.mobileNo || 'Not available';
   }
   
   get userIdNumber(): string {

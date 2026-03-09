@@ -41,7 +41,7 @@ import { AuthService, UserProfile } from 'src/app/services/auth.service';
               <p><strong>Gender:</strong> {{ profile.gender }}</p>
               <p><strong>Nationality:</strong> {{ profile.nationality }}</p>
               <p><strong>Email:</strong> {{ profile.email }}</p>
-              <p><strong>Contact:</strong> {{ profile.contact }}</p>
+              <p><strong>Mobile:</strong> {{ profile.mobileNo }}</p>
             </div>
 
             <div *ngIf="profile.profileType === 'Entity'">
@@ -49,7 +49,7 @@ import { AuthService, UserProfile } from 'src/app/services/auth.service';
               <p><strong>Registration:</strong> {{ profile.registrationNumber }}</p>
               <p><strong>Type:</strong> {{ profile.entityType }}</p>
               <p><strong>Email:</strong> {{ profile.email }}</p>
-              <p><strong>Contact:</strong> {{ profile.contact }}</p>
+              <p><strong>Mobile:</strong> {{ profile.mobileNo }}</p>
             </div>
 
             <mat-divider class="my-3"></mat-divider>
