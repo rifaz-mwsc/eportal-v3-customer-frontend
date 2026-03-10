@@ -37,8 +37,15 @@ export class AuthInterceptor implements HttpInterceptor {
     // Handle the request and catch errors
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
+        console.log('HTTP Error intercepted:', {
+          status: error.status,
+          url: request.url,
+          message: error.message
+        });
+        
         // If we get a 401 Unauthorized error, try to refresh the token
         if (error.status === 401 && !request.url.includes('/api/v1/auth/refreshtoken')) {
+          console.log('401 error detected, attempting token refresh...');
           return this.handle401Error(request, next);
         }
         
@@ -59,9 +66,12 @@ export class AuthInterceptor implements HttpInterceptor {
     if (!this.isRefreshing) {
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);
+      
+      console.log('Starting token refresh process...');
 
       return this.authService.refreshAccessToken().pipe(
         switchMap((authItem) => {
+          console.log('Token refresh successful, retrying original request');
           this.isRefreshing = false;
           this.refreshTokenSubject.next(authItem.accessToken);
           // Retry the original request with new token
@@ -69,27 +79,24 @@ export class AuthInterceptor implements HttpInterceptor {
         }),
         catchError((error) => {
           this.isRefreshing = false;
-          console.error('Failed to refresh token after 401 error:', error);
+          console.error('Token refresh failed:', error);
           
-          // Only logout if refresh token is actually invalid
-          // Check if error indicates invalid refresh token
-          if (error?.statusMessage === 'Unable to login' || 
-              error?.errorDetails?.token?.includes('Invalid or expired token') ||
-              error?.error?.statusMessage === 'Unable to login') {
-            console.warn('Refresh token is invalid, logging out');
-            this.authService.clearAuthData();
-            this.router.navigate(['/authentication/login']);
-          }
+          // Logout user and redirect to login
+          console.warn('Logging out user due to token refresh failure');
+          this.authService.clearAuthData();
+          this.router.navigate(['/authentication/login']);
           
           return throwError(() => error);
         })
       );
     } else {
+      console.log('Token refresh already in progress, waiting...');
       // Wait for the token refresh to complete
       return this.refreshTokenSubject.pipe(
         filter(token => token != null),
         take(1),
         switchMap(token => {
+          console.log('Using refreshed token for queued request');
           return next.handle(this.addTokenToRequest(request, token));
         })
       );

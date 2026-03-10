@@ -35,34 +35,322 @@ import {
   templateUrl: './add-application.component.html',
   standalone: true,
   styles: [`
+    /* Application Header Styles */
+    .application-header {
+      background: linear-gradient(135deg, #5D87FF 0%, #4570EA 100%);
+      padding: 24px 32px;
+      margin-bottom: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(93, 135, 255, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .application-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 300px;
+      height: 300px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    
+    .application-header::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -5%;
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .icon-wrapper {
+      width: 56px;
+      height: 56px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .header-text {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .header-label {
+      color: rgba(255, 255, 255, 0.9);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    
+    .header-title {
+      color: white;
+      line-height: 1.3;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .header-badge {
+      flex-shrink: 0;
+    }
+    
+    .badge-content {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Mobile responsive styles for header */
+    @media (max-width: 767px) {
+      .application-header {
+        padding: 20px 20px;
+        margin-bottom: 16px;
+        border-radius: 8px;
+      }
+      
+      .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      
+      .icon-wrapper {
+        width: 48px;
+        height: 48px;
+      }
+      
+      .header-title {
+        font-size: 18px;
+      }
+      
+      .header-label {
+        font-size: 11px;
+      }
+      
+      .badge-content {
+        font-size: 12px;
+        padding: 6px 12px;
+      }
+      
+      .application-header::before,
+      .application-header::after {
+        display: none;
+      }
+    }
+    
+    @media (max-width: 479px) {
+      .application-header {
+        padding: 16px;
+      }
+      
+      .icon-wrapper {
+        width: 44px;
+        height: 44px;
+      }
+      
+      .header-title {
+        font-size: 16px;
+      }
+    }
+    
     .stepper-container {
       padding: 0;
       margin: 0;
+      min-height: calc(100vh - 200px);
     }
     
+    /* Base stepper styles */
     ::ng-deep .mat-stepper-horizontal {
       background: transparent;
+      border-radius: 0;
     }
     
+    /* Header container with responsive padding */
     ::ng-deep .mat-horizontal-stepper-header-container {
-      padding: 0 24px;
+      padding: 16px 24px;
       margin-bottom: 24px;
       background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: box-shadow 0.3s ease;
     }
     
+    ::ng-deep .mat-horizontal-stepper-header-container:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+    
+    /* Individual step header */
     ::ng-deep .mat-horizontal-stepper-header {
-      padding: 16px 24px !important;
+      padding: 12px 16px !important;
+      height: auto;
+      transition: all 0.3s ease;
+    }
+    
+    /* Step icon styling */
+    ::ng-deep .mat-step-header .mat-step-icon {
+      width: 36px;
+      height: 36px;
+      transition: all 0.3s ease;
     }
     
     ::ng-deep .mat-step-header .mat-step-icon-selected,
     ::ng-deep .mat-step-header .mat-step-icon-state-edit {
       background-color: var(--primary-color, #5D87FF);
+      box-shadow: 0 2px 6px rgba(93, 135, 255, 0.3);
     }
     
+    ::ng-deep .mat-step-header .mat-step-icon-state-done {
+      background-color: #13DEB9;
+      box-shadow: 0 2px 6px rgba(19, 222, 185, 0.3);
+    }
+    
+    /* Step label text */
+    ::ng-deep .mat-step-label {
+      font-size: 14px;
+      font-weight: 500;
+      min-width: 80px;
+    }
+    
+    ::ng-deep .mat-step-label-selected {
+      font-weight: 600;
+      color: var(--primary-color, #5D87FF);
+    }
+    
+    /* Step connector line */
+    ::ng-deep .mat-stepper-horizontal-line {
+      margin: 0 8px;
+      border-top-width: 2px;
+    }
+    
+    /* Content container */
     ::ng-deep .mat-horizontal-content-container {
       padding: 0 !important;
+      overflow: visible;
+    }
+    
+    /* Mobile responsive styles */
+    @media (max-width: 959px) {
+      ::ng-deep .mat-horizontal-stepper-header-container {
+        padding: 12px 16px;
+        margin-bottom: 16px;
+        border-radius: 8px;
+      }
+      
+      ::ng-deep .mat-horizontal-stepper-header {
+        padding: 8px 12px !important;
+      }
+      
+      ::ng-deep .mat-step-header .mat-step-icon {
+        width: 32px;
+        height: 32px;
+        margin-right: 8px;
+      }
+      
+      ::ng-deep .mat-step-label {
+        font-size: 13px;
+        min-width: 60px;
+      }
+      
+      ::ng-deep .mat-stepper-horizontal-line {
+        margin: 0 4px;
+      }
+    }
+    
+    @media (max-width: 599px) {
+      .stepper-container {
+        padding: 0;
+      }
+      
+      ::ng-deep .mat-horizontal-stepper-header-container {
+        padding: 8px 12px;
+        margin-bottom: 12px;
+        border-radius: 8px;
+        overflow-x: auto;
+        scrollbar-width: thin;
+      }
+      
+      ::ng-deep .mat-horizontal-stepper-header {
+        padding: 6px 8px !important;
+        min-width: fit-content;
+      }
+      
+      ::ng-deep .mat-step-header .mat-step-icon {
+        width: 28px;
+        height: 28px;
+        margin-right: 6px;
+        flex-shrink: 0;
+      }
+      
+      ::ng-deep .mat-step-label {
+        font-size: 12px;
+        min-width: 50px;
+        white-space: nowrap;
+      }
+      
+      ::ng-deep .mat-step-text-label {
+        display: none;
+      }
+      
+      ::ng-deep .mat-stepper-horizontal-line {
+        margin: 0 2px;
+        min-width: 20px;
+      }
+      
+      /* Show only step numbers on very small screens */
+      ::ng-deep .mat-step-label-selected .mat-step-text-label {
+        display: inline;
+        font-size: 11px;
+      }
+    }
+    
+    /* Accessibility improvements */
+    ::ng-deep .mat-step-header:focus {
+      outline: 2px solid var(--primary-color, #5D87FF);
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
+    
+    /* Loading and disabled states */
+    ::ng-deep .mat-step-header[aria-disabled="true"] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    /* Smooth transitions for interactive elements */
+    ::ng-deep .mat-step-header:not([aria-disabled="true"]):hover {
+      background-color: rgba(93, 135, 255, 0.04);
+      border-radius: 8px;
     }
   `],
   imports: [

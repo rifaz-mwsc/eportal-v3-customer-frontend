@@ -1,11 +1,24 @@
-<div class="b-t-1 p-y-10 p-x-30 d-flex justify-content-center bg-light-primary">
-  <div class="text-center">
-    @if(serviceName) {
-    <h4 class="m-0 f-s-18 f-w-600 text-white">{{serviceName}}</h4>
-
-    }
+@if(serviceName) {
+<div class="application-header">
+  <div class="header-content">
+    <div class="d-flex align-items-center gap-12">
+      <div class="icon-wrapper">
+        <i-tabler name="file-text" class="icon-28"></i-tabler>
+      </div>
+      <div class="header-text">
+        <!-- <p class="m-0 f-s-12 f-w-500 text-muted header-label">New Application</p> -->
+        <h3 class="m-0 f-s-20 f-w-600 header-title">{{ serviceName }}</h3>
+      </div>
+    </div>
+    <div class="header-badge">
+      <span class="badge-content">
+        <i-tabler name="clock" class="icon-16"></i-tabler>
+        In Progress
+      </span>
+    </div>
   </div>
 </div>
+}
 <div class="stepper-container">
   @if(isLoadingService) {
     <mat-card class="cardWithShadow">
@@ -211,7 +224,7 @@
 
     <!-- Service Address Step -->
     @if(step.stepKey === 'ServiceAddress') {
-    <mat-step [stepControl]="locationFormGroup">
+    <mat-step>
       <form [formGroup]="locationFormGroup">
         <ng-template matStepLabel>{{ step.title }}</ng-template>
 
