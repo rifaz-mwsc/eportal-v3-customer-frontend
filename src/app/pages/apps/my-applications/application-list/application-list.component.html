@@ -17,15 +17,15 @@
   </div>
   <div class="col-sm-6 col-lg-3">
     <mat-card class="cardWithShadow cursor-pointer bg-light-warning shadow-none"
-      [ngClass]="{ 'active-tab': activeTab() === 'Pending' }" (click)="handleTabClick('Pending')">
+      [ngClass]="{ 'active-tab': activeTab() === 'Draft' }" (click)="handleTabClick('Draft')">
       <mat-card-content class="d-flex align-items-center gap-16">
         <div class="icon icon-38 rounded d-flex align-items-center justify-content-center bg-warning text-white">
           <i-tabler name="clock" class="icon-24 d-flex"></i-tabler>
         </div>
         <div class="info">
-          <h5 class="f-w-400 lh-sm f-s-14">Pending</h5>
+          <h5 class="f-w-400 lh-sm f-s-14">Draft</h5>
           <h5 class="f-w-500 lh-sm f-s-14">
-            {{ countApplicationsByStatus("Pending") }}
+            {{ countApplicationsByStatus("Draft") }}
           </h5>
         </div>
       </mat-card-content>
@@ -34,15 +34,15 @@
 
   <div class="col-sm-6 col-lg-3">
     <mat-card class="cardWithShadow cursor-pointer bg-light-secondary shadow-none"
-      [ngClass]="{ 'active-tab': activeTab() === 'In Progress' }" (click)="handleTabClick('In Progress')">
+      [ngClass]="{ 'active-tab': activeTab() === 'Pending' }" (click)="handleTabClick('Pending')">
       <mat-card-content class="d-flex align-items-center gap-16">
         <div class="icon icon-38 rounded d-flex align-items-center justify-content-center bg-secondary text-white">
           <i-tabler name="refresh" class="icon-24 d-flex"></i-tabler>
         </div>
         <div class="info">
-          <h5 class="f-w-400 lh-sm f-s-14">In Progress</h5>
+          <h5 class="f-w-400 lh-sm f-s-14">Pending</h5>
           <h5 class="f-w-500 lh-sm f-s-14">
-            {{ countApplicationsByStatus("In Progress") }}
+            {{ countApplicationsByStatus("Pending") }}
           </h5>
         </div>
       </mat-card-content>
@@ -72,127 +72,139 @@
     <div class="row justify-content-between align-items-center">
       <div class="col-sm-4">
         <mat-form-field appearance="outline" class="w-100 hide-hint">
-          <input matInput placeholder="Search" (keyup)="filter($any($event.target).value)" />
+          <input matInput placeholder="Search by reference, service type..." (keyup)="filter($any($event.target).value)" />
           <mat-icon matSuffix>
             <i-tabler name="search" class="icon-20 d-flex m-t-4"></i-tabler>
           </mat-icon>
         </mat-form-field>
       </div>
-      <div class="col-sm-4 d-flex align-items-center justify-content-end">
+      <div class="col-sm-4 d-flex align-items-center justify-content-end gap-8">
+        <button mat-icon-button (click)="refreshApplications()" [disabled]="isLoading()" 
+          matTooltip="Refresh applications" class="d-flex align-items-center justify-content-center">
+          <i-tabler name="refresh" class="icon-20 d-flex"></i-tabler>
+        </button>
         <a mat-button [routerLink]="['/apps/ServiceDirectory']" mat-flat-button color="primary">New Application</a>
       </div>
     </div>
   </mat-card-content>
 </mat-card>
 
-<mat-card class="cardWithShadow">
-  <mat-card-content>
-    <div class="table-responsive">
-      <table mat-table [dataSource]="applicationList" matSort class="no-wrap m-t-0 v-middle w-100">
-        <ng-container matColumnDef="chk">
-          <th mat-header-cell *matHeaderCellDef>
-            <mat-checkbox [checked]="allComplete()" [indeterminate]="someComplete()" (change)="setAll($event.checked)"
-              color="primary">
-            </mat-checkbox>
-          </th>
-          <td mat-cell *matCellDef="let element" class="f-s-14">
-            <mat-checkbox [(ngModel)]="element.completed" (ngModelChange)="updateAllComplete()" color="primary">
-            </mat-checkbox>
-          </td>
-        </ng-container>
+<!-- Loading indicator -->
+@if (isLoading()) {
+  <mat-card class="cardWithShadow">
+    <mat-card-content>
+      <div class="d-flex justify-content-center align-items-center p-y-48">
+        <mat-spinner diameter="40"></mat-spinner>
+        <span class="m-l-16 f-s-16">Loading applications...</span>
+      </div>
+    </mat-card-content>
+  </mat-card>
+} @else {
+  <!-- Applications Cards -->
+  @if (filteredApplications().length > 0) {
+    <div class="row">
+      @for(application of filteredApplications(); track application.id) {
+        <div class="col-sm-6 col-lg-4">
+          <mat-card class="cardWithShadow overflow-hidden">
+            <mat-card-content class="p-24">
+              <!-- Reference Number -->
+              <div class="d-flex justify-content-between align-items-start m-b-16">
+                <div>
+                  <h5 class="f-s-16 f-w-600 m-b-4">{{ application.referenceNumber }}</h5>
+                  <p class="f-s-12 text-muted m-b-0">{{ application.requestType }}</p>
+                </div>
+                <span class="badge f-s-11 f-w-500 rounded-pill p-x-12 p-y-6" 
+                  [ngClass]="getStatusColor(application.requestStatus)">
+                  {{ application.requestStatus }}
+                </span>
+              </div>
 
-        <ng-container matColumnDef="id">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="f-w-600 f-s-15">
-            ID
-          </th>
-          <td mat-cell *matCellDef="let element" class="f-s-14">
-            #{{ element.id }}
-          </td>
-        </ng-container>
+              <!-- Service Info -->
+              <div class="m-b-16">
+                <div class="d-flex align-items-center m-b-8">
+                  <i-tabler name="droplet" class="icon-18 text-primary m-r-8"></i-tabler>
+                  <span class="f-s-14">{{ application.serviceRequest }}</span>
+                </div>
+                <div class="d-flex align-items-center m-b-8">
+                  <i-tabler name="user" class="icon-18 text-secondary m-r-8"></i-tabler>
+                  <span class="f-s-14">{{ getApplicantName(application) }}</span>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i-tabler name="calendar" class="icon-18 text-muted m-r-8"></i-tabler>
+                  <span class="f-s-13 text-muted">{{ formatDate(application.createdOn) }}</span>
+                </div>
+              </div>
 
-        <ng-container matColumnDef="serviceType">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="f-w-600 f-s-15">
-            Service Type
-          </th>
-          <td mat-cell *matCellDef="let element" class="f-s-14">
-            {{ element.serviceType }}
-          </td>
-        </ng-container>
+              <!-- Wizard Step Progress -->
+              <div class="m-b-16">
+                <div class="d-flex justify-content-between align-items-center m-b-4">
+                  <span class="f-s-12 text-muted">Step {{ application.wizardStep }} of 5</span>
+                  <span class="f-s-12 text-muted">{{ (application.wizardStep / 5 * 100) | number:'1.0-0' }}%</span>
+                </div>
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="application.wizardStep / 5 * 100"
+                  color="primary">
+                </mat-progress-bar>
+              </div>
+            </mat-card-content>
 
-        <ng-container matColumnDef="applicantName">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="f-w-600 f-s-15">
-            Applicant
-          </th>
-          <td mat-cell *matCellDef="let element" class="f-s-14">
-            {{ element.applicantName }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="applicationDate">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="f-w-600 f-s-15">
-            Date
-          </th>
-          <td mat-cell *matCellDef="let element" class="f-s-14">
-            {{ element.applicationDate | date: 'dd/MM/yyyy' }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="grandTotal">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="f-w-600 f-s-15">
-            Total
-          </th>
-          <td mat-cell *matCellDef="let element" class="f-s-14">
-            MVR {{ element.grandTotal.toFixed(2) }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="f-w-600 f-s-15">
-            Status
-          </th>
-          <td mat-cell *matCellDef="let element" class="f-s-14">
-            <span class="p-x-8 p-y-4 f-w-500 rounded-pill f-s-12" [ngStyle]="{
-                'background-color':
-                  element.status === 'Pending'
-                    ? 'rgb(255, 174, 31)'
-                    : element.status === 'In Progress'
-                    ? 'rgb(93, 135, 255)'
-                    : element.status === 'Approved'
-                    ? 'rgb(19, 222, 185)'
-                    : element.status === 'Resolved'
-                    ? 'rgb(19, 222, 185)'
-                    : 'rgb(239, 83, 80)',
-                color: 'white'
-              }">
-              {{ element.status }}
-            </span>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="action">
-          <th mat-header-cell *matHeaderCellDef class="f-w-600 f-s-15">
-            Action
-          </th>
-          <td mat-cell *matCellDef="let element" class="d-flex">
-            <a mat-icon-button [routerLink]="['/apps/invoice/editApplication', element.id]"
-              class="d-flex align-items-center justify-content-center">
-              <i-tabler name="pencil" class="icon-18 d-flex align-items-center"></i-tabler>
-            </a>
-            <a mat-icon-button [routerLink]="['/apps/invoice/viewApplication', element.id]"
-              class="d-flex align-items-center justify-content-center">
-              <i-tabler name="eye" class="icon-18 d-flex align-items-center"></i-tabler>
-            </a>
-            <a mat-icon-button (click)="deleteApplication(element.id)"
-              class="d-flex align-items-center justify-content-center">
-              <i-tabler name="trash" class="icon-18 d-flex align-items-center"></i-tabler>
-            </a>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-      </table>
-      <mat-paginator [pageSizeOptions]="[5, 8, 10]" showFirstLastButtons></mat-paginator>
+            <!-- Actions -->
+            <div class="b-t-1 p-y-12 p-x-24 d-flex justify-content-between bg-light-primary">
+              <button mat-button color="primary" matTooltip="View application"
+                [routerLink]="['/apps/MyApplications/viewApplication', application.id]"
+                class="d-flex align-items-center">
+                <i-tabler name="eye" class="icon-25 m-r-8"></i-tabler>
+              </button>
+              @if (application.requestStatus === 'Draft') {
+                <button mat-button color="accent" matTooltip="Edit application"
+                  [routerLink]="['/apps/MyApplications/addApplication']"
+                  [queryParams]="{
+                    serviceId: application.serviceRequestId,
+                    serviceName: application.serviceRequest,
+                    requestTypeId: application.requestTypeId,
+                    resumeId: application.id,
+                    step: application.wizardStep
+                  }"
+                  class="d-flex align-items-center">
+                  <i-tabler name="pencil" class="icon-25 m-r-8"></i-tabler>
+                </button>
+              }
+              <button mat-button color="primary"  matTooltip="Pay application"
+                [routerLink]="['/apps/MyApplications/viewApplication', application.id]"
+                class="d-flex align-items-center">
+                <i-tabler name="credit-card" class="icon-25 m-r-8"></i-tabler>
+              </button>
+                <button mat-button color="warn"  matTooltip="Cancel application"
+                [routerLink]="['/apps/MyApplications/viewApplication', application.id]"
+                class="d-flex align-items-center">
+                <i-tabler name="x" class="icon-25 m-r-8"></i-tabler>
+              </button>
+            </div>
+          </mat-card>
+        </div>
+      }
     </div>
-  </mat-card-content>
-</mat-card>
+  } @else {
+    <!-- Empty State -->
+    <mat-card class="cardWithShadow">
+      <mat-card-content class="text-center p-y-48">
+        <i-tabler name="folder-off" class="icon-48 text-muted m-b-16"></i-tabler>
+        <h4 class="f-s-18 f-w-500 text-muted m-b-8">No applications found</h4>
+        <p class="f-s-14 text-muted m-b-24">
+          @if (searchQuery()) {
+            Try adjusting your search or filter criteria
+          } @else if (activeTab() !== 'All') {
+            No applications with status "{{ activeTab() }}"
+          } @else {
+            Get started by creating a new application
+          }
+        </p>
+        <a mat-flat-button color="primary" [routerLink]="['/apps/ServiceDirectory']">
+          <i-tabler name="plus" class="icon-18 m-r-8"></i-tabler>
+          New Application
+        </a>
+      </mat-card-content>
+    </mat-card>
+  }
+}

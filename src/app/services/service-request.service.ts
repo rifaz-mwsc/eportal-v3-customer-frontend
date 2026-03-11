@@ -5,6 +5,104 @@ import { tap, catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { ApiResponse } from './auth.service';
 
+// My Applications interfaces
+export interface OwnerDetail {
+  isOwner: boolean;
+  firstName: string | null;
+  lastName: string | null;
+  identificationNumber: string | null;
+  mobileNumber: string | null;
+  email: string | null;
+  businessPartnerCategoryId: string | null;
+  businessPartnerCategory: string | null;
+  identificationTypeId: string | null;
+  identificationType: string | null;
+}
+
+export interface ServiceRequiredAddress {
+  // Add properties when known from API
+  [key: string]: any;
+}
+
+export interface MyServiceRequest {
+  id: string;
+  referenceNumber: string;
+  requestTypeId: string;
+  requestType: string;
+  serviceRequestId: string;
+  serviceRequest: string;
+  requestStatus: string;
+  wizardStep: number;
+  createdOn: string;
+  modifiedOn: string | null;
+  createdBy: string;
+  modifiedBy: string | null;
+  ownerDetail: OwnerDetail;
+  serviceRequiredAddress: ServiceRequiredAddress | null;
+}
+
+export interface PaginatedResponse<T> {
+  pageNumber: number;
+  totalPages: number;
+  pageSize: number;
+  maxPageSize: number;
+  totalCount: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  items: T[];
+}
+
+export interface MyServiceRequestsResponse {
+  item: PaginatedResponse<MyServiceRequest>;
+  isSuccessful: boolean;
+  statusMessage: string;
+  errorDetails: { [key: string]: any };
+}
+
+// Step 1 - Owner Details interfaces
+export interface Step1OwnerDetailsRequest {
+  requestTypeId: string;
+  serviceRequestId: string;
+  profileId?: string;
+  isOwner: boolean;
+  firstName?: string;
+  lastName?: string;
+  identificationNumber?: string;
+  companyName?: string;
+  registrationNumber?: string;
+  mobileNumber?: string;
+  email?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  postalCode?: string;
+  islandId?: number;
+  businessPartnerCategoryId?: string;
+}
+
+export interface Step1Response {
+  item: boolean;
+  isSuccessful: boolean;
+  statusMessage: string;
+  errorDetails: { [key: string]: string[] };
+}
+
+// Step 2 - Service Address interfaces
+export interface Step2ServiceAddressRequest {
+  requestId: string;
+  buildingName: string;
+  houseNumber: string;
+  street: string;
+  postalCode?: string;
+  islandId: number;
+}
+
+export interface Step2Response {
+  item: boolean;
+  isSuccessful: boolean;
+  statusMessage: string;
+  errorDetails: { [key: string]: string[] };
+}
+
 // Document interfaces
 export interface RequestPipelineStepDocument {
   requestPipelineStepId: string;
@@ -444,5 +542,113 @@ export class ServiceRequestService {
     this.requestTypesCache = null;
     this.cacheTimestamp = null;
     console.log('Request types cache cleared');
+  }
+
+  /**
+   * Submit Step 1 - Owner Details
+   * @param data - The owner details data
+   */
+  submitStep1OwnerDetails(data: Step1OwnerDetailsRequest): Observable<Step1Response> {
+    const url = `${this.BASE_URL}/step1`;
+    
+    console.log('Submitting Step 1 - Owner Details:', data);
+    
+    return this.http.post<Step1Response>(url, data).pipe(
+      tap(response => {
+        console.log('Step 1 Response:', response);
+        if (response.isSuccessful) {
+          console.log('Step 1 submitted successfully');
+        } else {
+          console.error('Step 1 submission failed:', response.statusMessage, response.errorDetails);
+        }
+      }),
+      catchError(error => {
+        console.error('Error submitting Step 1:', error);
+        // Return a formatted error response
+        const errorResponse: Step1Response = {
+          item: false,
+          isSuccessful: false,
+          statusMessage: error.error?.statusMessage || 'Network error occurred',
+          errorDetails: error.error?.errorDetails || { error: [error.message || 'Unknown error'] }
+        };
+        return of(errorResponse);
+      })
+    );
+  }
+
+  /**
+   * Get user's service requests with pagination
+   * GET /api/v1/servicerequests/my
+   */
+  getMyServiceRequests(pageNumber: number = 1, pageSize: number = 100): Observable<MyServiceRequestsResponse> {
+    const params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+
+    console.log('Fetching my service requests:', { pageNumber, pageSize });
+
+    return this.http.get<MyServiceRequestsResponse>(`${this.BASE_URL}/my`, { params }).pipe(
+      tap(response => {
+        if (response.isSuccessful) {
+          console.log('My service requests fetched successfully:', {
+            totalCount: response.item.totalCount,
+            pageNumber: response.item.pageNumber,
+            totalPages: response.item.totalPages,
+            itemsCount: response.item.items.length
+          });
+        } else {
+          console.error('Failed to fetch service requests:', response.statusMessage, response.errorDetails);
+        }
+      }),
+      catchError(error => {
+        console.error('Error fetching my service requests:', error);
+        // Return a formatted error response
+        const errorResponse: MyServiceRequestsResponse = {
+          item: {
+            pageNumber: 1,
+            totalPages: 0,
+            pageSize: pageSize,
+            maxPageSize: 1000,
+            totalCount: 0,
+            hasPrevious: false,
+            hasNext: false,
+            items: []
+          },
+          isSuccessful: false,
+          statusMessage: error.error?.statusMessage || 'Network error occurred',
+          errorDetails: error.error?.errorDetails || { error: [error.message || 'Unknown error'] }
+        };
+        return of(errorResponse);
+      })
+    );
+  }
+
+  /**
+   * Submit Step 2 - Service Address
+   * POST /api/v1/servicerequests/step2
+   */
+  submitStep2ServiceAddress(data: Step2ServiceAddressRequest): Observable<Step2Response> {
+    console.log('Submitting Step 2 - Service Address:', data);
+
+    return this.http.post<Step2Response>(`${this.BASE_URL}/step2`, data).pipe(
+      tap(response => {
+        if (response.isSuccessful) {
+          console.log('Step 2 submitted successfully:', response);
+        } else {
+          console.error('Step 2 submission failed:', response.statusMessage, response.errorDetails);
+        }
+      }),
+      catchError(error => {
+        console.error('Error submitting Step 2:', error);
+        // Return a formatted error response
+        const errorResponse: Step2Response = {
+          item: false,
+          isSuccessful: false,
+          statusMessage: error.error?.statusMessage || 'Network error occurred',
+          errorDetails: error.error?.errorDetails || { error: [error.message || 'Unknown error'] }
+        };
+        return of(errorResponse);
+      })
+    );
   }
 }

@@ -114,14 +114,19 @@ export class ServiceDirectoryComponentDetailComponent implements OnInit {
   }
 
   goApply(): void {
-    // Navigate with service ID as route parameter and pass service details in state
+    const serviceDetail = this.serviceDetail();
+    
+    // Navigate with service ID and request type ID
     this.router.navigate(['/apps/my-applications/addApplication'], {
       queryParams: { 
         serviceId: this.id(),
-        serviceName: this.serviceDetail()?.name 
+        serviceName: serviceDetail?.name,
+        requestTypeId: serviceDetail?.requestTypeId // Add requestTypeId
       }
     });
-    console.log('Apply Now clicked for service ID:', this.id());
-    console.log('Service Name:', this.serviceDetail()?.name);
+    console.log('Apply Now clicked');
+    console.log('Service ID:', this.id());
+    console.log('Service Name:', serviceDetail?.name);
+    console.log('Request Type ID:', serviceDetail?.requestTypeId);
   }
 }

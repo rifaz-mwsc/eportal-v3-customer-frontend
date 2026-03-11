@@ -1,21 +1,14 @@
 import {
   Component,
-  AfterViewInit,
-  ViewChild,
-  Signal,
+  OnInit,
   signal,
 } from '@angular/core';
-import { ApplicationService } from 'src/app/services/apps/application/application.service';
-import { Application } from '../application';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatSort } from '@angular/material/sort';
-import { MatPaginator } from '@angular/material/paginator';
+import { ServiceRequestService, MyServiceRequest } from 'src/app/services/service-request.service';
 import { MaterialModule } from 'src/app/material.module';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { RouterModule } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -31,107 +24,164 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     TablerIconsModule,
   ],
 })
-export class AppMyApplicationListComponent implements AfterViewInit {
-  allComplete = signal<boolean>(false);
-  applicationList = new MatTableDataSource<Application>([]);
+export class AppMyApplicationListComponent implements OnInit {
   activeTab = signal<string>('All');
-  allApplications = signal<Application[]>([]);
+  allApplications = signal<MyServiceRequest[]>([]);
+  filteredApplications = signal<MyServiceRequest[]>([]);
   searchQuery = signal<string>('');
-  displayedColumns: string[] = [
-    'chk',
-    'id',
-    'serviceType',
-    'applicantName',
-    'applicationDate',
-    'grandTotal',
-    'status',
-    'action',
-  ];
-
-  @ViewChild(MatSort) sort: MatSort = Object.create(null);
-  @ViewChild(MatPaginator) paginator: MatPaginator = Object.create(null);
+  isLoading = signal<boolean>(false);
+  
+  // Pagination
+  totalCount = signal<number>(0);
+  pageNumber = signal<number>(1);
+  pageSize = signal<number>(100);
 
   constructor(
-    private applicationService: ApplicationService,
-    private dialog: MatDialog,
+    private serviceRequestService: ServiceRequestService,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
-    this.allApplications.set(this.applicationService.getApplications());
-    this.applicationList = new MatTableDataSource(this.allApplications());
+    this.loadServiceRequests();
   }
 
-  ngAfterViewInit(): void {
-    this.applicationList.paginator = this.paginator;
-    this.applicationList.sort = this.sort;
+  /**
+   * Load service requests from API
+   */
+  loadServiceRequests(): void {
+    this.isLoading.set(true);
+    
+    this.serviceRequestService.getMyServiceRequests(this.pageNumber(), this.pageSize())
+      .subscribe({
+        next: (response) => {
+          this.isLoading.set(false);
+          
+          if (response.isSuccessful) {
+            this.totalCount.set(response.item.totalCount);
+            this.allApplications.set(response.item.items);
+            this.filterApplications();
+            
+            console.log('Loaded applications:', response.item.items.length);
+          } else {
+            this.showSnackbar('Failed to load applications: ' + response.statusMessage);
+          }
+        },
+        error: (error) => {
+          this.isLoading.set(false);
+          console.error('Error loading applications:', error);
+          this.showSnackbar('Error loading applications. Please try again.');
+        }
+      });
   }
 
+  /**
+   * Handle tab click to filter by status
+   */
   handleTabClick(tab: string): void {
     this.activeTab.set(tab);
     this.filterApplications();
   }
 
+  /**
+   * Handle search input
+   */
   filter(filterValue: string): void {
     this.searchQuery.set(filterValue);
     this.filterApplications();
   }
 
+  /**
+   * Filter applications by status and search query
+   */
   filterApplications(): void {
     const currentTab = this.activeTab();
-    const filteredApplications = this.allApplications().filter((application) => {
-      const matchesTab = currentTab === 'All' || application.status === currentTab;
+    const searchQuery = this.searchQuery().toLowerCase();
+    
+    const filtered = this.allApplications().filter((application) => {
+      const matchesTab = currentTab === 'All' || application.requestStatus === currentTab;
 
-      const matchesSearch =
-        application.serviceType
-          .toLowerCase()
-          .includes(this.searchQuery().toLowerCase()) ||
-        application.applicantName
-          .toLowerCase()
-          .includes(this.searchQuery().toLowerCase());
+      const matchesSearch = searchQuery === '' ||
+        application.serviceRequest.toLowerCase().includes(searchQuery) ||
+        application.referenceNumber.toLowerCase().includes(searchQuery) ||
+        application.requestType.toLowerCase().includes(searchQuery);
 
       return matchesTab && matchesSearch;
     });
 
-    this.applicationList.data = filteredApplications;
-    this.updateAllComplete();
+    this.filteredApplications.set(filtered);
   }
 
-  updateAllComplete(): void {
-    const allApplications = this.applicationList.data;
-    this.allComplete.set(
-      allApplications.length > 0 && allApplications.every((t) => t.completed)
-    );
-  }
-
-  someComplete(): boolean {
-    return (
-      this.applicationList.data.filter((t) => t.completed).length > 0 &&
-      !this.allComplete()
-    );
-  }
-
-  setAll(completed: boolean): void {
-    this.allComplete.set(completed);
-    this.applicationList.data.forEach((t) => (t.completed = completed));
-    this.applicationList._updateChangeSubscription();
-  }
-
+  /**
+   * Count applications by status
+   */
   countApplicationsByStatus(status: string): number {
     return this.allApplications().filter(
-      (application) => application.status === status
+      (application) => application.requestStatus === status
     ).length;
   }
 
-  deleteApplication(id: number): void {
-    if (confirm('Are you sure you want to delete this application?')) {
-      this.applicationService.deleteApplication(id);
-      this.allApplications.set(this.applicationService.getApplications());
-      this.filterApplications();
-      this.showSnackbar('Application deleted successfully!');
+  /**
+   * Refresh the applications list
+   */
+  refreshApplications(): void {
+    this.loadServiceRequests();
+  }
+
+  /**
+   * Get applicant name from owner details
+   */
+  getApplicantName(application: MyServiceRequest): string {
+    const owner = application.ownerDetail;
+    if (owner.firstName || owner.lastName) {
+      return `${owner.firstName || ''} ${owner.lastName || ''}`.trim();
+    } else if (!owner.isOwner) {
+      return 'On Behalf';
+    }
+    return 'N/A';
+  }
+
+  /**
+   * Format date for display
+   */
+  formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  }
+
+  /**
+   * Get status badge color
+   */
+  getStatusColor(status: string): string {
+    switch (status) {
+      case 'Draft':
+        return 'bg-warning';
+      case 'Pending':
+        return 'bg-secondary';
+      case 'Approved':
+        return 'bg-success';
+      case 'Rejected':
+        return 'bg-error';
+      default:
+        return 'bg-primary';
     }
   }
 
+  /**
+   * Cancel application
+   */
+  cancelApplication(id: string): void {
+    if (confirm('Are you sure you want to cancel this application?')) {
+      // TODO: Implement cancel API call
+      this.showSnackbar('Cancel functionality coming soon');
+    }
+  }
+
+  /**
+   * Show snackbar message
+   */
   showSnackbar(message: string): void {
     this.snackBar.open(message, 'Close', {
       duration: 3000,

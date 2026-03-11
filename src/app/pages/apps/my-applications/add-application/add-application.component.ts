@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, ChangeDetectorRef, Inject } from '@angular/core';
+import { Component, signal, OnInit, ChangeDetectorRef, Inject, ViewChild } from '@angular/core';
 import {
   UntypedFormGroup,
   UntypedFormBuilder,
@@ -20,339 +20,25 @@ import {FormBuilder} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatStepperModule} from '@angular/material/stepper';
+import {MatStepperModule, MatStepper} from '@angular/material/stepper';
 import { AuthService, UserProfile } from 'src/app/services/auth.service';
 import { 
   ServiceRequestService, 
   ServiceRequestWithType,
   RequestPipelineStep,
-  RequestPipelineStepDocument 
+  RequestPipelineStepDocument,
+  Step1OwnerDetailsRequest,
+  Step1Response,
+  Step2ServiceAddressRequest,
+  Step2Response
 } from 'src/app/services/service-request.service';
 
 
 @Component({
   selector: 'app-add-application',
   templateUrl: './add-application.component.html',
+  styleUrls: ['./add-application.component.scss'],
   standalone: true,
-  styles: [`
-    /* Application Header Styles */
-    .application-header {
-      background: linear-gradient(135deg, #5D87FF 0%, #4570EA 100%);
-      padding: 24px 32px;
-      margin-bottom: 24px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(93, 135, 255, 0.25);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .application-header::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -10%;
-      width: 300px;
-      height: 300px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-      pointer-events: none;
-    }
-    
-    .application-header::after {
-      content: '';
-      position: absolute;
-      bottom: -30%;
-      left: -5%;
-      width: 200px;
-      height: 200px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 50%;
-      pointer-events: none;
-    }
-    
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: relative;
-      z-index: 1;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-    
-    .icon-wrapper {
-      width: 56px;
-      height: 56px;
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(10px);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      flex-shrink: 0;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    
-    .header-text {
-      flex: 1;
-      min-width: 0;
-    }
-    
-    .header-label {
-      color: rgba(255, 255, 255, 0.9);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
-    }
-    
-    .header-title {
-      color: white;
-      line-height: 1.3;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    
-    .header-badge {
-      flex-shrink: 0;
-    }
-    
-    .badge-content {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      background: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      color: white;
-      font-size: 13px;
-      font-weight: 600;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-    
-    /* Mobile responsive styles for header */
-    @media (max-width: 767px) {
-      .application-header {
-        padding: 20px 20px;
-        margin-bottom: 16px;
-        border-radius: 8px;
-      }
-      
-      .header-content {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
-      }
-      
-      .icon-wrapper {
-        width: 48px;
-        height: 48px;
-      }
-      
-      .header-title {
-        font-size: 18px;
-      }
-      
-      .header-label {
-        font-size: 11px;
-      }
-      
-      .badge-content {
-        font-size: 12px;
-        padding: 6px 12px;
-      }
-      
-      .application-header::before,
-      .application-header::after {
-        display: none;
-      }
-    }
-    
-    @media (max-width: 479px) {
-      .application-header {
-        padding: 16px;
-      }
-      
-      .icon-wrapper {
-        width: 44px;
-        height: 44px;
-      }
-      
-      .header-title {
-        font-size: 16px;
-      }
-    }
-    
-    .stepper-container {
-      padding: 0;
-      margin: 0;
-      min-height: calc(100vh - 200px);
-    }
-    
-    /* Base stepper styles */
-    ::ng-deep .mat-stepper-horizontal {
-      background: transparent;
-      border-radius: 0;
-    }
-    
-    /* Header container with responsive padding */
-    ::ng-deep .mat-horizontal-stepper-header-container {
-      padding: 16px 24px;
-      margin-bottom: 24px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-      transition: box-shadow 0.3s ease;
-    }
-    
-    ::ng-deep .mat-horizontal-stepper-header-container:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    }
-    
-    /* Individual step header */
-    ::ng-deep .mat-horizontal-stepper-header {
-      padding: 12px 16px !important;
-      height: auto;
-      transition: all 0.3s ease;
-    }
-    
-    /* Step icon styling */
-    ::ng-deep .mat-step-header .mat-step-icon {
-      width: 36px;
-      height: 36px;
-      transition: all 0.3s ease;
-    }
-    
-    ::ng-deep .mat-step-header .mat-step-icon-selected,
-    ::ng-deep .mat-step-header .mat-step-icon-state-edit {
-      background-color: var(--primary-color, #5D87FF);
-      box-shadow: 0 2px 6px rgba(93, 135, 255, 0.3);
-    }
-    
-    ::ng-deep .mat-step-header .mat-step-icon-state-done {
-      background-color: #13DEB9;
-      box-shadow: 0 2px 6px rgba(19, 222, 185, 0.3);
-    }
-    
-    /* Step label text */
-    ::ng-deep .mat-step-label {
-      font-size: 14px;
-      font-weight: 500;
-      min-width: 80px;
-    }
-    
-    ::ng-deep .mat-step-label-selected {
-      font-weight: 600;
-      color: var(--primary-color, #5D87FF);
-    }
-    
-    /* Step connector line */
-    ::ng-deep .mat-stepper-horizontal-line {
-      margin: 0 8px;
-      border-top-width: 2px;
-    }
-    
-    /* Content container */
-    ::ng-deep .mat-horizontal-content-container {
-      padding: 0 !important;
-      overflow: visible;
-    }
-    
-    /* Mobile responsive styles */
-    @media (max-width: 959px) {
-      ::ng-deep .mat-horizontal-stepper-header-container {
-        padding: 12px 16px;
-        margin-bottom: 16px;
-        border-radius: 8px;
-      }
-      
-      ::ng-deep .mat-horizontal-stepper-header {
-        padding: 8px 12px !important;
-      }
-      
-      ::ng-deep .mat-step-header .mat-step-icon {
-        width: 32px;
-        height: 32px;
-        margin-right: 8px;
-      }
-      
-      ::ng-deep .mat-step-label {
-        font-size: 13px;
-        min-width: 60px;
-      }
-      
-      ::ng-deep .mat-stepper-horizontal-line {
-        margin: 0 4px;
-      }
-    }
-    
-    @media (max-width: 599px) {
-      .stepper-container {
-        padding: 0;
-      }
-      
-      ::ng-deep .mat-horizontal-stepper-header-container {
-        padding: 8px 12px;
-        margin-bottom: 12px;
-        border-radius: 8px;
-        overflow-x: auto;
-        scrollbar-width: thin;
-      }
-      
-      ::ng-deep .mat-horizontal-stepper-header {
-        padding: 6px 8px !important;
-        min-width: fit-content;
-      }
-      
-      ::ng-deep .mat-step-header .mat-step-icon {
-        width: 28px;
-        height: 28px;
-        margin-right: 6px;
-        flex-shrink: 0;
-      }
-      
-      ::ng-deep .mat-step-label {
-        font-size: 12px;
-        min-width: 50px;
-        white-space: nowrap;
-      }
-      
-      ::ng-deep .mat-step-text-label {
-        display: none;
-      }
-      
-      ::ng-deep .mat-stepper-horizontal-line {
-        margin: 0 2px;
-        min-width: 20px;
-      }
-      
-      /* Show only step numbers on very small screens */
-      ::ng-deep .mat-step-label-selected .mat-step-text-label {
-        display: inline;
-        font-size: 11px;
-      }
-    }
-    
-    /* Accessibility improvements */
-    ::ng-deep .mat-step-header:focus {
-      outline: 2px solid var(--primary-color, #5D87FF);
-      outline-offset: 2px;
-      border-radius: 8px;
-    }
-    
-    /* Loading and disabled states */
-    ::ng-deep .mat-step-header[aria-disabled="true"] {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    
-    /* Smooth transitions for interactive elements */
-    ::ng-deep .mat-step-header:not([aria-disabled="true"]):hover {
-      background-color: rgba(93, 135, 255, 0.04);
-      border-radius: 8px;
-    }
-  `],
   imports: [
     MaterialModule,
     CommonModule,
@@ -372,20 +58,28 @@ export class AppAddApplicationComponent implements OnInit {
       private _formBuilder = inject(FormBuilder);
   private serviceRequestService = inject(ServiceRequestService);
 
+  @ViewChild('stepper') stepper!: MatStepper;
+
   // Service information from route
   serviceId: string | null = null;
   serviceName: string | null = null;
   serviceDetails: ServiceRequestWithType | null = null;
   pipelineSteps: RequestPipelineStep[] = [];
   isLoadingService: boolean = false;
+  
+  // Request tracking
+  requestTypeId: string | null = null;
+  createdServiceRequestId: string | null = null;
+  isSubmittingStep1: boolean = false;
+  isSubmittingStep2: boolean = false;
 
   // User data
   userData: any = null;
   userProfiles: UserProfile[] = [];
   selectedProfile: UserProfile | null | string = null;
 
-  // Owner checkbox
-  isOwner: boolean = false;
+  // Owner checkbox - initialize as null so nothing is pre-selected
+  isOwner: boolean | null = null;
   isNotOwner: boolean = false;
 
   // Other profile data
@@ -413,11 +107,14 @@ export class AppAddApplicationComponent implements OnInit {
     secondCtrl: ['', Validators.required],
   });
   locationFormGroup = this._formBuilder.group({
-    region: ['Male Region', Validators.required],
-    city: ['Hulhumale', Validators.required],
-    buildingName: ['Test Building', Validators.required],
-    street: ['Main Street', Validators.required],
-    floors: this.fb.array([]) // Dynamic floors array
+    city: ['', Validators.required],
+    buildingName: ['', Validators.required],
+    houseNumber: ['', Validators.required],
+    street: ['', Validators.required],
+    postalCode: ['']
+  });
+  connectionDetailsFormGroup = this._formBuilder.group({
+    floors: this._formBuilder.array([]) // Floors in separate form group for Connection Details step
   });
   addForm: UntypedFormGroup | any;
   rows: UntypedFormArray;
@@ -448,15 +145,16 @@ export class AppAddApplicationComponent implements OnInit {
   ];
 
   cities = [
-    'Male',
-    'Hulhumale',
-    'Vilimale',
-    'Thilafushi',
-    'Gulhifalhu',
-    'Addu City',
-    'Fuvahmulah',
-    'Kulhudhuffushi',
+    { name: 'Male', islandId: 0 },
+    { name: 'Hulhumale', islandId: 1 },
+    { name: 'Vilimale', islandId: 2 },
+    { name: 'Thilafushi', islandId: 3 },
+    { name: 'Gulhifalhu', islandId: 4 },
+    { name: 'Addu City', islandId: 5 },
+    { name: 'Fuvahmulah', islandId: 6 },
+    { name: 'Kulhudhuffushi', islandId: 7 },
   ];
+  
   tarrifTypes: string[] = ['Commercial', 'Institutional', 'Domestic'];
   
   // Required documents list (will come from API later)
@@ -492,8 +190,10 @@ declarationAgreed: any;
     this.activatedRoute.queryParams.subscribe(params => {
       this.serviceId = params['serviceId'] || null;
       this.serviceName = params['serviceName'] || null;
+      this.requestTypeId = params['requestTypeId'] || null;
       console.log('Service ID:', this.serviceId);
       console.log('Service Name:', this.serviceName);
+      console.log('Request Type ID:', this.requestTypeId);
     });
 
     const maxId = Math.max(
@@ -526,8 +226,8 @@ declarationAgreed: any;
     this.addForm.addControl('connections', this.connections);
     this.connections.push(this.createConnectionFormGroup());
 
-    // Initialize floors FormArray with one default floor
-    this.floors = this.locationFormGroup.get('floors') as UntypedFormArray;
+    // Initialize floors FormArray - it's part of connectionDetailsFormGroup
+    this.floors = this.connectionDetailsFormGroup.get('floors') as UntypedFormArray;
     this.addFloor(); // Add first floor by default
   }
 
@@ -1079,6 +779,8 @@ declarationAgreed: any;
                          this.locationFormGroup.get('buildingName')?.valid &&
                          this.locationFormGroup.get('street')?.valid;
 
+ 
+
     // Check if at least one floor exists
     if (this.floors.length === 0) {
       return false;
@@ -1108,45 +810,248 @@ declarationAgreed: any;
     return !!locationValid && floorsValid;
   }
 
-  onSubmit(): void {
-    if (this.addForm.valid) {
-      const formValue = this.addForm.getRawValue();
-      const newApplication: Application = {
-        id: this.application().id,
-        serviceType: formValue.serviceType,
-        applicantName: formValue.applicantName,
-        applicantEmail: formValue.applicantEmail,
-        applicantAddress: formValue.applicantAddress,
-        applicantPhone: formValue.applicantPhone,
-        businessName: formValue.businessName,
-        applicationItems: formValue.rows.map(
-          (row: any) =>
-            new ApplicationItem(
-              row.itemName,
-              row.description,
-              row.quantity,
-              row.unitPrice,
-              row.totalPrice
-            )
-        ),
-        applicationDate: new Date(),
-        totalCost: this.subTotal(),
-        processingFee: this.processingFee(),
-        grandTotal: this.grandTotal(),
-        status: 'Pending',
-        remarks: formValue.remarks,
-        completed: false,
-        isSelected: false,
-      };
+  // onSubmit(): void {
+  //   if (this.addForm.valid) {
+  //     const formValue = this.addForm.getRawValue();
+  //     const newApplication: Application = {
+  //       id: this.application().id,
+  //       serviceType: formValue.serviceType,
+  //       applicantName: formValue.applicantName,
+  //       applicantEmail: formValue.applicantEmail,
+  //       applicantAddress: formValue.applicantAddress,
+  //       applicantPhone: formValue.applicantPhone,
+  //       businessName: formValue.businessName,
+  //       applicationItems: formValue.rows.map(
+  //         (row: any) =>
+  //           new ApplicationItem(
+  //             row.itemName,
+  //             row.description,
+  //             row.quantity,
+  //             row.unitPrice,
+  //             row.totalPrice
+  //           )
+  //       ),
+  //       applicationDate: new Date(),
+  //       totalCost: this.subTotal(),
+  //       processingFee: this.processingFee(),
+  //       grandTotal: this.grandTotal(),
+  //       status: 'Pending',
+  //       remarks: formValue.remarks,
+  //       completed: false,
+  //       isSelected: false,
+  //     };
 
-      this.applicationService.addApplication(newApplication);
-      this.showSnackbar('Application submitted successfully!');
-      this.router.navigate(['/apps/myApplications/list']);
-    }
-  }
+  //     this.applicationService.addApplication(newApplication);
+  //     this.showSnackbar('Application submitted successfully!');
+  //     this.router.navigate(['/apps/myApplications/list']);
+  //   }
+  // }
     onSubmit1(): void {
        this.showSnackbar('Application submitted successfully!');
      this.router.navigate(['/apps/my-applications/list']);
+  }
+
+  /**
+   * Submit Step 1 - Owner Details
+   */
+  submitStep1OwnerDetails(): void {
+    if (!this.requestTypeId || !this.serviceId) {
+      this.showSnackbar('Missing request type or service information');
+      return;
+    }
+
+    // Validate that user has selected owner option
+    if (this.isOwner === null) {
+      this.showSnackbar('Please select whether you are the owner or not');
+      return;
+    }
+
+    // Prepare the request data
+    const requestData: Step1OwnerDetailsRequest = {
+      requestTypeId: this.requestTypeId,
+      serviceRequestId: this.createdServiceRequestId || this.serviceId,
+      isOwner: this.isOwner
+    };
+
+    // If owner, use selected profile or current user data
+    if (this.isOwner) {
+      if (this.selectedProfile && typeof this.selectedProfile !== 'string') {
+        requestData.profileId = this.selectedProfile.id;
+        
+        // Add profile data
+        if (this.selectedProfile.profileType === 'Individual') {
+          requestData.firstName = this.selectedProfile.firstName || undefined;
+          requestData.lastName = this.selectedProfile.lastName || undefined;
+          requestData.identificationNumber = this.selectedProfile.identityNumber || undefined;
+          requestData.mobileNumber = this.selectedProfile.mobileNo || undefined;
+          requestData.email = this.selectedProfile.email;
+        } else {
+          requestData.companyName = this.selectedProfile.entityName || undefined;
+          requestData.registrationNumber = this.selectedProfile.registrationNumber || undefined;
+          requestData.mobileNumber = this.selectedProfile.mobileNo || undefined;
+          requestData.email = this.selectedProfile.email;
+        }
+
+        // Add address if available
+        const address = this.selectedProfile.permanentAddress;
+        if (address) {
+          requestData.addressLine1 = address.addressLine1 || undefined;
+          requestData.addressLine2 = address.addressLine2 || undefined;
+          requestData.postalCode = address.postalCode || undefined;
+          // Note: islandId needs to be mapped from island name if needed
+        }
+      }
+    } else {
+      // Not owner - check if manual entry or selected profile
+      if (this.selectedProfile === 'other') {
+        // Manual entry from otherProfile
+        if (this.otherProfileType === 'individual') {
+          requestData.firstName = this.otherProfile.name.split(' ')[0];
+          requestData.lastName = this.otherProfile.name.split(' ').slice(1).join(' ');
+          requestData.identificationNumber = this.otherProfile.idCardNo;
+          requestData.mobileNumber = this.otherProfile.phone;
+          requestData.email = this.otherProfile.email;
+        } else {
+          requestData.companyName = this.otherProfile.companyName;
+          requestData.registrationNumber = this.otherProfile.registrationNo;
+          requestData.mobileNumber = this.otherProfile.phone;
+          requestData.email = this.otherProfile.email;
+        }
+
+        // Add address
+        requestData.addressLine1 = this.otherProfile.street;
+        requestData.addressLine2 = this.otherProfile.city;
+        requestData.postalCode = this.otherProfile.postalCode;
+      } else if (this.selectedProfile && typeof this.selectedProfile !== 'string') {
+        // Selected from existing profiles
+        requestData.profileId = this.selectedProfile.id;
+        
+        if (this.selectedProfile.profileType === 'Individual') {
+          requestData.firstName = this.selectedProfile.firstName || undefined;
+          requestData.lastName = this.selectedProfile.lastName || undefined;
+          requestData.identificationNumber = this.selectedProfile.identityNumber || undefined;
+        } else {
+          requestData.companyName = this.selectedProfile.entityName || undefined;
+          requestData.registrationNumber = this.selectedProfile.registrationNumber || undefined;
+        }
+        
+        requestData.mobileNumber = this.selectedProfile.mobileNo || undefined;
+        requestData.email = this.selectedProfile.email;
+
+        const address = this.selectedProfile.permanentAddress;
+        if (address) {
+          requestData.addressLine1 = address.addressLine1 || undefined;
+          requestData.addressLine2 = address.addressLine2 || undefined;
+          requestData.postalCode = address.postalCode || undefined;
+        }
+      }
+    }
+
+    console.log('Submitting Step 1 with data:', requestData);
+    this.isSubmittingStep1 = true;
+
+    this.serviceRequestService.submitStep1OwnerDetails(requestData).subscribe({
+      next: (response: Step1Response) => {
+        this.isSubmittingStep1 = false;
+        
+        if (response.isSuccessful) {
+          this.showSnackbar('Owner details submitted successfully!');
+          // Store the created service request ID if returned
+          if (response.item) {
+            // Assuming the API might return the service request ID
+            console.log('Step 1 completed successfully');
+          }
+          // Move to next step automatically
+          if (this.stepper) {
+            setTimeout(() => this.stepper.next(), 500);
+          }
+        } else {
+          // Handle validation errors
+          const errors = response.errorDetails;
+          let errorMessage = response.statusMessage || 'Failed to submit owner details';
+          
+          if (errors && Object.keys(errors).length > 0) {
+            const firstError = Object.values(errors)[0];
+            if (Array.isArray(firstError) && firstError.length > 0) {
+              errorMessage = firstError[0];
+            }
+          }
+          
+          this.showSnackbar(errorMessage);
+          console.error('Step 1 validation errors:', errors);
+        }
+      },
+      error: (error) => {
+        this.isSubmittingStep1 = false;
+        console.error('Error submitting Step 1:', error);
+        this.showSnackbar('An error occurred while submitting owner details');
+      }
+    });
+  }
+
+  /**
+   * Submit Step 2 - Service Address
+   */
+  submitStep2ServiceAddress(): void {
+    if (!this.serviceId) {
+      this.showSnackbar('Missing service information');
+      return;
+    }
+
+    // Validate the location form
+    if (this.locationFormGroup.invalid) {
+      this.showSnackbar('Please fill in all required fields');
+      this.locationFormGroup.markAllAsTouched();
+      return;
+    }
+
+    const formValue = this.locationFormGroup.value;
+
+    // Get island ID from selected city
+    const selectedCity = this.cities.find(city => city.name === formValue.city);
+    const islandId = selectedCity?.islandId ?? 0;
+    
+    const requestData: Step2ServiceAddressRequest = {
+      requestId: '939f1d94-4154-402a-b963-b98fa40934f1',
+      buildingName: formValue.buildingName || '',
+      houseNumber: formValue.houseNumber || '',
+      street: formValue.street || '',
+      postalCode: formValue.postalCode || undefined,
+      islandId: islandId
+    };
+
+    console.log('Submitting Step 2 - Service Address:', requestData);
+
+    this.isSubmittingStep2 = true;
+
+    this.serviceRequestService.submitStep2ServiceAddress(requestData).subscribe({
+      next: (response) => {
+        this.isSubmittingStep2 = false;
+
+        if (response.isSuccessful) {
+          console.log('Step 2 submitted successfully:', response);
+          this.showSnackbar('Service address saved successfully!');
+
+          // Auto-advance to next step after a short delay
+          if (this.stepper) {
+            setTimeout(() => this.stepper.next(), 500);
+          }
+        } else {
+          // Handle validation errors
+          const errors = response.errorDetails;
+          const firstErrorKey = Object.keys(errors)[0];
+          const firstErrorMessage = errors[firstErrorKey]?.[0] || response.statusMessage;
+          
+          this.showSnackbar(`Failed to save service address: ${firstErrorMessage}`);
+          console.error('Step 2 validation errors:', errors);
+        }
+      },
+      error: (error) => {
+        this.isSubmittingStep2 = false;
+        console.error('Error submitting Step 2:', error);
+        this.showSnackbar('An error occurred while submitting service address');
+      }
+    });
   }
 
   showSnackbar(message: string): void {
