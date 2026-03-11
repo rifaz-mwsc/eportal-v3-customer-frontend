@@ -30,7 +30,13 @@ import {
   Step1OwnerDetailsRequest,
   Step1Response,
   Step2ServiceAddressRequest,
-  Step2Response
+  Step2Response,
+  Step3ConnectionDetailsRequest,
+  Step3Response,
+  ConnectionItem,
+  Step4Response,
+  Step5DeclarationRequest,
+  Step5Response
 } from 'src/app/services/service-request.service';
 
 
@@ -72,6 +78,9 @@ export class AppAddApplicationComponent implements OnInit {
   createdServiceRequestId: string | null = null;
   isSubmittingStep1: boolean = false;
   isSubmittingStep2: boolean = false;
+  isSubmittingStep3: boolean = false;
+  isSubmittingStep4: boolean = false;
+  isSubmittingStep5: boolean = false;
 
   // User data
   userData: any = null;
@@ -145,14 +154,14 @@ export class AppAddApplicationComponent implements OnInit {
   ];
 
   cities = [
-    { name: 'Male', islandId: 0 },
-    { name: 'Hulhumale', islandId: 1 },
-    { name: 'Vilimale', islandId: 2 },
-    { name: 'Thilafushi', islandId: 3 },
-    { name: 'Gulhifalhu', islandId: 4 },
-    { name: 'Addu City', islandId: 5 },
-    { name: 'Fuvahmulah', islandId: 6 },
-    { name: 'Kulhudhuffushi', islandId: 7 },
+    { name: 'Male', islandId: 1 },
+    { name: 'Hulhumale', islandId: 2 },
+    { name: 'Vilimale', islandId: 3 },
+    { name: 'Thilafushi', islandId: 4 },
+    { name: 'Gulhifalhu', islandId: 5 },
+    { name: 'Addu City', islandId: 6 },
+    { name: 'Fuvahmulah', islandId: 7 },
+    { name: 'Kulhudhuffushi', islandId: 8 },
   ];
   
   tarrifTypes: string[] = ['Commercial', 'Institutional', 'Domestic'];
@@ -176,6 +185,7 @@ export class AppAddApplicationComponent implements OnInit {
   toggleValue: any = null;
   quantity: number = 1;
 declarationAgreed: any;
+  createdRequestId: any;
   constructor(
     private fb: UntypedFormBuilder,
     private applicationService: ApplicationService,
@@ -810,42 +820,6 @@ declarationAgreed: any;
     return !!locationValid && floorsValid;
   }
 
-  // onSubmit(): void {
-  //   if (this.addForm.valid) {
-  //     const formValue = this.addForm.getRawValue();
-  //     const newApplication: Application = {
-  //       id: this.application().id,
-  //       serviceType: formValue.serviceType,
-  //       applicantName: formValue.applicantName,
-  //       applicantEmail: formValue.applicantEmail,
-  //       applicantAddress: formValue.applicantAddress,
-  //       applicantPhone: formValue.applicantPhone,
-  //       businessName: formValue.businessName,
-  //       applicationItems: formValue.rows.map(
-  //         (row: any) =>
-  //           new ApplicationItem(
-  //             row.itemName,
-  //             row.description,
-  //             row.quantity,
-  //             row.unitPrice,
-  //             row.totalPrice
-  //           )
-  //       ),
-  //       applicationDate: new Date(),
-  //       totalCost: this.subTotal(),
-  //       processingFee: this.processingFee(),
-  //       grandTotal: this.grandTotal(),
-  //       status: 'Pending',
-  //       remarks: formValue.remarks,
-  //       completed: false,
-  //       isSelected: false,
-  //     };
-
-  //     this.applicationService.addApplication(newApplication);
-  //     this.showSnackbar('Application submitted successfully!');
-  //     this.router.navigate(['/apps/myApplications/list']);
-  //   }
-  // }
     onSubmit1(): void {
        this.showSnackbar('Application submitted successfully!');
      this.router.navigate(['/apps/my-applications/list']);
@@ -959,7 +933,8 @@ declarationAgreed: any;
           // Store the created service request ID if returned
           if (response.item) {
             // Assuming the API might return the service request ID
-            console.log('Step 1 completed successfully');
+            console.log('Step 1 completed successfully', response.item);
+            this.createdRequestId = response.item
           }
           // Move to next step automatically
           if (this.stepper) {
@@ -998,6 +973,13 @@ declarationAgreed: any;
       return;
     }
 
+    // Validate that Step 1 was completed and we have a request ID
+    if (!this.createdRequestId) {
+      this.showSnackbar('Please complete Step 1 first');
+      console.error('No created request ID available. Step 1 may not have been completed.');
+      return;
+    }
+
     // Validate the location form
     if (this.locationFormGroup.invalid) {
       this.showSnackbar('Please fill in all required fields');
@@ -1012,7 +994,7 @@ declarationAgreed: any;
     const islandId = selectedCity?.islandId ?? 0;
     
     const requestData: Step2ServiceAddressRequest = {
-      requestId: '939f1d94-4154-402a-b963-b98fa40934f1',
+      requestId: this.createdRequestId,
       buildingName: formValue.buildingName || '',
       houseNumber: formValue.houseNumber || '',
       street: formValue.street || '',
@@ -1050,6 +1032,227 @@ declarationAgreed: any;
         this.isSubmittingStep2 = false;
         console.error('Error submitting Step 2:', error);
         this.showSnackbar('An error occurred while submitting service address');
+      }
+    });
+  }
+
+  /**
+   * Submit Step 3 - Connection Details
+   */
+  submitStep3ConnectionDetails(): void {
+    if (!this.serviceId) {
+      this.showSnackbar('Missing service information');
+      return;
+    }
+
+    // Validate the connection details form
+    if (this.connectionDetailsFormGroup.invalid) {
+      this.showSnackbar('Please fill in all required fields');
+      this.connectionDetailsFormGroup.markAllAsTouched();
+      return;
+    }
+
+    // Validate that at least one floor with meters exists
+    if (this.floors.length === 0) {
+      this.showSnackbar('Please add at least one floor with meters');
+      return;
+    }
+
+    // Check if service detail indicates new connection
+    const isNewConnection = this.serviceDetails?.isNewConnection ?? true;
+
+    // Build connection items from floors
+    const connectionItems: ConnectionItem[] = [];
+    
+    this.floors.controls.forEach((floorControl: any, floorIndex: number) => {
+      const meters = this.getFloorMeters(floorIndex);
+      
+      meters.controls.forEach((meterControl: any) => {
+        const tarrifType = meterControl.get('tarrifType')?.value;
+        const quantity = meterControl.get('quantity')?.value || 1;
+        
+        // Map tariff type to tariff group ID
+        // TODO: This mapping should come from API or configuration
+        const tarrifGroupId = this.getTarrifGroupId(tarrifType);
+        
+        // Floor ID - using index + 1 for now
+        // TODO: If floors have IDs from API, use those instead
+        const floorId = floorIndex + 1;
+        
+        connectionItems.push({
+          quantity: quantity,
+          floorId: floorId,
+          tarrifGroupId: tarrifGroupId,
+          meterNo: '' // Empty for new connections
+        });
+      });
+    });
+
+    if (connectionItems.length === 0) {
+      this.showSnackbar('Please add at least one meter');
+      return;
+    }
+
+    const requestData: Step3ConnectionDetailsRequest = {
+      requestId: this.createdRequestId,
+      isNewConnection: false, // Assuming this is always false for now since we're adding meters to an existing connection. Update as needed.
+      // isNewConnection: isNewConnection,
+      connectionItems: connectionItems
+    };
+
+    console.log('Submitting Step 3 - Connection Details:', requestData);
+    this.isSubmittingStep3 = true;
+
+    this.serviceRequestService.submitStep3ConnectionDetails(requestData).subscribe({
+      next: (response) => {
+        this.isSubmittingStep3 = false;
+
+        if (response.isSuccessful) {
+          console.log('Step 3 submitted successfully:', response);
+          this.showSnackbar('Connection details saved successfully!');
+
+          // Auto-advance to next step after a short delay
+          if (this.stepper) {
+            setTimeout(() => this.stepper.next(), 500);
+          }
+        } else {
+          // Handle validation errors
+          const errors = response.errorDetails;
+          let errorMessage = response.statusMessage || 'Failed to save connection details';
+          
+          if (errors && Object.keys(errors).length > 0) {
+            const firstErrorKey = Object.keys(errors)[0];
+            const firstErrorMessage = errors[firstErrorKey]?.[0];
+            if (firstErrorMessage) {
+              errorMessage = firstErrorMessage;
+            }
+          }
+          
+          this.showSnackbar(`Failed to save connection details: ${errorMessage}`);
+          console.error('Step 3 validation errors:', errors);
+        }
+      },
+      error: (error) => {
+        this.isSubmittingStep3 = false;
+        console.error('Error submitting Step 3:', error);
+        this.showSnackbar('An error occurred while submitting connection details');
+      }
+    });
+  }
+
+  /**
+   * Map tariff type name to tariff group ID
+   * TODO: Get this mapping from API or configuration
+   */
+  getTarrifGroupId(tarrifType: string): number {
+    const mapping: { [key: string]: number } = {
+      'Domestic': 1,
+      'Commercial': 2,
+      'Institutional': 3
+    };
+    return mapping[tarrifType] || 1;
+  }
+
+  /**
+   * Submit Step 4 - Documents (Placeholder)
+   * Note: This is a placeholder call as the actual file upload API is not ready yet.
+   * It will display the backend message to the user.
+   */
+  submitStep4Documents(): void {
+    console.log('Step 4 - Documents submission initiated (placeholder)');
+    this.isSubmittingStep4 = true;
+
+    this.serviceRequestService.submitStep4Documents().subscribe({
+      next: (response) => {
+        this.isSubmittingStep4 = false;
+        console.log('Step 4 response:', response);
+
+        // Show the backend message to the user
+        this.showSnackbar(response.message || 'Documents step acknowledged');
+
+        // Auto-advance to next step if status is Success
+        if (response.status === 'Success' && this.stepper) {
+          setTimeout(() => {
+            this.stepper.next();
+          }, 1000);
+        }
+      },
+      error: (error) => {
+        this.isSubmittingStep4 = false;
+        console.error('Step 4 error:', error);
+        this.showSnackbar('Error calling document API. Please try again.');
+      }
+    });
+  }
+
+  /**
+   * Submit Step 5 - Declaration
+   */
+  submitStep5Declaration(): void {
+    if (!this.serviceId) {
+      this.showSnackbar('Missing service information');
+      return;
+    }
+
+    // Check if declaration is agreed
+    if (!this.declarationAgreed) {
+      this.showSnackbar('Please accept the declaration to proceed');
+      return;
+    }
+
+    // Get declaration ID from pipeline steps
+    const declarationStep = this.pipelineSteps.find(
+      step => step.pipelineStepType === 'Declaration'
+    );
+
+    if (!declarationStep) {
+      this.showSnackbar('Declaration information not found');
+      return;
+    }
+
+    const requestData: Step5DeclarationRequest = {
+      requestId: this.createdRequestId,
+      // declarationId: declarationStep.stepKey || this.serviceId, // Use stepKey or fallback to serviceId
+      declarationId: "A9C71C2F-5C76-4FA2-B2D4-A4A23A4CFA71", // Use stepKey or fallback to serviceId
+      isAccepted: this.declarationAgreed
+    };
+
+    console.log('Submitting Step 5 - Declaration:', requestData);
+    this.isSubmittingStep5 = true;
+
+    this.serviceRequestService.submitStep5Declaration(requestData).subscribe({
+      next: (response) => {
+        this.isSubmittingStep5 = false;
+
+        if (response.isSuccessful) {
+          console.log('Step 5 submitted successfully:', response);
+          this.showSnackbar('Application submitted successfully! 🎉');
+
+          // Navigate to applications list or success page
+          setTimeout(() => {
+            this.router.navigate(['/apps/my-applications/list']);
+          }, 1500);
+        } else {
+          // Handle validation errors
+          const errors = response.errorDetails;
+          let errorMessage = response.statusMessage || 'Failed to submit declaration';
+          
+          if (errors && Object.keys(errors).length > 0) {
+            const firstErrorKey = Object.keys(errors)[0];
+            const firstErrorMessage = errors[firstErrorKey]?.[0];
+            if (firstErrorMessage) {
+              errorMessage = firstErrorMessage;
+            }
+          }
+          
+          this.showSnackbar(`Failed to submit application: ${errorMessage}`);
+          console.error('Step 5 validation errors:', errors);
+        }
+      },
+      error: (error) => {
+        this.isSubmittingStep5 = false;
+        console.error('Error submitting Step 5:', error);
+        this.showSnackbar('An error occurred while submitting the application');
       }
     });
   }

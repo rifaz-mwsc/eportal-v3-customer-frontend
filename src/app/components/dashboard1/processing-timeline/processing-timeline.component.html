@@ -1,0 +1,75 @@
+<mat-card class="cardWithShadow">
+  <mat-card-header>
+    <mat-card-title class="m-b-0">
+      <div class="d-flex align-items-center justify-content-between">
+        <span class="f-s-18 f-w-600">Processing Timeline</span>
+        <mat-chip size="small" class="bg-light-info text-info">Last 6 Months</mat-chip>
+      </div>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="p-t-0">
+    
+    <!-- Summary Stats -->
+    <div class="row m-t-16 m-b-16">
+      <div class="col-md-4">
+        <div class="text-center p-12 rounded bg-light-primary">
+          <div class="d-flex align-items-center justify-content-center gap-8 m-b-4">
+            <i-tabler name="file-plus" class="icon-18 text-primary"></i-tabler>
+            <span class="f-s-12 text-muted">Total Submitted</span>
+          </div>
+          <h3 class="m-0 f-s-24 f-w-700 text-primary">65</h3>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="text-center p-12 rounded bg-light-success">
+          <div class="d-flex align-items-center justify-content-center gap-8 m-b-4">
+            <i-tabler name="circle-check" class="icon-18 text-success"></i-tabler>
+            <span class="f-s-12 text-muted">Total Completed</span>
+          </div>
+          <h3 class="m-0 f-s-24 f-w-700 text-success">52</h3>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="text-center p-12 rounded bg-light-warning">
+          <div class="d-flex align-items-center justify-content-center gap-8 m-b-4">
+            <i-tabler name="hourglass" class="icon-18 text-warning"></i-tabler>
+            <span class="f-s-12 text-muted">Avg. Processing</span>
+          </div>
+          <h3 class="m-0 f-s-24 f-w-700 text-warning">8 <span class="f-s-14">days</span></h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <apx-chart
+      [series]="processingTimelineChart.series"
+      [chart]="processingTimelineChart.chart"
+      [plotOptions]="processingTimelineChart.plotOptions"
+      [legend]="processingTimelineChart.legend"
+      [xaxis]="processingTimelineChart.xaxis"
+      [yaxis]="processingTimelineChart.yaxis"
+      [stroke]="processingTimelineChart.stroke"
+      [dataLabels]="processingTimelineChart.dataLabels"
+      [tooltip]="processingTimelineChart.tooltip"
+      [colors]="processingTimelineChart.colors"
+      [grid]="processingTimelineChart.grid"
+      [fill]="processingTimelineChart.fill"
+    ></apx-chart>
+
+    <!-- Insights -->
+    <div class="row m-t-16">
+      <div class="col-12">
+        <div class="bg-light-accent p-16 rounded">
+          <div class="d-flex gap-12">
+            <i-tabler name="bulb" class="icon-20 text-info"></i-tabler>
+            <div class="flex-grow-1">
+              <p class="m-0 f-s-13 f-w-600 text-dark m-b-4">📈 Processing Improvement</p>
+              <p class="m-0 f-s-12 text-muted">Your applications are being processed 25% faster this month compared to the last quarter. Average processing time decreased from 10 days to 8 days.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </mat-card-content>
+</mat-card>

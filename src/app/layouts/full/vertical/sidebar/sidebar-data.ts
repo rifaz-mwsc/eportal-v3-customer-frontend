@@ -185,11 +185,11 @@ export const navItems: NavItem[] = [
   //   iconName: 'solar:document-text-line-duotone',
   //   route: 'apps/notes',
   // },
-  {
-    displayName: 'Applications',
-    iconName: 'solar:ticket-sale-line-duotone',
-    route: 'apps/tickets',
-  },
+  // {
+  //   displayName: 'Applications',
+  //   iconName: 'solar:ticket-sale-line-duotone',
+  //   route: 'apps/tickets',
+  // },
   // {
   //   displayName: 'ContactsApp',
   //   iconName: 'solar:phone-line-duotone',

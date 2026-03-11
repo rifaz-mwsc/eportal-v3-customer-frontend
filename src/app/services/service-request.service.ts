@@ -103,6 +103,47 @@ export interface Step2Response {
   errorDetails: { [key: string]: string[] };
 }
 
+// Step 3 - Connection Details interfaces
+export interface ConnectionItem {
+  quantity: number;
+  floorId: number;
+  tarrifGroupId: number;
+  meterNo: string;
+}
+
+export interface Step3ConnectionDetailsRequest {
+  requestId: string;
+  isNewConnection: boolean;
+  connectionItems: ConnectionItem[];
+}
+
+export interface Step3Response {
+  item: boolean;
+  isSuccessful: boolean;
+  statusMessage: string;
+  errorDetails: { [key: string]: string[] };
+}
+
+// Step 4 - Document Upload interfaces
+export interface Step4Response {
+  status: string;
+  message: string;
+}
+
+// Step 5 - Declaration interfaces
+export interface Step5DeclarationRequest {
+  requestId: string;
+  declarationId: string;
+  isAccepted: boolean;
+}
+
+export interface Step5Response {
+  item: boolean;
+  isSuccessful: boolean;
+  statusMessage: string;
+  errorDetails: { [key: string]: string[] };
+}
+
 // Document interfaces
 export interface RequestPipelineStepDocument {
   requestPipelineStepId: string;
@@ -212,9 +253,9 @@ export class ServiceRequestService {
         };
       } else {
         return {
-          bg_color: 'error',
+          bg_color: 'primary',
           icon: 'chart-bubble',
-          color: 'text-error'
+          color: 'text-primary'
         };
       }
     } else {
@@ -642,6 +683,88 @@ export class ServiceRequestService {
         console.error('Error submitting Step 2:', error);
         // Return a formatted error response
         const errorResponse: Step2Response = {
+          item: false,
+          isSuccessful: false,
+          statusMessage: error.error?.statusMessage || 'Network error occurred',
+          errorDetails: error.error?.errorDetails || { error: [error.message || 'Unknown error'] }
+        };
+        return of(errorResponse);
+      })
+    );
+  }
+
+  /**
+   * Submit Step 3 - Connection Details
+   * POST /api/v1/servicerequests/step3
+   */
+  submitStep3ConnectionDetails(data: Step3ConnectionDetailsRequest): Observable<Step3Response> {
+    console.log('Submitting Step 3 - Connection Details:', data);
+
+    return this.http.post<Step3Response>(`${this.BASE_URL}/step3`, data).pipe(
+      tap(response => {
+        if (response.isSuccessful) {
+          console.log('Step 3 submitted successfully:', response);
+        } else {
+          console.error('Step 3 submission failed:', response.statusMessage, response.errorDetails);
+        }
+      }),
+      catchError(error => {
+        console.error('Error submitting Step 3:', error);
+        // Return a formatted error response
+        const errorResponse: Step3Response = {
+          item: false,
+          isSuccessful: false,
+          statusMessage: error.error?.statusMessage || 'Network error occurred',
+          errorDetails: error.error?.errorDetails || { error: [error.message || 'Unknown error'] }
+        };
+        return of(errorResponse);
+      })
+    );
+  }
+
+  /**
+   * Submit Step 4 - Document Upload (Placeholder)
+   * POST /api/v1/servicerequests/step4
+   * Note: File upload API is not ready yet
+   */
+  submitStep4Documents(): Observable<Step4Response> {
+    console.log('Submitting Step 4 - Documents (placeholder call)');
+
+    return this.http.post<Step4Response>(`${this.BASE_URL}/step4`, {}).pipe(
+      tap(response => {
+        console.log('Step 4 response:', response);
+      }),
+      catchError(error => {
+        console.error('Error submitting Step 4:', error);
+        // Return a formatted error response
+        const errorResponse: Step4Response = {
+          status: 'Error',
+          message: error.error?.message || 'Network error occurred'
+        };
+        return of(errorResponse);
+      })
+    );
+  }
+
+  /**
+   * Submit Step 5 - Declaration
+   * POST /api/v1/servicerequests/step5
+   */
+  submitStep5Declaration(data: Step5DeclarationRequest): Observable<Step5Response> {
+    console.log('Submitting Step 5 - Declaration:', data);
+
+    return this.http.post<Step5Response>(`${this.BASE_URL}/step5`, data).pipe(
+      tap(response => {
+        if (response.isSuccessful) {
+          console.log('Step 5 submitted successfully:', response);
+        } else {
+          console.error('Step 5 submission failed:', response.statusMessage, response.errorDetails);
+        }
+      }),
+      catchError(error => {
+        console.error('Error submitting Step 5:', error);
+        // Return a formatted error response
+        const errorResponse: Step5Response = {
           item: false,
           isSuccessful: false,
           statusMessage: error.error?.statusMessage || 'Network error occurred',

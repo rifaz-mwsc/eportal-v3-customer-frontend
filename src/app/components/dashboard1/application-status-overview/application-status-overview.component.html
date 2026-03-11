@@ -1,0 +1,62 @@
+<mat-card class="cardWithShadow">
+  <mat-card-header>
+    <mat-card-title class="m-b-0 f-s-18 f-w-600">Application Status Overview</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="p-t-0">
+    
+    <!-- KPI Cards -->
+    <div class="row m-t-16">
+      @for(stat of stats; track stat.id) {
+      <div class="col-sm-6 col-lg-3">
+        <div class="p-16 rounded {{ stat.bgColor }} m-b-16">
+          <div class="d-flex align-items-center justify-content-between m-b-12">
+            <div class="rounded-circle bg-white p-8 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+              <i-tabler [name]="stat.icon" class="icon-20 text-{{ stat.color }}"></i-tabler>
+            </div>
+            <h2 class="m-0 f-s-28 f-w-700 text-{{ stat.color }}">{{ stat.value }}</h2>
+          </div>
+          <h6 class="m-0 f-s-14 f-w-600 text-dark">{{ stat.title }}</h6>
+          <p class="m-0 f-s-12 text-muted m-t-4">{{ stat.subtitle }}</p>
+        </div>
+      </div>
+      }
+    </div>
+
+    <!-- Donut Chart -->
+    <div class="row m-t-16">
+      <div class="col-12">
+        <div class="bg-light-primary p-16 rounded text-center">
+          <h5 class="f-s-16 f-w-600 m-b-16">Status Distribution</h5>
+          <apx-chart
+            [series]="applicationStatusChart.series"
+            [chart]="applicationStatusChart.chart"
+            [plotOptions]="applicationStatusChart.plotOptions"
+            [legend]="applicationStatusChart.legend"
+            [labels]="applicationStatusChart.labels"
+            [stroke]="applicationStatusChart.stroke"
+            [dataLabels]="applicationStatusChart.dataLabels"
+            [tooltip]="applicationStatusChart.tooltip"
+            [colors]="applicationStatusChart.colors"
+            [responsive]="applicationStatusChart.responsive"
+          ></apx-chart>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Rate Badge -->
+    <div class="row m-t-16">
+      <div class="col-12">
+        <div class="bg-light-success p-16 rounded text-center">
+          <div class="d-flex align-items-center justify-content-center gap-12">
+            <i-tabler name="trophy" class="icon-24 text-success"></i-tabler>
+            <div>
+              <h3 class="m-0 f-s-24 f-w-700 text-success">75%</h3>
+              <p class="m-0 f-s-13 text-muted">Application Success Rate</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </mat-card-content>
+</mat-card>

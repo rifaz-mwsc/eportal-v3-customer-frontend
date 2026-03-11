@@ -7,7 +7,7 @@
       </div>
       <div class="header-text">
         <!-- <p class="m-0 f-s-12 f-w-500 text-muted header-label">New Application</p> -->
-        <h3 class="m-0 f-s-20 f-w-600 header-title">{{ serviceName }}</h3>
+        <h3 class="m-0 f-s-20 f-w-500 header-title">{{ serviceName }}</h3>
       </div>
     </div>
     <div class="header-badge">
@@ -21,29 +21,28 @@
 }
 <div class="stepper-container">
   @if(isLoadingService) {
-    <mat-card class="cardWithShadow">
-      <mat-card-content class="text-center p-y-24">
-        <mat-spinner diameter="40"></mat-spinner>
-        <p class="m-t-16">Loading service information...</p>
-      </mat-card-content>
-    </mat-card>
+  <mat-card class="cardWithShadow">
+    <mat-card-content class="text-center p-y-24">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p class="m-t-16">Loading service information...</p>
+    </mat-card-content>
+  </mat-card>
   }
-  
+
   @if(!isLoadingService && pipelineSteps.length > 0) {
   <mat-stepper [linear]="true" #stepper class="mat-elevation-z0">
     @for(step of pipelineSteps; track step.stepOrder) {
-      
-      <!-- Owner Details Step -->
-      @if(step.stepKey === 'OwnerDetails') {
-      <mat-step [stepControl]="ownerFormGroup">
-        <form [formGroup]="ownerFormGroup">
-          <ng-template matStepLabel>{{ step.title }}</ng-template>
+
+    <!-- Owner Details Step -->
+    @if(step.stepKey === 'OwnerDetails') {
+    <mat-step [stepControl]="ownerFormGroup">
+      <form [formGroup]="ownerFormGroup">
+        <ng-template matStepLabel>{{ step.title }}</ng-template>
         <mat-card class="cardWithShadow">
           <mat-card-header>
             <mat-card-title class="m-b-0 f-s-20 f-w-600">
               Are you the Owner?
               @if(serviceName) {
-              <span class="text-primary f-s-16 d-block m-t-8">Applying for: {{ serviceName }}</span>
               }
             </mat-card-title>
 
@@ -209,19 +208,17 @@
             }
 
             <div class="m-t-24 d-flex justify-content-end gap-8">
-              <button mat-stroked-button type="button" [routerLink]="['/apps/myApplications/list']">
+              <button mat-stroked-button type="button" [routerLink]="['/apps/ServiceDirectory']">
                 Cancel
               </button>
-              <button 
-                mat-flat-button 
-                color="primary" 
-                type="button"
-                (click)="submitStep1OwnerDetails()"
+              <button mat-flat-button color="primary" type="button" (click)="submitStep1OwnerDetails()"
                 [disabled]="isSubmittingStep1">
-                @if(isSubmittingStep1) {
+                <span class="d-flex align-items-center">
+                  @if(isSubmittingStep1) {
                   <mat-spinner diameter="20" class="m-r-8"></mat-spinner>
-                }
-                {{ isSubmittingStep1 ? 'Submitting...' : 'Next' }}
+                  }
+                  {{ isSubmittingStep1 ? 'Submitting...' : 'Next' }}
+                </span>
               </button>
             </div>
           </mat-card-content>
@@ -296,19 +293,17 @@
                   <i-tabler name="arrow-left" class="icon-18 m-r-4"></i-tabler>
                   Back
                 </button>
-                <button 
-                  mat-flat-button 
-                  color="primary" 
-                  type="button" 
-                  (click)="submitStep2ServiceAddress()"
+                <button mat-flat-button color="primary" type="button" (click)="submitStep2ServiceAddress()"
                   [disabled]="isSubmittingStep2">
-                  @if (isSubmittingStep2) {
+                  <span class="d-flex align-items-center">
+                    @if (isSubmittingStep2) {
                     <mat-spinner diameter="20" class="m-r-8"></mat-spinner>
-                  }
-                  {{ isSubmittingStep2 ? 'Submitting...' : 'Next' }}
-                  @if (!isSubmittingStep2) {
+                    }
+                    {{ isSubmittingStep2 ? 'Submitting...' : 'Next' }}
+                    @if (!isSubmittingStep2) {
                     <i-tabler name="arrow-right" class="icon-18 m-l-4"></i-tabler>
-                  }
+                    }
+                  </span>
                 </button>
               </div>
             </div>
@@ -337,10 +332,10 @@
                   <span class="f-s-14 f-w-600 text-primary">Total Meters: {{ getTotalMeterCount() }}</span>
                 </div>
                 <div class="p-x-16 p-y-8 rounded">
-                     <button matFab extended class="bg-success text-white" (click)="addFloor()">
-        <mat-icon>apartment</mat-icon>
-         Add Floor
-      </button>
+                  <button matFab extended class="bg-success text-white" (click)="addFloor()">
+                    <mat-icon>apartment</mat-icon>
+                    Add Floor
+                  </button>
                 </div>
               </div>
 
@@ -348,95 +343,82 @@
               <div class="row" formArrayName="floors">
                 @for(floor of floors.controls; track $index; let floorIndex = $index) {
                 <div class="col-lg-3 col-md-4 col-sm-6 col-12 m-b-16" [formGroupName]="floorIndex">
-                    <mat-card 
-                    class="cardWithShadow b-1 h-100"
+                  <mat-card class="cardWithShadow b-1 h-100"
                     [ngClass]="['bg-light-primary','bg-light-secondary','bg-light-success','bg-light-warning','bg-light-info'][floorIndex % 5]">
                     <mat-card-content>
                       <!-- Floor Number Input -->
                       <div class="d-flex align-items-center m-b-16">
-                      <mat-form-field appearance="outline" class="w-100">
-                        <mat-label>Floor Number</mat-label>
-                        <input matInput formControlName="floorNumber" placeholder="e.g., Ground Floor" required />
-                        <mat-hint class="f-s-12">({{ getFloorMeters(floorIndex).length }} meter type{{ getFloorMeters(floorIndex).length > 1 ? 's' : '' }})</mat-hint>
-                      </mat-form-field>
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Floor Number</mat-label>
+                          <input matInput formControlName="floorNumber" placeholder="e.g., Ground Floor" required />
+                          <mat-hint class="f-s-12">({{ getFloorMeters(floorIndex).length }} meter type{{
+                            getFloorMeters(floorIndex).length > 1 ? 's' : '' }})</mat-hint>
+                        </mat-form-field>
                       </div>
 
                       <!-- Meter Cards -->
                       <div formArrayName="meters">
-                      @for(meter of getFloorMeters(floorIndex).controls; track $index; let meterIndex = $index) {
-                      <mat-card class="cardWithShadow img-task m-b-15 overflow-hidden" [formGroupName]="meterIndex">
-                        <!-- Meter Header -->
-                        <div class="d-flex align-items-center justify-content-between p-x-12 p-y-10">
-                        <h5 class="f-s-14 f-w-600 m-0">Meter {{ meterIndex + 1 }}</h5>
-                        <button mat-icon-button [matMenuTriggerFor]="meterMenu" type="button">
-                          <mat-icon>more_vert</mat-icon>
-                        </button>
-                        <mat-menu #meterMenu="matMenu" xPosition="before" class="cardWithShadow">
-                          <button mat-menu-item (click)="openEditMeterDialog(floorIndex, meterIndex)" type="button">
-                          <div class="d-flex align-items-center gap-8">
-                            <i-tabler name="edit" class="icon-20 d-flex"></i-tabler>
-                            Edit
+                        @for(meter of getFloorMeters(floorIndex).controls; track $index; let meterIndex = $index) {
+                        <mat-card class="cardWithShadow img-task m-b-15 overflow-hidden" [formGroupName]="meterIndex">
+                          <!-- Meter Header -->
+                          <div class="d-flex align-items-center justify-content-between p-x-12 p-y-10">
+                            <h5 class="f-s-14 f-w-600 m-0">Meter {{ meterIndex + 1 }}</h5>
+                            <button mat-icon-button [matMenuTriggerFor]="meterMenu" type="button">
+                              <mat-icon>more_vert</mat-icon>
+                            </button>
+                            <mat-menu #meterMenu="matMenu" xPosition="before" class="cardWithShadow">
+                              <button mat-menu-item (click)="openEditMeterDialog(floorIndex, meterIndex)" type="button">
+                                <div class="d-flex align-items-center gap-8">
+                                  <i-tabler name="edit" class="icon-20 d-flex"></i-tabler>
+                                  Edit
+                                </div>
+                              </button>
+                              <button mat-menu-item type="button" (click)="removeMeterFromFloor(floorIndex, meterIndex)"
+                                [disabled]="getFloorMeters(floorIndex).length === 1">
+                                <div class="d-flex align-items-center gap-8">
+                                  <i-tabler name="trash" class="icon-20 d-flex"></i-tabler>
+                                  Delete
+                                </div>
+                              </button>
+                            </mat-menu>
                           </div>
-                          </button>
-                          <button 
-                          mat-menu-item 
-                          type="button"
-                          (click)="removeMeterFromFloor(floorIndex, meterIndex)"
-                          [disabled]="getFloorMeters(floorIndex).length === 1">
-                          <div class="d-flex align-items-center gap-8">
-                            <i-tabler name="trash" class="icon-20 d-flex"></i-tabler>
-                            Delete
-                          </div>
-                          </button>
-                        </mat-menu>
-                        </div>
 
 
-                        <!-- Meter Footer -->
-                        <div class="d-flex align-items-center justify-content-between p-x-12 p-y-10">
-                        <div class="d-flex align-items-center gap-4">
-                          <span class=" f-w-400 f-s-14"> # </span>
-                          <span class="f-s-12 lh-base">Qty {{ getMeterDetails(floorIndex, meterIndex).quantity }}</span>
-                        </div>
-                        @if(getMeterDetails(floorIndex, meterIndex).tarrifType) {
-                        <span class="rounded f-s-12 p-x-8 text-white"
-                          [ngClass]="{
+                          <!-- Meter Footer -->
+                          <div class="d-flex align-items-center justify-content-between p-x-12 p-y-10">
+                            <div class="d-flex align-items-center gap-4">
+                              <span class=" f-w-400 f-s-14"> # </span>
+                              <span class="f-s-12 lh-base">Qty {{ getMeterDetails(floorIndex, meterIndex).quantity
+                                }}</span>
+                            </div>
+                            @if(getMeterDetails(floorIndex, meterIndex).tarrifType) {
+                            <span class="rounded f-s-12 p-x-8 text-white" [ngClass]="{
                             'bg-primary': getMeterDetails(floorIndex, meterIndex).tarrifType === 'Commercial',
                             'bg-success': getMeterDetails(floorIndex, meterIndex).tarrifType === 'Institutional',
                             'bg-warning': getMeterDetails(floorIndex, meterIndex).tarrifType === 'Domestic'
                           }">
-                          {{ getMeterDetails(floorIndex, meterIndex).tarrifType }}
-                        </span>
+                              {{ getMeterDetails(floorIndex, meterIndex).tarrifType }}
+                            </span>
+                            }
+                          </div>
+                        </mat-card>
                         }
-                        </div>
-                      </mat-card>
-                      }
                       </div>
 
                       <!-- Add Meter Button -->
-                      <button 
-                      mat-flat-button 
-                      color="primary" 
-                      class="w-100" 
-                      type="button"
-                      (click)="addMeterToFloor(floorIndex)"
-                      [disabled]="!canAddMoreMeters(floorIndex)">
-                      <mat-icon>add</mat-icon>
-                      Add Meter Type
+                      <button mat-flat-button color="primary" class="w-100" type="button"
+                        (click)="addMeterToFloor(floorIndex)" [disabled]="!canAddMoreMeters(floorIndex)">
+                        <mat-icon>add</mat-icon>
+                        Add Meter Type
                       </button>
                       <!-- Remove Floor Button -->
-                      <button 
-                      mat-stroked-button 
-                       
-                      class="w-100 m-t-8 bg-error text-white" 
-                      type="button"
-                      (click)="removeFloor(floorIndex)"
-                      [disabled]="floors.length === 1">
-                      <i-tabler name="trash" class="icon-18 m-r-4"></i-tabler>
-                      Remove Floor
+                      <button mat-stroked-button class="w-100 m-t-8 bg-error text-white" type="button"
+                        (click)="removeFloor(floorIndex)" [disabled]="floors.length === 1">
+                        <i-tabler name="trash" class="icon-18 m-r-4"></i-tabler>
+                        Remove Floor
                       </button>
                     </mat-card-content>
-                    </mat-card>
+                  </mat-card>
                 </div>
                 }
               </div>
@@ -450,14 +432,14 @@
                   <i-tabler name="arrow-left" class="icon-18 m-r-4"></i-tabler>
                   Back
                 </button>
-                <button 
-                  mat-flat-button 
-                  color="primary" 
-                  type="button" 
-                  matStepperNext
-                  [disabled]="!isStep2Valid()">
-                  Next
-                  <i-tabler name="arrow-right" class="icon-18 m-l-4"></i-tabler>
+                <button mat-flat-button color="primary" type="button" (click)="submitStep3ConnectionDetails()"
+                  [disabled]="isSubmittingStep3">
+                  <span class="d-flex align-items-center">
+                    @if(isSubmittingStep3) {
+                    <mat-spinner diameter="20" class="m-r-8"></mat-spinner>
+                    }
+                    {{ isSubmittingStep3 ? 'Submitting...' : 'Next' }}
+                  </span>
                 </button>
               </div>
             </div>
@@ -478,17 +460,14 @@
         </mat-card-header>
         <mat-card-content>
           <!-- Upload Progress -->
-          <div class="bg-light-primary p-16 rounded m-b-24">
+          <div class=" p-16 rounded m-b-24">
             <div class="d-flex justify-content-between align-items-center m-b-8">
               <span class="f-s-14 f-w-600">Upload Progress</span>
               <span class="f-s-14 f-w-600 text-primary">
                 {{ getUploadProgress().uploaded }} / {{ getUploadProgress().total }} Required Documents
               </span>
             </div>
-            <mat-progress-bar 
-              mode="determinate" 
-              [value]="getUploadProgress().percentage"
-              class="rounded">
+            <mat-progress-bar mode="determinate" [value]="getUploadProgress().percentage" class="rounded">
             </mat-progress-bar>
             <div class="text-center m-t-8">
               <span class="f-s-12 text-muted">{{ getUploadProgress().percentage }}% Complete</span>
@@ -521,21 +500,21 @@
                   <div class="col-lg-4 col-md-5 col-12">
                     <div class="d-flex align-items-center gap-8">
                       @if(doc.uploaded) {
-                        <i-tabler name="circle-check" class="icon-24 text-success"></i-tabler>
+                      <i-tabler name="circle-check" class="icon-24 text-success"></i-tabler>
                       } @else {
-                        <i-tabler name="file" class="icon-24 text-muted"></i-tabler>
+                      <i-tabler name="file" class="icon-24 text-muted"></i-tabler>
                       }
                       <div>
                         <p class="m-0 f-s-14 f-w-600">
                           {{ doc.name }}
                           @if(doc.required) {
-                            <span class="text-error">*</span>
+                          <span class="text-error">*</span>
                           }
                         </p>
                         @if(doc.required) {
-                          <span class="f-s-12 text-error">Required</span>
+                        <span class="f-s-12 text-error">Required</span>
                         } @else {
-                          <span class="f-s-12 text-muted">Optional</span>
+                        <span class="f-s-12 text-muted">Optional</span>
                         }
                       </div>
                     </div>
@@ -544,69 +523,52 @@
                   <!-- File Info / Upload Button -->
                   <div class="col-lg-5 col-md-4 col-12">
                     @if(doc.uploaded) {
-                      <div class="bg-light p-12 rounded">
-                        <div class="d-flex align-items-center gap-8">
-                          <i-tabler name="file-text" class="icon-18 text-primary"></i-tabler>
-                          <div class="flex-grow-1">
-                            <p class="m-0 f-s-13 f-w-600 text-truncate">{{ getFileName(doc.id) }}</p>
-                            <p class="m-0 f-s-12 text-muted">{{ getFileSize(doc.id) }}</p>
-                          </div>
+                    <div class="bg-light p-12 rounded">
+                      <div class="d-flex align-items-center gap-8">
+                        <i-tabler name="file-text" class="icon-18 text-primary"></i-tabler>
+                        <div class="flex-grow-1">
+                          <p class="m-0 f-s-13 f-w-600 text-truncate">{{ getFileName(doc.id) }}</p>
+                          <p class="m-0 f-s-12 text-muted">{{ getFileSize(doc.id) }}</p>
                         </div>
                       </div>
+                    </div>
                     } @else {
-                      <div class="text-muted f-s-13">
-                        <i-tabler name="upload" class="icon-16"></i-tabler>
-                        No file selected
-                      </div>
+                    <div class="text-muted f-s-13">
+                      <i-tabler name="upload" class="icon-16"></i-tabler>
+                      No file selected
+                    </div>
                     }
                   </div>
 
                   <!-- Action Buttons -->
                   <div class="col-lg-3 col-md-3 col-12 d-flex gap-8 justify-content-end">
                     @if(!doc.uploaded) {
-                      <label [for]="'file-upload-' + doc.id" class="m-0">
-                        <input 
-                          [id]="'file-upload-' + doc.id"
-                          type="file" 
-                          hidden 
-                          accept=".pdf,.jpg,.jpeg,.png"
-                          (change)="onFileSelected($event, doc.id)" />
-                        <button 
-                          mat-flat-button 
-                          color="primary"
-                          type="button"
-                          (click)="$event.preventDefault()"
-                          onclick="this.previousElementSibling.click()">
-                          <i-tabler name="upload" class="icon-18 m-r-4"></i-tabler>
-                          Upload
-                        </button>
-                      </label>
-                    } @else {
-                      <button 
-                        mat-stroked-button 
-                        color="warn"
-                        type="button"
-                        (click)="removeFile(doc.id)">
-                        <i-tabler name="trash" class="icon-18 m-r-4"></i-tabler>
-                        Remove
+                    <label [for]="'file-upload-' + doc.id" class="m-0">
+                      <input [id]="'file-upload-' + doc.id" type="file" hidden accept=".pdf,.jpg,.jpeg,.png"
+                        (change)="onFileSelected($event, doc.id)" />
+                      <button mat-flat-button color="primary" type="button" (click)="$event.preventDefault()"
+                        onclick="this.previousElementSibling.click()">
+                        <i-tabler name="upload" class="icon-18 m-r-4"></i-tabler>
+                        Upload
                       </button>
-                      <label [for]="'file-replace-' + doc.id" class="m-0">
-                        <input 
-                          [id]="'file-replace-' + doc.id"
-                          type="file" 
-                          hidden 
-                          accept=".pdf,.jpg,.jpeg,.png"
-                          (change)="onFileSelected($event, doc.id)" />
-                        <button 
-                          mat-stroked-button 
-                          color="primary"
-                          type="button"
-                          (click)="$event.preventDefault()"
-                          onclick="this.previousElementSibling.click()">
-                          <i-tabler name="refresh" class="icon-18 m-r-4"></i-tabler>
-                          Replace
-                        </button>
-                      </label>
+                    </label>
+                    } @else {
+                    <button mat-mini-fab class="bg-error text-white" aria-label="Example icon button with a delete icon"
+                      (click)="removeFile(doc.id)">
+
+                      <i-tabler class="icon-20 d-flex" name="trash"></i-tabler>
+                    </button>
+
+                    <label [for]="'file-replace-' + doc.id" class="m-0">
+                      <input [id]="'file-replace-' + doc.id" type="file" hidden accept=".pdf,.jpg,.jpeg,.png"
+                        (change)="onFileSelected($event, doc.id)" />
+                      <button mat-mini-fab class="bg-primary text-white"
+                        aria-label="Example icon button with a delete icon" (click)="$event.preventDefault()"
+                        onclick="this.previousElementSibling.click()">
+
+                        <i-tabler class="icon-20 d-flex" name="refresh"></i-tabler>
+                      </button>
+                    </label>
                     }
                   </div>
                 </div>
@@ -622,13 +584,14 @@
                 <i-tabler name="arrow-left" class="icon-18 m-r-4"></i-tabler>
                 Back
               </button>
-              <button 
-                mat-flat-button 
-                color="primary" 
-                type="button" 
-                matStepperNext>
-                <i-tabler name="arrow-right" class="icon-18 m-r-4"></i-tabler>
-                Next
+              <button mat-flat-button color="primary" type="button" [disabled]="isSubmittingStep4"
+                (click)="submitStep4Documents()">
+                <span class="d-flex align-items-center">
+                  @if(isSubmittingStep4) {
+                  <mat-spinner diameter="20" class="m-r-8"></mat-spinner>
+                  }
+                  {{ isSubmittingStep4 ? 'Processing...' : 'Next' }}
+                </span>
               </button>
             </div>
           </div>
@@ -648,11 +611,13 @@
         </mat-card-header>
         <mat-card-content>
           @if(step.declarationContent) {
-            <div [innerHTML]="step.declarationContent" class="f-s-14 f-w-600 m-b-16"></div>
+          <div [innerHTML]="step.declarationContent" class="f-s-14 f-w-600 m-b-16"></div>
           } @else {
-            <p class="f-s-14 f-w-600 m-b-16">
-              I hereby declare that the information provided in this application is true and correct to the best of my knowledge. I understand that providing false information may result in the rejection of my application or legal consequences.
-            </p>
+          <p class="f-s-14 f-w-600 m-b-16">
+            I hereby declare that the information provided in this application is true and correct to the best of my
+            knowledge. I understand that providing false information may result in the rejection of my application or
+            legal consequences.
+          </p>
           }
 
           <mat-checkbox [(ngModel)]="declarationAgreed" [ngModelOptions]="{standalone: true}" class="f-s-14 f-w-600">
@@ -665,14 +630,14 @@
                 <i-tabler name="arrow-left" class="icon-18 m-r-4"></i-tabler>
                 Back
               </button>
-              <button 
-                mat-flat-button 
-                color="primary" 
-                type="button" 
-                (click)="onSubmit1()"
-                [disabled]="!declarationAgreed || !areRequiredDocumentsUploaded()">
-                <i-tabler name="check" class="icon-18 m-r-4"></i-tabler>
-                Submit Application
+              <button mat-flat-button color="primary" type="button" (click)="submitStep5Declaration()"
+                [disabled]="!declarationAgreed || isSubmittingStep5">
+                <span class="d-flex align-items-center">
+                  @if(isSubmittingStep5) {
+                  <mat-spinner diameter="20" class="m-r-8"></mat-spinner>
+                  }
+                  {{ isSubmittingStep5 ? 'Submitting Application...' : 'Submit Application' }}
+                </span>
               </button>
             </div>
           </div>

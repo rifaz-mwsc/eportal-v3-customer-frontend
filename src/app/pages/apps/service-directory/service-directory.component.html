@@ -103,7 +103,7 @@
               </mat-card>
               <h4 class="f-s-22 m-b-16 f-w-600 lh-normal">{{ service.name }}</h4>
               <p class="f-s-14 m-b-8 text-muted">{{ service.requestTypeName }}</p>
-              <mat-chip [color]="service.bg_color" size="small">
+              <mat-chip [ngClass]="service.isNewConnection ? 'bg-light-success text-success' : 'bg-light-primary text-primary'" size="small">
                 {{ service.isNewConnection ? 'New Connection' : 'Change Request' }}
               </mat-chip>
             </mat-card-content>
