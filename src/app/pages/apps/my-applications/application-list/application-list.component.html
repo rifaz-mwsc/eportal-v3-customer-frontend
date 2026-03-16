@@ -102,88 +102,176 @@
 } @else {
   <!-- Applications Cards -->
   @if (filteredApplications().length > 0) {
-    <div class="row">
-      @for(application of filteredApplications(); track application.id) {
-        <div class="col-sm-6 col-lg-4">
-          <mat-card class="cardWithShadow overflow-hidden">
-            <mat-card-content class="p-24">
-              <!-- Reference Number -->
-              <div class="d-flex justify-content-between align-items-start m-b-16">
-                <div>
-                  <h5 class="f-s-16 f-w-600 m-b-4">{{ application.referenceNumber }}</h5>
-                  <p class="f-s-12 text-muted m-b-0">{{ application.requestType }}</p>
-                </div>
-                <span class="badge f-s-11 f-w-500 rounded-pill p-x-12 p-y-6" 
-                  [ngClass]="getStatusColor(application.requestStatus)">
-                  {{ application.requestStatus }}
-                </span>
-              </div>
+    <div class="d-none d-lg-block">
+      <mat-card class="cardWithShadow">
+        <mat-card-content>
+          <div class="modern-table-wrapper">
+            <table class="table modern-table">
+              <thead>
+                <tr>
+                  <th>Reference</th>
+                  <th>Service & Applicant</th>
+                  <th>Status</th>
+                  <th>Progress</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for(application of filteredApplications(); track application.id) {
+                  <tr>
+                    <td>
+                      <div class="reference-cell">
+                        <span class="ref-number">{{ application.referenceNumber }}</span>
+                        <span class="ref-meta">{{ application.requestType }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="service-cell">
+                        <span class="service-name">{{ application.serviceRequest }}</span>
+                        <span class="applicant-name">
+                          <i-tabler name="user" class="icon-16 text-secondary m-r-4"></i-tabler>
+                          {{ getApplicantName(application) }}
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge f-s-10 f-w-300 rounded-pill p-x-12 p-y-6"
+                        [ngClass]="getStatusColor(application.requestStatus)">
+                       <span class="text-white"> {{ application.requestStatus }}</span> 
+                      </span>
+                    </td>
+              
+                    <td class="progress-cell">
+                      <div class="progress-meta">
+                        <span>Step {{ application.wizardStep }} of 5</span>
+                        <span>{{ (application.wizardStep / 5 * 100) | number:'1.0-0' }}%</span>
+                      </div>
+                      <mat-progress-bar
+                        mode="determinate"
+                        [value]="application.wizardStep / 5 * 100"
+                        color="primary">
+                      </mat-progress-bar>
+                    </td>
+                    <td class="text-end table-actions">
+                      <button mat-icon-button color="primary" matTooltip="View application"
+                        [routerLink]="['/apps/MyApplications/viewApplication', application.id]">
+                        <mat-icon>visibility</mat-icon>
+                      </button>
+                      @if (application.requestStatus === 'Draft') {
+                        <button mat-icon-button color="accent" matTooltip="Edit application"
+                          [routerLink]="['/apps/MyApplications/addApplication']"
+                          [queryParams]="{
+                            serviceId: application.serviceRequestId,
+                            serviceName: application.serviceRequest,
+                            requestTypeId: application.requestTypeId,
+                            resumeId: application.id,
+                            step: application.wizardStep
+                          }">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                      }
+                      <button mat-icon-button color="primary" matTooltip="Pay application"
+                        [routerLink]="['/apps/MyApplications/viewApplication', application.id]">
+                        <mat-icon>credit_card</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" matTooltip="Cancel application"
+                        (click)="cancelApplication(application.id)">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
 
-              <!-- Service Info -->
-              <div class="m-b-16">
-                <div class="d-flex align-items-center m-b-8">
-                  <i-tabler name="droplet" class="icon-18 text-primary m-r-8"></i-tabler>
-                  <span class="f-s-14">{{ application.serviceRequest }}</span>
+    <div class="d-lg-none">
+      <div class="row">
+        @for(application of filteredApplications(); track application.id) {
+          <div class="col-sm-6 col-lg-4">
+            <mat-card class="cardWithShadow overflow-hidden">
+              <mat-card-content class="p-24">
+                <!-- Reference Number -->
+                <div class="d-flex justify-content-between align-items-start m-b-16">
+                  <div>
+                    <h5 class="f-s-16 f-w-600 m-b-4">{{ application.referenceNumber }}</h5>
+                    <p class="f-s-12 text-muted m-b-0">{{ application.requestType }}</p>
+                  </div>
+                  <span class="badge f-s-10 f-w-300 rounded-pill p-x-12 p-y-6" 
+                    [ngClass]="getStatusColor(application.requestStatus)">
+                  <span class="text-white"> {{ application.requestStatus }}</span>
+                  </span>
                 </div>
-                <div class="d-flex align-items-center m-b-8">
-                  <i-tabler name="user" class="icon-18 text-secondary m-r-8"></i-tabler>
-                  <span class="f-s-14">{{ getApplicantName(application) }}</span>
-                </div>
-                <div class="d-flex align-items-center">
-                  <i-tabler name="calendar" class="icon-18 text-muted m-r-8"></i-tabler>
-                  <span class="f-s-13 text-muted">{{ formatDate(application.createdOn) }}</span>
-                </div>
-              </div>
 
-              <!-- Wizard Step Progress -->
-              <div class="m-b-16">
-                <div class="d-flex justify-content-between align-items-center m-b-4">
-                  <span class="f-s-12 text-muted">Step {{ application.wizardStep }} of 5</span>
-                  <span class="f-s-12 text-muted">{{ (application.wizardStep / 5 * 100) | number:'1.0-0' }}%</span>
+                <!-- Service Info -->
+                <div class="m-b-16">
+                  <div class="d-flex align-items-center m-b-8">
+                    <i-tabler name="droplet" class="icon-18 text-primary m-r-8"></i-tabler>
+                    <span class="f-s-14">{{ application.serviceRequest }}</span>
+                  </div>
+                  <div class="d-flex align-items-center m-b-8">
+                    <i-tabler name="user" class="icon-18 text-secondary m-r-8"></i-tabler>
+                    <span class="f-s-14">{{ getApplicantName(application) }}</span>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <i-tabler name="calendar" class="icon-18 text-muted m-r-8"></i-tabler>
+                    <span class="f-s-13 text-muted">{{ formatDate(application.createdOn) }}</span>
+                  </div>
                 </div>
-                <mat-progress-bar 
-                  mode="determinate" 
-                  [value]="application.wizardStep / 5 * 100"
-                  color="primary">
-                </mat-progress-bar>
-              </div>
-            </mat-card-content>
 
-            <!-- Actions -->
-            <div class="b-t-1 p-y-12 p-x-24 d-flex justify-content-between bg-light-primary">
-              <button mat-button color="primary" matTooltip="View application"
-                [routerLink]="['/apps/MyApplications/viewApplication', application.id]"
-                class="d-flex align-items-center">
-                <i-tabler name="eye" class="icon-25 m-r-8"></i-tabler>
-              </button>
-              @if (application.requestStatus === 'Draft') {
-                <button mat-button color="accent" matTooltip="Edit application"
-                  [routerLink]="['/apps/MyApplications/addApplication']"
-                  [queryParams]="{
-                    serviceId: application.serviceRequestId,
-                    serviceName: application.serviceRequest,
-                    requestTypeId: application.requestTypeId,
-                    resumeId: application.id,
-                    step: application.wizardStep
-                  }"
+                <!-- Wizard Step Progress -->
+                <div class="m-b-16">
+                  <div class="d-flex justify-content-between align-items-center m-b-4">
+                    <span class="f-s-12 text-muted">Step {{ application.wizardStep }} of 5</span>
+                    <span class="f-s-12 text-muted">{{ (application.wizardStep / 5 * 100) | number:'1.0-0' }}%</span>
+                  </div>
+                  <mat-progress-bar 
+                    mode="determinate" 
+                    [value]="application.wizardStep / 5 * 100"
+                    color="primary">
+                  </mat-progress-bar>
+                </div>
+              </mat-card-content>
+
+              <!-- Actions -->
+              <div class="b-t-1 p-y-12 p-x-24 d-flex justify-content-between bg-light-primary">
+                <button mat-button color="primary" matTooltip="View application"
+                  [routerLink]="['/apps/MyApplications/viewApplication', application.id]"
                   class="d-flex align-items-center">
-                  <i-tabler name="pencil" class="icon-25 m-r-8"></i-tabler>
+                  <i-tabler name="eye" class="icon-25 m-r-8"></i-tabler>
                 </button>
-              }
-              <button mat-button color="primary"  matTooltip="Pay application"
-                [routerLink]="['/apps/MyApplications/viewApplication', application.id]"
-                class="d-flex align-items-center">
-                <i-tabler name="credit-card" class="icon-25 m-r-8"></i-tabler>
-              </button>
-                <button mat-button color="warn"  matTooltip="Cancel application"
-                [routerLink]="['/apps/MyApplications/viewApplication', application.id]"
-                class="d-flex align-items-center">
-                <i-tabler name="x" class="icon-25 m-r-8"></i-tabler>
-              </button>
-            </div>
-          </mat-card>
-        </div>
-      }
+                @if (application.requestStatus === 'Draft') {
+                  <button mat-button color="accent" matTooltip="Edit application"
+                    [routerLink]="['/apps/MyApplications/addApplication']"
+                    [queryParams]="{
+                      serviceId: application.serviceRequestId,
+                      serviceName: application.serviceRequest,
+                      requestTypeId: application.requestTypeId,
+                      resumeId: application.id,
+                      step: application.wizardStep
+                    }"
+                    class="d-flex align-items-center">
+                    <i-tabler name="pencil" class="icon-25 m-r-8"></i-tabler>
+                  </button>
+                }
+                <button mat-button color="primary"  matTooltip="Pay application"
+                  [routerLink]="['/apps/MyApplications/viewApplication', application.id]"
+                  class="d-flex align-items-center">
+                  <i-tabler name="credit-card" class="icon-25 m-r-8"></i-tabler>
+                </button>
+                  <button mat-button color="warn"  matTooltip="Cancel application"
+                  (click)="cancelApplication(application.id)"
+                  class="d-flex align-items-center">
+                  <i-tabler name="x" class="icon-25 m-r-8"></i-tabler>
+                </button>
+              </div>
+            </mat-card>
+          </div>
+        }
+      </div>
     </div>
   } @else {
     <!-- Empty State -->

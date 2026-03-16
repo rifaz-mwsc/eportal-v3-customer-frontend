@@ -315,4 +315,23 @@
     display: inline;
     font-size: 11px;
   }
+
+  /* Mobile: show only the active step header */
+  ::ng-deep .mat-horizontal-stepper-header {
+    display: none;
+  }
+
+  ::ng-deep .mat-horizontal-stepper-header[aria-selected="true"] {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  ::ng-deep .mat-horizontal-stepper-header-container {
+    justify-content: center;
+  }
+
+  ::ng-deep .mat-stepper-horizontal-line {
+    display: none;
+  }
 }

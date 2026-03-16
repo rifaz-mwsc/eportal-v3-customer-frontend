@@ -57,7 +57,14 @@
 <div class="col-lg-8">
   <mat-card class="cardWithShadow shadow-none b-1">
     <mat-card-content>
-      <h5 class="f-s-21 f-w-600 m-b-16">Address</h5>
+      <div class="d-flex align-items-center justify-content-between m-b-16">
+        <h5 class="f-s-21 f-w-600 m-b-0">Address</h5>
+        @if (userAddress) {
+          <button mat-icon-button color="primary" (click)="openEditAddressDialog()" aria-label="Edit address">
+            <mat-icon>edit</mat-icon>
+          </button>
+        }
+      </div>
 
       @if (userAddress) {
         <div class="d-flex align-items-center gap-16 m-b-16">

@@ -14,6 +14,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-my-application-list',
   templateUrl: './application-list.component.html',
+  styleUrl: './application-list.component.scss',
   standalone: true,
   imports: [
     MaterialModule,

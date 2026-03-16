@@ -1,0 +1,77 @@
+.modern-table-wrapper {
+  overflow-x: auto;
+}
+
+.modern-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 12px;
+}
+
+.modern-table thead th {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--muted, #6c757d);
+  border-bottom: none;
+  padding: 12px 16px;
+}
+
+.modern-table tbody tr {
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(17, 24, 39, 0.06);
+  border-radius: 12px;
+}
+
+.modern-table tbody td {
+  padding: 16px;
+  vertical-align: middle;
+  border-top: none;
+}
+
+.modern-table tbody tr + tr td {
+  border-top: 12px solid transparent;
+}
+
+.reference-cell .ref-number {
+  font-weight: 600;
+  font-size: 15px;
+  display: block;
+}
+
+.reference-cell .ref-meta {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.service-cell .service-name {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.service-cell .applicant-name {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.progress-cell {
+  min-width: 180px;
+}
+
+.progress-cell .progress-meta {
+  font-size: 12px;
+  color: #6c757d;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.table-actions button + button {
+  margin-left: 4px;
+}
+
+@media (max-width: 991px) {
+  .modern-table-wrapper {
+    display: none;
+  }
+}

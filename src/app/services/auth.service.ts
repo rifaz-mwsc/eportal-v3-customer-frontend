@@ -18,6 +18,17 @@ export interface Address {
   isDefault: boolean;
 }
 
+export interface UpdateAddressRequest {
+  addressId: string;
+  profileId: string;
+  addressLine1: string;
+  addressLine2?: string;
+  addressLine3?: string;
+  postalCode?: string;
+  islandId: number;
+  addressTypeId: number;
+}
+
 export interface UserProfile {
   id: string;
   isDefault: boolean;
@@ -224,6 +235,29 @@ export class AuthService {
         return throwError(() => error);
       })
     );
+  }
+
+  /**
+   * Update profile address
+   */
+  updateProfileAddress(data: UpdateAddressRequest): Observable<ApiResponse<Address>> {
+    return this.http.put<ApiResponse<Address>>(
+      `${environment.apiBaseUrl}/api/v1/profiles/address`,
+      data
+    ).pipe(
+      catchError(error => {
+        console.error('Error updating address:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Switch to a different active profile
+   */
+  switchActiveProfile(profile: UserProfile): void {
+    const allProfiles = this.getUserData()?.userProfiles || [];
+    this.updateUserDataFromProfile(profile, allProfiles);
   }
 
   /**

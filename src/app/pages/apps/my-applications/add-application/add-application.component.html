@@ -1,21 +1,19 @@
 @if(serviceName) {
-<div class="application-header">
-  <div class="header-content">
+<div class="cardWithShadow p-16 m-b-16">
+  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-12">
     <div class="d-flex align-items-center gap-12">
-      <div class="icon-wrapper">
-        <i-tabler name="file-text" class="icon-28"></i-tabler>
+      <div class="bg-light-primary text-primary d-flex align-items-center justify-content-center rounded-circle" style="width: 44px; height: 44px;">
+        <i-tabler name="file-text" class="icon-22"></i-tabler>
       </div>
-      <div class="header-text">
-        <!-- <p class="m-0 f-s-12 f-w-500 text-muted header-label">New Application</p> -->
-        <h3 class="m-0 f-s-20 f-w-500 header-title">{{ serviceName }}</h3>
+      <div>
+        <p class="m-0 f-s-12 text-muted">Editing application</p>
+        <h3 class="m-0 f-s-20 f-w-600">{{ serviceName }}</h3>
       </div>
     </div>
-    <div class="header-badge">
-      <span class="badge-content">
-        <i-tabler name="clock" class="icon-16"></i-tabler>
-        In Progress
-      </span>
-    </div>
+    <span class="badge bg-light-warning text-warning d-inline-flex align-items-center gap-6 p-x-10 p-y-4 f-s-12 f-w-600" style="border-radius: 10px;">
+      <i-tabler name="clock" class="icon-14"></i-tabler>
+      In Progress
+    </span>
   </div>
 </div>
 }
@@ -344,7 +342,7 @@
                 @for(floor of floors.controls; track $index; let floorIndex = $index) {
                 <div class="col-lg-3 col-md-4 col-sm-6 col-12 m-b-16" [formGroupName]="floorIndex">
                   <mat-card class="cardWithShadow b-1 h-100"
-                    [ngClass]="['bg-light-primary','bg-light-secondary','bg-light-success','bg-light-warning','bg-light-info'][floorIndex % 5]">
+                    [ngClass]="['bg-light-info','bg-light-info','bg-light-info','bg-light-info','bg-light-info'][floorIndex % 5]">
                     <mat-card-content>
                       <!-- Floor Number Input -->
                       <div class="d-flex align-items-center m-b-16">
