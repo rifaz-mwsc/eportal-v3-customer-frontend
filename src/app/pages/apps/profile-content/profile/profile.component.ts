@@ -21,6 +21,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { normalizeReplies } from 'src/app/utils/normalize-replies.util';
 import { mockPosts, Post, topcards } from '../profileData';
 import { AuthService } from 'src/app/services/auth.service';
+import { ProfileDelegationComponent } from '../profile-delegation/profile-delegation.component';
 
 // interface topcards {
 //   img: string;
@@ -29,7 +30,7 @@ import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-profile',
-  imports: [MaterialModule, IconModule, CommonModule],
+  imports: [MaterialModule, IconModule, CommonModule, ProfileDelegationComponent],
   templateUrl: './profile.component.html',
 })
 export class ProfileComponent implements OnInit {

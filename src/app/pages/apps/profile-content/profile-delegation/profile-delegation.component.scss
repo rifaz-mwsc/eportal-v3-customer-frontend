@@ -1,0 +1,143 @@
+// Delegation table
+.delegation-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  th {
+    background: #f5f7fa;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #555;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #eee;
+    color: #333;
+    vertical-align: middle;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+}
+
+// Status dot
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+// Type chip
+.type-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #e3f2fd;
+  color: #1565c0;
+
+  &.entity {
+    background: #fce4ec;
+    color: #c62828;
+  }
+}
+
+// Status pill (mobile)
+.status-pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+}
+
+// Action buttons
+.action-btns {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-chip {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+  line-height: 1.4;
+  background: transparent;
+
+  &.approve {
+    color: #2e7d32;
+    border-color: #a5d6a7;
+    &:hover {
+      background: #e8f5e9;
+    }
+  }
+
+  &.reject {
+    color: #c62828;
+    border-color: #ef9a9a;
+    &:hover {
+      background: #ffebee;
+    }
+  }
+
+  &.revoke {
+    color: #616161;
+    border-color: #bdbdbd;
+    &:hover {
+      background: #f5f5f5;
+    }
+  }
+}
+
+// Approval card (mobile)
+.approval-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  background: #fafbfc;
+}
+
+// Responsive: table on desktop, cards on mobile
+.table-wrap {
+  display: block;
+  overflow-x: auto;
+}
+
+.mobile-cards {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .table-wrap {
+    display: none;
+  }
+
+  .mobile-cards {
+    display: block;
+  }
+}

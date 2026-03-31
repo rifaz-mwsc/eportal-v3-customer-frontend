@@ -1,0 +1,175 @@
+<mat-card class="cardWithShadow shadow-none b-1">
+  <mat-card-content>
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center m-b-24">
+      <h5 class="f-s-18 f-w-600 m-0">Profile Delegation</h5>
+      <button mat-flat-button color="primary" (click)="toggleForm()">
+        @if(showRequestForm) {
+          <i-tabler name="x" class="icon-18 m-r-4"></i-tabler> Cancel
+        } @else {
+          <i-tabler name="user-plus" class="icon-18 m-r-4"></i-tabler> Request Access
+        }
+      </button>
+    </div>
+
+    <!-- Section 1: Request Form -->
+    @if(showRequestForm) {
+      <div class="section-block m-b-24">
+        <h6 class="f-s-16 f-w-600 m-b-16">Request Profile Access</h6>
+        <form [formGroup]="requestForm" (ngSubmit)="submitRequest()">
+          <div class="row g-16">
+            <div class="col-12 col-md-6">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Request Type</mat-label>
+                <mat-select formControlName="requestTypeId" (selectionChange)="onRequestTypeChange()">
+                  @for(rt of requestTypes; track rt.id) {
+                    <mat-option [value]="rt.id">{{ rt.name }}</mat-option>
+                  }
+                </mat-select>
+                @if(requestForm.get('requestTypeId')?.hasError('required') && requestForm.get('requestTypeId')?.touched) {
+                  <mat-error>Required</mat-error>
+                }
+              </mat-form-field>
+            </div>
+            <div class="col-12 col-md-6">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Service Request</mat-label>
+                <mat-select formControlName="serviceRequestId">
+                  @for(sr of serviceRequests; track sr.id) {
+                    <mat-option [value]="sr.id">{{ sr.name }}</mat-option>
+                  }
+                </mat-select>
+                @if(requestForm.get('serviceRequestId')?.hasError('required') && requestForm.get('serviceRequestId')?.touched) {
+                  <mat-error>Required</mat-error>
+                }
+              </mat-form-field>
+            </div>
+            <div class="col-12 col-md-6">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Identity Number</mat-label>
+                <input matInput formControlName="identityNumber" placeholder="e.g. A123456" />
+                @if(requestForm.get('identityNumber')?.hasError('required') && requestForm.get('identityNumber')?.touched) {
+                  <mat-error>Required</mat-error>
+                }
+              </mat-form-field>
+            </div>
+            <div class="col-12 col-md-6">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Profile Type</mat-label>
+                <mat-select formControlName="requestedToProfileTypeId">
+                  @for(pt of profileTypes; track pt.id) {
+                    <mat-option [value]="pt.id">{{ pt.name }}</mat-option>
+                  }
+                </mat-select>
+                @if(requestForm.get('requestedToProfileTypeId')?.hasError('required') && requestForm.get('requestedToProfileTypeId')?.touched) {
+                  <mat-error>Required</mat-error>
+                }
+              </mat-form-field>
+            </div>
+            <div class="col-12 d-flex justify-content-end">
+              <button mat-flat-button color="primary" type="submit" [disabled]="submitting">
+                @if(submitting) {
+                  <mat-spinner diameter="18" class="d-inline-block m-r-8"></mat-spinner>
+                }
+                Send Request
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <mat-divider class="m-b-24"></mat-divider>
+    }
+
+    <!-- Section 2: Delegation Approvals -->
+    <h6 class="f-s-16 f-w-600 m-b-16">Delegation Approvals</h6>
+
+    @if(approvals.length === 0) {
+      <div class="text-center p-y-24">
+        <i-tabler name="users-group" class="icon-48 text-muted"></i-tabler>
+        <p class="text-muted m-t-8">No delegation requests yet</p>
+      </div>
+    } @else {
+      <!-- Desktop table -->
+      <div class="table-wrap">
+        <table class="delegation-table">
+          <thead>
+            <tr>
+              <th>Requested By</th>
+              <th>ID Number</th>
+              <th>Profile Type</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for(item of approvals; track item.id) {
+              <tr>
+                <td class="f-w-600">{{ item.requestedBy }}</td>
+                <td>{{ item.identityNumber }}</td>
+                <td>
+                  <span class="type-chip" [class.entity]="item.profileType === 'Entity'">
+                    {{ item.profileType }}
+                  </span>
+                </td>
+                <td>{{ item.requestDate | date: 'dd MMM yyyy' }}</td>
+                <td>
+                  <span class="status-dot" [ngStyle]="{'background-color': getStatusColor(item.status)}"></span>
+                  {{ item.status }}
+                </td>
+                <td class="text-center">
+                  <div class="action-btns">
+                    @if(item.status === 'Pending') {
+                      <button class="action-chip approve" (click)="onApprove(item)">Approve</button>
+                      <button class="action-chip reject" (click)="onReject(item)">Reject</button>
+                    }
+                    @if(item.status === 'Approved') {
+                      <button class="action-chip revoke" (click)="onRevoke(item)">Revoke</button>
+                    }
+                    @if(item.status === 'Rejected' || item.status === 'Revoked') {
+                      <span class="text-muted f-s-12">—</span>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile cards -->
+      <div class="mobile-cards">
+        @for(item of approvals; track item.id) {
+          <div class="approval-card">
+            <div class="d-flex justify-content-between align-items-start m-b-8">
+              <div>
+                <span class="f-w-600 f-s-14">{{ item.requestedBy }}</span>
+                <span class="type-chip m-l-8" [class.entity]="item.profileType === 'Entity'">
+                  {{ item.profileType }}
+                </span>
+              </div>
+              <span class="status-pill" [ngStyle]="{'background-color': getStatusColor(item.status)}">
+                {{ item.status }}
+              </span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <p class="text-muted f-s-12 m-0">ID: {{ item.identityNumber }}</p>
+                <p class="text-muted f-s-12 m-0">{{ item.requestDate | date: 'dd MMM yyyy' }}</p>
+              </div>
+              <div class="action-btns">
+                @if(item.status === 'Pending') {
+                  <button class="action-chip approve" (click)="onApprove(item)">Approve</button>
+                  <button class="action-chip reject" (click)="onReject(item)">Reject</button>
+                }
+                @if(item.status === 'Approved') {
+                  <button class="action-chip revoke" (click)="onRevoke(item)">Revoke</button>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </mat-card-content>
+</mat-card>
