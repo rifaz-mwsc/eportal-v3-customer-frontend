@@ -32,7 +32,7 @@
     @for(step of pipelineSteps; track step.stepOrder) {
 
     <!-- Owner Details Step -->
-    @if(step.stepKey === 'OwnerDetails') {
+    @if(step.stepKey === 'Owner Information') {
     <mat-step [stepControl]="ownerFormGroup">
       <form [formGroup]="ownerFormGroup">
         <ng-template matStepLabel>{{ step.title }}</ng-template>
@@ -226,7 +226,7 @@
     }
 
     <!-- Service Address Step -->
-    @if(step.stepKey === 'ServiceAddress') {
+    @if(step.stepKey === 'Service Address Information') {
     <mat-step>
       <form [formGroup]="locationFormGroup">
         <ng-template matStepLabel>{{ step.title }}</ng-template>
@@ -312,7 +312,7 @@
     }
 
     <!-- Connection Details Step -->
-    @if(step.stepKey === 'ConnectionDetails') {
+    @if(step.stepKey === 'Connection Information') {
     <mat-step [stepControl]="connectionDetailsFormGroup">
       <form [formGroup]="connectionDetailsFormGroup">
         <ng-template matStepLabel>{{ step.title }}</ng-template>
@@ -357,47 +357,34 @@
                       <!-- Meter Cards -->
                       <div formArrayName="meters">
                         @for(meter of getFloorMeters(floorIndex).controls; track $index; let meterIndex = $index) {
-                        <mat-card class="cardWithShadow img-task m-b-15 overflow-hidden" [formGroupName]="meterIndex">
-                          <!-- Meter Header -->
-                          <div class="d-flex align-items-center justify-content-between p-x-12 p-y-10">
-                            <h5 class="f-s-14 f-w-600 m-0">Meter {{ meterIndex + 1 }}</h5>
-                            <button mat-icon-button [matMenuTriggerFor]="meterMenu" type="button">
-                              <mat-icon>more_vert</mat-icon>
-                            </button>
-                            <mat-menu #meterMenu="matMenu" xPosition="before" class="cardWithShadow">
-                              <button mat-menu-item (click)="openEditMeterDialog(floorIndex, meterIndex)" type="button">
-                                <div class="d-flex align-items-center gap-8">
-                                  <i-tabler name="edit" class="icon-20 d-flex"></i-tabler>
-                                  Edit
-                                </div>
-                              </button>
-                              <button mat-menu-item type="button" (click)="removeMeterFromFloor(floorIndex, meterIndex)"
-                                [disabled]="getFloorMeters(floorIndex).length === 1">
-                                <div class="d-flex align-items-center gap-8">
-                                  <i-tabler name="trash" class="icon-20 d-flex"></i-tabler>
-                                  Delete
-                                </div>
-                              </button>
-                            </mat-menu>
+                        <mat-card class="cardWithShadow img-task m-b-15 overflow-hidden meter-card" [formGroupName]="meterIndex">
+                          <!-- Tariff Type Select -->
+                          <div class="p-x-12 p-t-10 p-b-4">
+                            <mat-form-field appearance="outline" class="w-100 compact-field">
+                              <mat-label>Tariff Type</mat-label>
+                              <mat-select formControlName="tarrifType">
+                                @for(type of getAvailableTariffTypes(floorIndex, meterIndex); track type) {
+                                <mat-option [value]="type">{{ type }}</mat-option>
+                                }
+                              </mat-select>
+                            </mat-form-field>
                           </div>
 
-
-                          <!-- Meter Footer -->
-                          <div class="d-flex align-items-center justify-content-between p-x-12 p-y-10">
+                          <!-- Quantity & Delete -->
+                          <div class="d-flex align-items-center justify-content-between p-x-12 p-b-10">
                             <div class="d-flex align-items-center gap-4">
-                              <span class=" f-w-400 f-s-14"> # </span>
-                              <span class="f-s-12 lh-base">Qty {{ getMeterDetails(floorIndex, meterIndex).quantity
-                                }}</span>
+                              <button mat-icon-button type="button" class="qty-btn" (click)="decreaseMeterQty(floorIndex, meterIndex)">
+                                <i-tabler name="minus" class="icon-16 d-flex"></i-tabler>
+                              </button>
+                              <input matInput class="qty-input text-center f-s-14 f-w-600" type="number" formControlName="quantity" min="1" readonly />
+                              <button mat-icon-button type="button" class="qty-btn" (click)="increaseMeterQty(floorIndex, meterIndex)">
+                                <i-tabler name="plus" class="icon-16 d-flex"></i-tabler>
+                              </button>
                             </div>
-                            @if(getMeterDetails(floorIndex, meterIndex).tarrifType) {
-                            <span class="rounded f-s-12 p-x-8 text-white" [ngClass]="{
-                            'bg-primary': getMeterDetails(floorIndex, meterIndex).tarrifType === 'Commercial',
-                            'bg-success': getMeterDetails(floorIndex, meterIndex).tarrifType === 'Institutional',
-                            'bg-warning': getMeterDetails(floorIndex, meterIndex).tarrifType === 'Domestic'
-                          }">
-                              {{ getMeterDetails(floorIndex, meterIndex).tarrifType }}
-                            </span>
-                            }
+                            <button mat-icon-button type="button" class="text-error" (click)="removeMeterFromFloor(floorIndex, meterIndex)"
+                              [disabled]="getFloorMeters(floorIndex).length === 1">
+                              <i-tabler name="trash" class="icon-18 d-flex"></i-tabler>
+                            </button>
                           </div>
                         </mat-card>
                         }

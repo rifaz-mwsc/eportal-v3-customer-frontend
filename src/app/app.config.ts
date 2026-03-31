@@ -1,6 +1,5 @@
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { provideHttpClient, HttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { Observable } from 'rxjs';
 import { routes } from './app.routes';
 import {
   provideRouter,
@@ -9,8 +8,6 @@ import {
 } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideClientHydration } from '@angular/platform-browser';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { ToastrModule } from 'ngx-toastr';
 import { provideToastr } from 'ngx-toastr';
@@ -34,18 +31,6 @@ import 'highlight.js/styles/atom-one-dark.min.css';
 
 // Auth interceptor
 import { AuthInterceptor } from './interceptors/auth.interceptor';
-
-export class CustomLoader implements TranslateLoader {
-  constructor(private http: HttpClient, private prefix: string, private suffix: string) { }
-
-  getTranslation(lang: string): Observable<any> {
-    return this.http.get(`${this.prefix}${lang}${this.suffix}`);
-  }
-}
-
-export function HttpLoaderFactory(http: HttpClient) {
-  return new CustomLoader(http, './assets/i18n/', '.json');
-}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -88,13 +73,6 @@ export const appConfig: ApplicationConfig = {
       CalendarModule.forRoot({
         provide: DateAdapter,
         useFactory: adapterFactory,
-      }),
-      TranslateModule.forRoot({
-        loader: {
-          provide: TranslateLoader,
-          useFactory: HttpLoaderFactory,
-          deps: [HttpClient],
-        },
       })
     ),
   ],

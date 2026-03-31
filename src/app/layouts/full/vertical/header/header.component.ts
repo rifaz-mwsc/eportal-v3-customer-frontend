@@ -14,7 +14,6 @@ import { CoreService } from 'src/app/services/core.service';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { navItems } from '../sidebar/sidebar-data';
-import { TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { MaterialModule } from 'src/app/material.module';
 import { RouterModule } from '@angular/router';
@@ -119,11 +118,8 @@ export class HeaderComponent implements OnInit {
     private settings: CoreService,
     private vsidenav: CoreService,
     public dialog: MatDialog,
-    private translate: TranslateService,
     private authService: AuthService
-  ) {
-    translate.setDefaultLang('en');
-  }
+  ) {}
 
   ngOnInit(): void {
     this.loadUserData();
@@ -226,7 +222,6 @@ export class HeaderComponent implements OnInit {
   }
 
   changeLanguage(lang: any): void {
-    this.translate.use(lang.code);
     this.selectedLanguage = lang;
   }
 

@@ -17,14 +17,13 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import { TranslateModule } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { MaterialModule } from 'src/app/material.module';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-nav-item',
-  imports: [TranslateModule, TablerIconsModule, MaterialModule, CommonModule],
+  imports: [TablerIconsModule, MaterialModule, CommonModule],
   templateUrl: './nav-item.component.html',
   styleUrls: [],
   animations: [

@@ -2,7 +2,6 @@ import { Component, Output, EventEmitter, Input } from '@angular/core';
 import { CoreService } from 'src/app/services/core.service';
 import { MatDialog } from '@angular/material/dialog';
 import { navItems } from '../../vertical/sidebar/sidebar-data';
-import { TranslateService } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { MaterialModule } from 'src/app/material.module';
@@ -85,11 +84,8 @@ export class AppHorizontalHeaderComponent {
   constructor(
     private settings: CoreService,
     private vsidenav: CoreService,
-    public dialog: MatDialog,
-    private translate: TranslateService
-  ) {
-    translate.setDefaultLang('en');
-  }
+    public dialog: MatDialog
+  ) {}
 
   openDialog() {
     const dialogRef = this.dialog.open(AppHorizontalSearchDialogComponent);
@@ -100,7 +96,6 @@ export class AppHorizontalHeaderComponent {
   }
 
   changeLanguage(lang: any): void {
-    this.translate.use(lang.code);
     this.selectedLanguage = lang;
   }
 
