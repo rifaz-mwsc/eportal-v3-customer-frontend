@@ -154,12 +154,12 @@
                     </td>
                     <td class="text-end table-actions">
                       <button mat-icon-button color="primary" matTooltip="View application"
-                        [routerLink]="['/apps/MyApplications/viewApplication', application.id]">
+                        [routerLink]="['/apps/my-applications/viewApplication', application.id]">
                         <mat-icon>visibility</mat-icon>
                       </button>
                       @if (application.requestStatus === 'Draft') {
                         <button mat-icon-button color="accent" matTooltip="Edit application"
-                          [routerLink]="['/apps/MyApplications/addApplication']"
+                          [routerLink]="['/apps/my-applications/addApplication']"
                           [queryParams]="{
                             serviceId: application.serviceRequestId,
                             serviceName: application.serviceRequest,
@@ -171,7 +171,7 @@
                         </button>
                       }
                       <button mat-icon-button color="primary" matTooltip="Pay application"
-                        [routerLink]="['/apps/MyApplications/viewApplication', application.id]">
+                        [routerLink]="['/apps/my-applications/viewApplication', application.id]">
                         <mat-icon>credit_card</mat-icon>
                       </button>
                       <button mat-icon-button color="warn" matTooltip="Cancel application"
@@ -239,13 +239,13 @@
               <!-- Actions -->
               <div class="b-t-1 p-y-12 p-x-24 d-flex justify-content-between bg-light-primary">
                 <button mat-button color="primary" matTooltip="View application"
-                  [routerLink]="['/apps/MyApplications/viewApplication', application.id]"
+                  [routerLink]="['/apps/my-applications/viewApplication', application.id]"
                   class="d-flex align-items-center">
                   <i-tabler name="eye" class="icon-25 m-r-8"></i-tabler>
                 </button>
                 @if (application.requestStatus === 'Draft') {
                   <button mat-button color="accent" matTooltip="Edit application"
-                    [routerLink]="['/apps/MyApplications/addApplication']"
+                    [routerLink]="['/apps/my-applications/addApplication']"
                     [queryParams]="{
                       serviceId: application.serviceRequestId,
                       serviceName: application.serviceRequest,
@@ -258,7 +258,7 @@
                   </button>
                 }
                 <button mat-button color="primary"  matTooltip="Pay application"
-                  [routerLink]="['/apps/MyApplications/viewApplication', application.id]"
+                  [routerLink]="['/apps/my-applications/viewApplication', application.id]"
                   class="d-flex align-items-center">
                   <i-tabler name="credit-card" class="icon-25 m-r-8"></i-tabler>
                 </button>

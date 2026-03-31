@@ -100,7 +100,7 @@ export const navItems: NavItem[] = [
         route: 'apps/courses',
       },
       {
-        displayName: 'Service Directory',
+        displayName: 'Service Requests',
         iconName: 'solar:round-alt-arrow-right-line-duotone',
         route: 'apps/ServiceDirectory',
       },

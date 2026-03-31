@@ -20,8 +20,13 @@ export interface OwnerDetail {
 }
 
 export interface ServiceRequiredAddress {
-  // Add properties when known from API
-  [key: string]: any;
+  buildingName: string | null;
+  houseNumber: string | null;
+  street: string | null;
+  postalCode: string | null;
+  islandId: number | null;
+  island: string | null;
+  addressType: string | null;
 }
 
 export interface MyServiceRequest {
@@ -39,6 +44,69 @@ export interface MyServiceRequest {
   modifiedBy: string | null;
   ownerDetail: OwnerDetail;
   serviceRequiredAddress: ServiceRequiredAddress | null;
+}
+
+// Detail view interfaces (GET /api/v1/servicerequests?id={guid})
+export interface OwnerAddress {
+  address: {
+    addressLine1: string | null;
+    island: string | null;
+    postalCode: string | null;
+  };
+}
+
+export interface OwnerDetailFull {
+  id: string;
+  isOwner: boolean;
+  profileId: string | null;
+  profileName: string | null;
+  ownerAddresses: OwnerAddress[];
+}
+
+export interface ConnectionDetail {
+  id: string;
+  quantity: number;
+  meterNo: string | null;
+  floorId: number;
+  floor: string | null;
+  tariffGroupId: number;
+  tariffGroup: string | null;
+}
+
+export interface DeclarationDetail {
+  id: string;
+  declarationId: string;
+  title: string;
+  content: string;
+  isAccepted: boolean;
+  acceptedOn: string | null;
+}
+
+export interface ServiceRequestDetail {
+  id: string;
+  referenceNumber: string;
+  requestTypeId: string;
+  requestType: string;
+  serviceRequestId: string;
+  serviceRequest: string;
+  requestStatus: string;
+  wizardStep: number;
+  createdOn: string;
+  modifiedOn: string | null;
+  createdBy: string;
+  modifiedBy: string | null;
+  ownerDetail: OwnerDetailFull;
+  serviceRequiredAddress: ServiceRequiredAddress | null;
+  connectionDetails: ConnectionDetail[];
+  documents: any[] | null;
+  declaration: DeclarationDetail | null;
+}
+
+export interface ServiceRequestDetailResponse {
+  item: ServiceRequestDetail | null;
+  isSuccessful: boolean;
+  statusMessage: string;
+  errorDetails: { [key: string]: any };
 }
 
 export interface PaginatedResponse<T> {
@@ -660,6 +728,33 @@ export class ServiceRequestService {
           errorDetails: error.error?.errorDetails || { error: [error.message || 'Unknown error'] }
         };
         return of(errorResponse);
+      })
+    );
+  }
+
+  /**
+   * Get service request details by ID
+   * GET /api/v1/servicerequests?id={guid}
+   */
+  getServiceRequestDetailById(id: string): Observable<ServiceRequestDetailResponse> {
+    const params = new HttpParams().set('id', id);
+
+    return this.http.get<ServiceRequestDetailResponse>(this.BASE_URL, { params }).pipe(
+      tap(response => {
+        if (response.isSuccessful) {
+          console.log('Service request detail fetched:', response.item?.referenceNumber);
+        } else {
+          console.error('Failed to fetch service request detail:', response.statusMessage);
+        }
+      }),
+      catchError(error => {
+        console.error('Error fetching service request detail:', error);
+        return of({
+          item: null,
+          isSuccessful: false,
+          statusMessage: error.error?.statusMessage || 'Network error occurred',
+          errorDetails: error.error?.errorDetails || { error: [error.message || 'Unknown error'] }
+        });
       })
     );
   }

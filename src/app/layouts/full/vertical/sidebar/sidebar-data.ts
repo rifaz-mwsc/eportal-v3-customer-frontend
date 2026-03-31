@@ -171,7 +171,7 @@ export const navItems: NavItem[] = [
   //   route: 'apps/courses',
   // },
   {
-    displayName: 'Service Directory',
+    displayName: 'Service Requests',
     iconName: 'solar:folder-with-files-line-duotone',
     route: 'apps/ServiceDirectory',
   },
@@ -236,24 +236,6 @@ export const navItems: NavItem[] = [
         subItemIcon: true,
         iconName: 'solar:round-alt-arrow-right-line-duotone',
         route: 'apps/my-applications/list',
-      },
-      {
-        displayName: 'Application Detail',
-        subItemIcon: true,
-        iconName: 'solar:round-alt-arrow-right-line-duotone',
-        route: 'apps/my-applications/viewApplication/101',
-      },
-      {
-        displayName: 'New Application',
-        subItemIcon: true,
-        iconName: 'solar:round-alt-arrow-right-line-duotone',
-        route: 'apps/my-applications/addApplication',
-      },
-      {
-        displayName: 'Edit Application',
-        subItemIcon: true,
-        iconName: 'solar:round-alt-arrow-right-line-duotone',
-        route: 'apps/my-applications/editApplication/101',
       },
     ],
   },

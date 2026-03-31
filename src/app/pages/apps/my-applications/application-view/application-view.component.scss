@@ -1,0 +1,281 @@
+// PDF-style document layout
+.doc-page {
+  max-width: 800px;
+  margin: 0 auto;
+  background: #fff;
+}
+
+.doc-header {
+  border-bottom: 3px solid #1e88e5;
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+}
+
+.doc-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 4px;
+}
+
+.doc-subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+.doc-ref {
+  font-size: 13px;
+  color: #888;
+  margin: 2px 0 0;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #fff;
+  white-space: nowrap;
+}
+
+// Section styling
+.doc-section {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #1e88e5;
+  margin: 0 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+// Key-value field rows
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 24px;
+
+  @media (max-width: 599px) {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}
+
+.field-row {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    min-width: 100px;
+    flex-shrink: 0;
+  }
+
+  .field-value {
+    font-size: 14px;
+    color: #333;
+    word-break: break-word;
+  }
+}
+
+// Connection details table
+.conn-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 8px;
+
+  th {
+    background: #f5f7fa;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #555;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+    color: #333;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+}
+
+// Mobile card layout for connection details
+.conn-cards {
+  display: none;
+
+  @media (max-width: 599px) {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+.conn-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 12px;
+  background: #fafbfc;
+}
+
+.conn-card-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0;
+
+  .conn-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+  }
+
+  .conn-value {
+    font-size: 13px;
+    color: #333;
+    text-align: right;
+  }
+}
+
+.conn-table-wrap {
+  @media (max-width: 599px) {
+    display: none;
+  }
+}
+
+// Declaration box
+.declaration-box {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 16px;
+  background: #fafbfc;
+  font-size: 13px;
+  color: #444;
+  line-height: 1.6;
+
+  .decl-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  .decl-content {
+    margin-bottom: 12px;
+
+    ::ng-deep {
+      p {
+        margin: 0 0 6px;
+      }
+    }
+  }
+
+  .decl-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid #e0e0e0;
+    font-size: 12px;
+    font-weight: 600;
+
+    .accepted {
+      color: #2e7d32;
+    }
+
+    .not-accepted {
+      color: #c62828;
+    }
+  }
+}
+
+// Footer
+.doc-footer {
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px solid #e0e0e0;
+  font-size: 11px;
+  color: #aaa;
+  text-align: right;
+}
+
+// Toolbar (back / print)
+.doc-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+// ─── Print styles ────────────────────────────────
+@media print {
+  // Hide everything except the printable area
+  :host {
+    display: block;
+  }
+
+  .doc-toolbar {
+    display: none !important;
+  }
+
+  .doc-page {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .status-badge {
+    border: 1px solid #999;
+    color: #333 !important;
+    background-color: #eee !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .conn-table {
+    th {
+      background: #f0f0f0 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+
+  .declaration-box {
+    background: #f9f9f9 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .conn-cards {
+    display: none !important;
+  }
+
+  .conn-table-wrap {
+    display: block !important;
+  }
+}
