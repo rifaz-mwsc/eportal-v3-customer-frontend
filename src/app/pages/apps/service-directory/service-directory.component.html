@@ -89,7 +89,7 @@
       
       <div class="row">
         @for(service of serviceList(); track service.id) {
-        <div class="col-lg-3 col-sm-6" [routerLink]="['/apps/ServiceDirectory/ServiceDirectoryDetail/', service.id]" style="cursor: pointer;">
+        <div class="col-lg-3 col-sm-6" [routerLink]="service.name === 'Profile Delegation Request' ? null : ['/apps/ServiceDirectory/ServiceDirectoryDetail/', service.id]" style="cursor: pointer;" (click)="onServiceClick(service, $event)">
           <mat-card class="" [ngStyle]="{
               'background-color': service.bg_color.startsWith('--')
                 ? 'var(' + service.bg_color + ')'

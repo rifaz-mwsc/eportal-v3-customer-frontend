@@ -336,7 +336,7 @@ export class ServiceRequestService {
         };
       } else if (serviceRequest.name.toLowerCase().includes('ownership') || serviceRequest.name.toLowerCase().includes('transfer')) {
         return {
-          bg_color: '--mat-sys-outline-variant',
+          bg_color: 'secondary',
           icon: 'activity-heartbeat',
           color: 'text-dark'
         };

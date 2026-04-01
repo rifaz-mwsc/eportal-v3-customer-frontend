@@ -20,32 +20,6 @@
           <div class="row g-16">
             <div class="col-12 col-md-6">
               <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Request Type</mat-label>
-                <mat-select formControlName="requestTypeId" (selectionChange)="onRequestTypeChange()">
-                  @for(rt of requestTypes; track rt.id) {
-                    <mat-option [value]="rt.id">{{ rt.name }}</mat-option>
-                  }
-                </mat-select>
-                @if(requestForm.get('requestTypeId')?.hasError('required') && requestForm.get('requestTypeId')?.touched) {
-                  <mat-error>Required</mat-error>
-                }
-              </mat-form-field>
-            </div>
-            <div class="col-12 col-md-6">
-              <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Service Request</mat-label>
-                <mat-select formControlName="serviceRequestId">
-                  @for(sr of serviceRequests; track sr.id) {
-                    <mat-option [value]="sr.id">{{ sr.name }}</mat-option>
-                  }
-                </mat-select>
-                @if(requestForm.get('serviceRequestId')?.hasError('required') && requestForm.get('serviceRequestId')?.touched) {
-                  <mat-error>Required</mat-error>
-                }
-              </mat-form-field>
-            </div>
-            <div class="col-12 col-md-6">
-              <mat-form-field appearance="outline" class="w-100">
                 <mat-label>Identity Number</mat-label>
                 <input matInput formControlName="identityNumber" placeholder="e.g. A123456" />
                 @if(requestForm.get('identityNumber')?.hasError('required') && requestForm.get('identityNumber')?.touched) {

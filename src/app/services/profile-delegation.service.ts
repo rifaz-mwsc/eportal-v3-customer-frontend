@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 export interface DelegationRequest {
@@ -16,6 +16,11 @@ export interface DelegationRequestResponse {
   isSuccessful: boolean;
   statusMessage: string;
   errorDetails: { [key: string]: string[] };
+}
+
+export interface ProfileType {
+  id: string;
+  name: string;
 }
 
 // UI-only model for the approval list (design only)
@@ -33,8 +38,13 @@ export interface DelegationApproval {
 })
 export class ProfileDelegationService {
   private readonly BASE_URL = `${environment.apiBaseUrl}/api/v1/profiledelegationrequests`;
+  private readonly PROFILES_URL = `${environment.apiBaseUrl}/api/v1/profiles/types`;
 
   constructor(private http: HttpClient) {}
+
+  getProfileTypes(): Observable<ProfileType[]> {
+    return this.http.get<ProfileType[]>(this.PROFILES_URL);
+  }
 
   createDelegationRequest(data: DelegationRequest): Observable<DelegationRequestResponse> {
     console.log('Creating delegation request:', data);
@@ -46,15 +56,6 @@ export class ProfileDelegationService {
         } else {
           console.error('Delegation request failed:', response.statusMessage, response.errorDetails);
         }
-      }),
-      catchError(error => {
-        console.error('Error creating delegation request:', error);
-        return of({
-          item: null,
-          isSuccessful: false,
-          statusMessage: error.error?.statusMessage || 'Network error occurred',
-          errorDetails: error.error?.errorDetails || { error: ['Unknown error'] },
-        });
       })
     );
   }

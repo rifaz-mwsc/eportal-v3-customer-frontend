@@ -8,11 +8,10 @@ import {
   ProfileDelegationService,
   DelegationRequest,
   DelegationApproval,
+  ProfileType,
 } from 'src/app/services/profile-delegation.service';
 import {
   ServiceRequestService,
-  RequestType,
-  ServiceRequest,
 } from 'src/app/services/service-request.service';
 
 @Component({
@@ -39,19 +38,16 @@ export class ProfileDelegationComponent implements OnInit {
   submitting = false;
 
   requestForm = this.fb.group({
-    requestTypeId: ['', Validators.required],
-    serviceRequestId: ['', Validators.required],
     identityNumber: ['', Validators.required],
     requestedToProfileTypeId: ['', Validators.required],
   });
 
+  // Resolved from API
+  private requestTypeId = '';
+  private serviceRequestId = '';
+
   // Dropdowns
-  requestTypes: RequestType[] = [];
-  serviceRequests: ServiceRequest[] = [];
-  profileTypes = [
-    { id: '1', name: 'Individual' },
-    { id: '2', name: 'Entity' },
-  ];
+  profileTypes: ProfileType[] = [];
 
   // Approval list (mock data for design)
   approvals: DelegationApproval[] = [
@@ -83,32 +79,32 @@ export class ProfileDelegationComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadRequestTypes();
+    this.loadProfileTypes();
   }
 
   private loadRequestTypes(): void {
     this.serviceRequestService.getRequestTypes().subscribe(response => {
-      this.requestTypes = response.items;
+      const rt = response.items.find(t => t.name === 'Profile Delegation Request');
+      if (rt) {
+        this.requestTypeId = rt.id;
+        const sr = rt.serviceRequests.find(s => s.name === 'Profile Delegation Request');
+        if (sr) {
+          this.serviceRequestId = sr.id;
+        }
+      }
     });
   }
 
-  onRequestTypeChange(): void {
-    const typeId = this.requestForm.get('requestTypeId')?.value;
-    this.requestForm.patchValue({ serviceRequestId: '' });
-    this.serviceRequests = [];
-
-    if (typeId) {
-      const selected = this.requestTypes.find(rt => rt.id === typeId);
-      if (selected) {
-        this.serviceRequests = selected.serviceRequests;
-      }
-    }
+  private loadProfileTypes(): void {
+    this.delegationService.getProfileTypes().subscribe(types => {
+      this.profileTypes = types;
+    });
   }
 
   toggleForm(): void {
     this.showRequestForm = !this.showRequestForm;
     if (!this.showRequestForm) {
       this.requestForm.reset();
-      this.serviceRequests = [];
     }
   }
 
@@ -119,18 +115,37 @@ export class ProfileDelegationComponent implements OnInit {
     }
 
     this.submitting = true;
-    const data: DelegationRequest = this.requestForm.value as DelegationRequest;
+    const data: DelegationRequest = {
+      requestTypeId: this.requestTypeId,
+      serviceRequestId: this.serviceRequestId,
+      ...this.requestForm.value,
+    } as DelegationRequest;
 
-    this.delegationService.createDelegationRequest(data).subscribe(response => {
-      this.submitting = false;
-      if (response.isSuccessful) {
-        this.showSnackbar('Delegation request sent successfully');
-        this.toggleForm();
-      } else {
-        const errors = response.errorDetails;
-        const firstError = Object.values(errors).flat()[0];
-        this.showSnackbar(firstError || response.statusMessage || 'Request failed');
-      }
+    this.delegationService.createDelegationRequest(data).subscribe({
+      next: (response) => {
+        this.submitting = false;
+        if (response.isSuccessful) {
+          this.showSnackbar('Delegation request sent successfully');
+          this.toggleForm();
+        } else {
+          console.error('Delegation error:', response);
+          const details = response.errorDetails
+            ? Object.values(response.errorDetails).flat().join('. ')
+            : '';
+          const message = response.statusMessage || 'Request failed';
+          this.showSnackbar(details ? `${message} — ${details}` : message, true);
+        }
+      },
+      error: (err) => {
+        this.submitting = false;
+        const body = err.error;
+        if (body?.errorDetails) {
+          const allErrors = Object.values(body.errorDetails).flat().join('. ');
+          this.showSnackbar(allErrors || body.statusMessage || 'Request failed', true);
+        } else {
+          this.showSnackbar(body?.statusMessage || 'An unexpected error occurred.', true);
+        }
+      },
     });
   }
 
@@ -160,11 +175,12 @@ export class ProfileDelegationComponent implements OnInit {
     }
   }
 
-  private showSnackbar(message: string): void {
+  private showSnackbar(message: string, isError = false): void {
     this.snackBar.open(message, 'Close', {
       duration: 3000,
       horizontalPosition: 'center',
       verticalPosition: 'top',
+      panelClass: isError ? ['snackbar-error'] : [],
     });
   }
 }

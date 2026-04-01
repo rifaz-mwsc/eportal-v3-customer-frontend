@@ -7,17 +7,19 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDividerModule } from '@angular/material/divider';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { 
   ServiceRequestService, 
   ServiceRequestWithType
 } from '../../../services/service-request.service';
+import { ProfileDelegationComponent } from '../profile-content/profile-delegation/profile-delegation.component';
 
 @Component({
   selector: 'app-service-directory',
@@ -46,6 +48,7 @@ import {
     MatButtonModule,
     MatProgressSpinnerModule,
     MatChipsModule,
+    MatDialogModule,
   ],
 })
 export class ServiceDirectoryComponent {
@@ -54,6 +57,8 @@ export class ServiceDirectoryComponent {
   selectedCategory = signal<string>('All');
   isLoading = signal<boolean>(false);
   private serviceRequestService = inject(ServiceRequestService);
+  private dialog = inject(MatDialog);
+  private router = inject(Router);
 
   constructor(private serviceDirectoryService: ServiceDirectoryService) {
     // Remove static data loading
@@ -113,5 +118,17 @@ export class ServiceDirectoryComponent {
   getCategories(): string[] {
     const categories = new Set(this.allServices.map(s => s.requestTypeName));
     return ['All', ...Array.from(categories)];
+  }
+
+  onServiceClick(service: ServiceRequestWithType, event: Event): void {
+    if (service.name === 'Profile Delegation Request') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.dialog.open(ProfileDelegationComponent, {
+        width: '95vw',
+        maxWidth: '1200px',
+        height: '90vh',
+      });
+    }
   }
 }
